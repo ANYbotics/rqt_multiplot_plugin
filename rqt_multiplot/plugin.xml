@@ -1,0 +1,23 @@
+<library path="lib/librqt_multiplot">
+  <class name="MultiplotPlugin"
+         type="rqt_multiplot::MultiplotPlugin"
+         base_class_type="rqt_gui_cpp::Plugin">
+    <description>
+      A plugin for visualizing numeric values in multiple 2D plots using
+      the Qwt plotting backend.
+    </description>
+    <qtgui>
+      <group>
+        <label>Visualization</label>
+        <icon type="theme">folder</icon>
+        <statustip>Plugins related to visualization.</statustip>
+      </group>
+      <label>Multiplot</label>
+      <icon type="theme">utilities-system-monitor</icon>
+      <statustip>
+        A plugin for visualizing numeric values in multiple 2D plots using
+        the Qwt plotting backend.
+      </statustip>
+    </qtgui>
+  </class>
+</library>

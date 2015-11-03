@@ -1,0 +1,11 @@
+ros-rqt-multiplot-plugin (0.0.1-2) unstable; urgency=low
+
+  * Progress commit
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 03 Nov 2015 16:02:00 +0100
+ 
+ros-rqt-multiplot-plugin (0.0.1-1) unstable; urgency=low
+
+  * Initial commit
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Mon, 29 Jun 2015 15:55:00 +0100
