@@ -16,52 +16,63 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLUGIN_H
+#define RQT_MULTIPLOT_PLUGIN_H
 
+#include <vector>
+#include <boost/concept_check.hpp>
+
+#include <QFrame>
+#include <QGridLayout>
 #include <QWidget>
 
-#include <ros/ros.h>
+#include <rqt_gui_cpp/plugin.h>
 
-#include <ui_plot_widget.h>
-
-namespace rqt_multiplot {
-
-class PlotWidget :
-  public QWidget {
-Q_OBJECT
-public:
-  PlotWidget(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-  PlotWidget(const PlotWidget& src);
-
-  void setTitle(const QString& title);
-  QString getTitle() const;
-  
-  void init();
-  
-  void run();
-  void pause();
-  void clear();
-  
-protected:
-  bool eventFilter(QObject* object, QEvent* event);
-   
-private:
-  Ui::plot_widget ui_;
-  
-private slots:
-  void titleTextChanged(const QString& text);
-  
-  void runPauseClicked();
-  void clearClicked();
-  void ejectClicked();
-  
-  void xTopScaleDivChanged();
-  void xBottomScaleDivChanged();
-  void yLeftScaleDivChanged();
-  void yRightScaleDivChanged();  
+namespace Ui {
+  class MultiplotPlugin;
 };
 
+namespace rqt_multiplot {
+  class PlotWidget;
+    
+  class MultiplotPlugin :
+    public rqt_gui_cpp::Plugin {
+  Q_OBJECT
+  public:
+    MultiplotPlugin();
+    virtual ~MultiplotPlugin();
+    
+    void setNumPlots(size_t numRows, size_t numColumns);
+    void setBackgroundColor(const QColor& color);
+    
+    void initPlugin(qt_gui_cpp::PluginContext& context);
+    void shutdownPlugin();
+    void saveSettings(qt_gui_cpp::Settings& pluginSettings,
+      qt_gui_cpp::Settings& instanceSettings) const;
+    void restoreSettings(const qt_gui_cpp::Settings& pluginSettings,
+      const qt_gui_cpp::Settings& instanceSettings);
+    
+    void run();
+    void pause();
+    void clear();
+
+  private:
+    typedef boost::shared_ptr<PlotWidget> PlotWidgetPtr;
+    
+    Ui::MultiplotPlugin* ui_;
+    QWidget* widget_;
+    QGridLayout* layout_;
+    
+    std::vector<std::vector<PlotWidgetPtr> > plots_;
+
+  private slots:
+    void spinBoxRowsValueChanged(int value);
+    void spinBoxColumnsValueChanged(int value);
+    
+    void runClicked();
+    void pauseClicked();
+    void clearClicked();
+  };
 };
 
 #endif

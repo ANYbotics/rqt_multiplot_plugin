@@ -16,64 +16,58 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLUGIN_H
-#define RQT_MULTIPLOT_PLUGIN_H
+#ifndef RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_H
+#define RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_H
 
-#include <vector>
-#include <boost/concept_check.hpp>
+#include <QMap>
+#include <QObject>
+#include <QString>
 
-#include <QFrame>
-#include <QGridLayout>
-#include <QWidget>
+#include <ros/node_handle.h>
 
-#include <ros/ros.h>
+#include <variant_topic_tools/Subscriber.h>
 
-#include <rqt_gui_cpp/plugin.h>
-
-#include <rqt_multiplot/plot_widget.h>
-
-#include <ui_multiplot_plugin.h>
+#include <rqt_multiplot/Message.h>
 
 namespace rqt_multiplot {
+  class MessageSubscriber :
+    public QObject {
+  Q_OBJECT
+  public:
+    MessageSubscriber(QObject* parent = 0, const ros::NodeHandle&
+      nodeHandle = ros::NodeHandle("~"));
+    ~MessageSubscriber();
+    
+    const ros::NodeHandle& getNodeHandle() const;
+    void setTopic(const QString& topic);
+    const QString& getTopic() const;
+    void setQueueSize(size_t queueSize);
+    size_t getQueueSize() const;
+    size_t getNumPublishers() const;  
+    bool isValid() const;
+    
+  signals:
+    void subscribed(const QString& topic);
+    void messageReceived(const QString& topic, const Message& message);
+    void unsubscribed(const QString& topic);
+    
+  private:
+    ros::NodeHandle nodeHandle_;
+    
+    QString topic_;
+    size_t queueSize_;
+    
+    variant_topic_tools::Subscriber subscriber_;  
+      
+    void subscribe();
+    void unsubscribe();
 
-class MultiplotPlugin :
-  public rqt_gui_cpp::Plugin {
-Q_OBJECT
-public:
-  MultiplotPlugin();
-  
-  void setNumPlots(size_t numRows, size_t numColumns);
-  void setBackgroundColor(const QColor& color);
-  
-  void initPlugin(qt_gui_cpp::PluginContext& context);
-  void shutdownPlugin();
-  void saveSettings(qt_gui_cpp::Settings& plugin_settings,
-    qt_gui_cpp::Settings& instance_settings) const;
-  void restoreSettings(const qt_gui_cpp::Settings& plugin_settings,
-    const qt_gui_cpp::Settings& instance_settings);
-  
-  void run();
-  void pause();
-  void clear();
-
-private:
-  typedef boost::shared_ptr<PlotWidget> PlotWidgetPtr;
-  
-  Ui::multiplot_plugin ui_;
-  QWidget* widget_;
-  QGridLayout* layout_;
-  
-  std::vector<std::vector<PlotWidgetPtr> > plots_;
-
-private slots:
-  void spinBoxRowsValueChanged(int value);
-  void spinBoxColumnsValueChanged(int value);
-  
-  void runClicked();
-  void pauseClicked();
-  void clearClicked();
-};
-
+    void callback(const variant_topic_tools::MessageVariant& variant,
+      const ros::Time& receiptTime);
+    
+    void connectNotify(const char* signal);
+    void disconnectNotify(const char* signal);
+  };
 };
 
 #endif

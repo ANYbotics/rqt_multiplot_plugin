@@ -34,21 +34,65 @@ include(${QT_USE_FILE})
 catkin_python_setup()
 
 set(rqt_multiplot_SRCS
-  src/multiplot_plugin.cpp
-  src/plot_config_dialog.cpp
-  src/plot_widget.cpp
+  src/CurveAxisConfigWidget.cpp
+  src/CurveConfigDialog.cpp
+  src/CurveConfigWidget.cpp
+  src/Message.cpp
+  src/MessageDefinitionLoader.cpp
+  src/MessageFieldCompleter.cpp
+  src/MessageFieldItem.cpp
+  src/MessageFieldItemModel.cpp
+  src/MessageFieldLineEdit.cpp
+  src/MessageFieldSubscriber.cpp
+  src/MessageFieldTreeWidget.cpp
+  src/MessageFieldWidget.cpp
+  src/MessageSubscriber.cpp
+  src/MessageSubscriberRegistry.cpp
+  src/MessageTopicComboBox.cpp
+  src/MessageTopicRegistry.cpp
+  src/MessageTypeComboBox.cpp
+  src/MessageTypeRegistry.cpp
+  src/MultiplotPlugin.cpp
+  src/PlotConfigDialog.cpp
+  src/PlotConfigWidget.cpp
+  src/PlotWidget.cpp
+  src/StatusWidget.cpp
 )
 
 set(rqt_multiplot_HDRS
-  include/rqt_multiplot/multiplot_plugin.h
-  include/rqt_multiplot/plot_config_dialog.h
-  include/rqt_multiplot/plot_widget.h
+  include/rqt_multiplot/CurveAxisConfigWidget.h
+  include/rqt_multiplot/CurveConfigDialog.h
+  include/rqt_multiplot/CurveConfigWidget.h
+  include/rqt_multiplot/Message.h
+  include/rqt_multiplot/MessageDefinitionLoader.h
+  include/rqt_multiplot/MessageFieldCompleter.h
+  include/rqt_multiplot/MessageFieldItem.h
+  include/rqt_multiplot/MessageFieldItemModel.h
+  include/rqt_multiplot/MessageFieldLineEdit.h
+  include/rqt_multiplot/MessageFieldSubscriber.h
+  include/rqt_multiplot/MessageFieldTreeWidget.h
+  include/rqt_multiplot/MessageFieldWidget.h
+  include/rqt_multiplot/MessageSubscriber.h
+  include/rqt_multiplot/MessageSubscriberRegistry.h
+  include/rqt_multiplot/MessageTopicComboBox.h
+  include/rqt_multiplot/MessageTopicRegistry.h
+  include/rqt_multiplot/MessageTypeComboBox.h
+  include/rqt_multiplot/MessageTypeRegistry.h
+  include/rqt_multiplot/MultiplotPlugin.h
+  include/rqt_multiplot/PlotConfigDialog.h
+  include/rqt_multiplot/PlotConfigWidget.h
+  include/rqt_multiplot/PlotWidget.h
+  include/rqt_multiplot/StatusWidget.h
 )
 
 set(rqt_multiplot_UIS
-  src/multiplot_plugin.ui
-  src/plot_config_dialog.ui
-  src/plot_widget.ui
+  src/CurveAxisConfigWidget.ui
+  src/CurveConfigDialog.ui
+  src/CurveConfigWidget.ui
+  src/MultiplotPlugin.ui
+  src/PlotConfigDialog.ui
+  src/PlotConfigWidget.ui
+  src/PlotWidget.ui
 )
 
 set(rqt_multiplot_INCLUDE_DIRECTORIES

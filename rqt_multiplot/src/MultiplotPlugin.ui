@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>multiplot_plugin</class>
- <widget class="QWidget" name="multiplot_plugin">
+ <class>MultiplotPlugin</class>
+ <widget class="QWidget" name="MultiplotPlugin">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -299,7 +299,6 @@
        <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
        </property>
-       <zorder>gridLayoutWidget_2</zorder>
       </widget>
      </item>
     </layout>

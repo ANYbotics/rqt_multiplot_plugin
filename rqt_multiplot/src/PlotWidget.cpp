@@ -21,9 +21,12 @@
 
 #include <ros/package.h>
 
-#include <rqt_multiplot/plot_config_dialog.h>
+#include <rqt_multiplot/PlotConfigDialog.h>
+#include <rqt_multiplot/PlotConfigWidget.h>
 
-#include "rqt_multiplot/plot_widget.h"
+#include <ui_PlotWidget.h>
+
+#include "rqt_multiplot/PlotWidget.h"
 
 namespace rqt_multiplot {
 
@@ -31,16 +34,22 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotWidget::PlotWidget(QWidget* parent, Qt::WindowFlags flags) :
-  QWidget(parent, flags) {
+PlotWidget::PlotWidget(QWidget* parent) :
+  QWidget(parent),
+  ui_(new Ui::PlotWidget()) {
   init();
 }
 
 PlotWidget::PlotWidget(const PlotWidget& src) :
-  QWidget(src.parentWidget(), src.windowFlags()) {
+  QWidget(src.parentWidget(), src.windowFlags()),
+  ui_(new Ui::PlotWidget()) {
   init();
   
   setTitle(src.getTitle());
+}
+
+PlotWidget::~PlotWidget() {
+  delete ui_;
 }
 
 /*****************************************************************************/
@@ -48,11 +57,11 @@ PlotWidget::PlotWidget(const PlotWidget& src) :
 /*****************************************************************************/
 
 void PlotWidget::setTitle(const QString& title) {
-  ui_.lineEditTitle->setText(title);
+  ui_->lineEditTitle->setText(title);
 }
 
 QString PlotWidget::getTitle() const {
-  return ui_.lineEditTitle->text();
+  return ui_->lineEditTitle->text();
 }
 
 /*****************************************************************************/
@@ -60,48 +69,48 @@ QString PlotWidget::getTitle() const {
 /*****************************************************************************/
 
 void PlotWidget::init() {
-  ui_.setupUi(this);  
+  ui_->setupUi(this);  
   
-  ui_.pushButtonRunPause->setIcon(
+  ui_->pushButtonRunPause->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/run.png"))));
-  ui_.pushButtonClear->setIcon(
+  ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
-  ui_.pushButtonEject->setIcon(
+  ui_->pushButtonEject->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/eject.png"))));
   
-  ui_.plot->setAutoFillBackground(true);
-  ui_.plot->canvas()->setFrameStyle(QFrame::NoFrame);
+  ui_->plot->setAutoFillBackground(true);
+  ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
   
-  ui_.plot->enableAxis(QwtPlot::xTop);
-  ui_.plot->enableAxis(QwtPlot::yRight);
+  ui_->plot->enableAxis(QwtPlot::xTop);
+  ui_->plot->enableAxis(QwtPlot::yRight);
   
-  ui_.plot->axisScaleDraw(QwtPlot::xTop)->enableComponent(
+  ui_->plot->axisScaleDraw(QwtPlot::xTop)->enableComponent(
     QwtAbstractScaleDraw::Labels, false);
-  ui_.plot->axisScaleDraw(QwtPlot::yRight)->enableComponent(
+  ui_->plot->axisScaleDraw(QwtPlot::yRight)->enableComponent(
     QwtAbstractScaleDraw::Labels, false);
       
-  connect(ui_.lineEditTitle, SIGNAL(textChanged(const QString&)), this,
+  connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
     SLOT(titleTextChanged(const QString&)));
   
-  connect(ui_.pushButtonRunPause, SIGNAL(clicked()), this,
+  connect(ui_->pushButtonRunPause, SIGNAL(clicked()), this,
     SLOT(runPauseClicked()));
-  connect(ui_.pushButtonClear, SIGNAL(clicked()), this, SLOT(clearClicked()));
-  connect(ui_.pushButtonEject, SIGNAL(clicked()), this, SLOT(ejectClicked()));
+  connect(ui_->pushButtonClear, SIGNAL(clicked()), this, SLOT(clearClicked()));
+  connect(ui_->pushButtonEject, SIGNAL(clicked()), this, SLOT(ejectClicked()));
   
-  connect(ui_.plot->axisWidget(QwtPlot::xTop), 
+  connect(ui_->plot->axisWidget(QwtPlot::xTop), 
     SIGNAL(scaleDivChanged()), this, SLOT(xTopScaleDivChanged()));
-  connect(ui_.plot->axisWidget(QwtPlot::xBottom), 
+  connect(ui_->plot->axisWidget(QwtPlot::xBottom), 
     SIGNAL(scaleDivChanged()), this, SLOT(xBottomScaleDivChanged()));
-  connect(ui_.plot->axisWidget(QwtPlot::yLeft), 
+  connect(ui_->plot->axisWidget(QwtPlot::yLeft), 
     SIGNAL(scaleDivChanged()), this, SLOT(yLeftScaleDivChanged()));
-  connect(ui_.plot->axisWidget(QwtPlot::yRight), 
+  connect(ui_->plot->axisWidget(QwtPlot::yRight), 
     SIGNAL(scaleDivChanged()), this, SLOT(yRightScaleDivChanged()));
   
-  ui_.plot->axisWidget(QwtPlot::yLeft)->installEventFilter(this);
-  ui_.plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);
+  ui_->plot->axisWidget(QwtPlot::yLeft)->installEventFilter(this);
+  ui_->plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);
 }
 
 void PlotWidget::run() {
@@ -114,15 +123,15 @@ void PlotWidget::clear() {
 }
 
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
-  if ((object == ui_.plot->axisWidget(QwtPlot::yLeft)) &&
+  if ((object == ui_->plot->axisWidget(QwtPlot::yLeft)) &&
       (event->type() == QEvent::Resize)) {
-    ui_.horizontalSpacerLeft->changeSize(
-      ui_.plot->axisWidget(QwtPlot::yLeft)->width(), 20);
+    ui_->horizontalSpacerLeft->changeSize(
+      ui_->plot->axisWidget(QwtPlot::yLeft)->width(), 20);
   }
-  else if ((object == ui_.plot->axisWidget(QwtPlot::yRight)) &&
+  else if ((object == ui_->plot->axisWidget(QwtPlot::yRight)) &&
       (event->type() == QEvent::Resize)) {
-    ui_.horizontalSpacerRight->changeSize(
-      ui_.plot->axisWidget(QwtPlot::yRight)->width(), 20);
+    ui_->horizontalSpacerRight->changeSize(
+      ui_->plot->axisWidget(QwtPlot::yRight)->width(), 20);
   }
   
   return false;
@@ -133,9 +142,9 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
 /*****************************************************************************/
 
 void PlotWidget::titleTextChanged(const QString& text) {
-  QFontMetrics fontMetrics(ui_.lineEditTitle->font());
+  QFontMetrics fontMetrics(ui_->lineEditTitle->font());
   
-  ui_.lineEditTitle->setMinimumWidth(
+  ui_->lineEditTitle->setMinimumWidth(
     std::max(100, fontMetrics.width(text)+10));
 }
 
@@ -151,26 +160,28 @@ void PlotWidget::ejectClicked() {
   
   dialog.setWindowTitle(getTitle().isEmpty() ? "Configure Plot" :
     "Configure \""+getTitle()+"\"");
+  dialog.getWidget()->setTitle(getTitle());
+  
   dialog.exec();
 }
 
 void PlotWidget::xTopScaleDivChanged() {
-  ui_.plot->setAxisScaleDiv(QwtPlot::xBottom, *ui_.plot->axisScaleDiv(
+  ui_->plot->setAxisScaleDiv(QwtPlot::xBottom, *ui_->plot->axisScaleDiv(
     QwtPlot::xTop));
 }
 
 void PlotWidget::xBottomScaleDivChanged() {
-  ui_.plot->setAxisScaleDiv(QwtPlot::xTop, *ui_.plot->axisScaleDiv(
+  ui_->plot->setAxisScaleDiv(QwtPlot::xTop, *ui_->plot->axisScaleDiv(
     QwtPlot::xBottom));
 }
 
 void PlotWidget::yLeftScaleDivChanged() {
-  ui_.plot->setAxisScaleDiv(QwtPlot::yRight, *ui_.plot->axisScaleDiv(
+  ui_->plot->setAxisScaleDiv(QwtPlot::yRight, *ui_->plot->axisScaleDiv(
     QwtPlot::yLeft));
 }
 
 void PlotWidget::yRightScaleDivChanged() {
-  ui_.plot->setAxisScaleDiv(QwtPlot::yLeft, *ui_.plot->axisScaleDiv(
+  ui_->plot->setAxisScaleDiv(QwtPlot::yLeft, *ui_->plot->axisScaleDiv(
     QwtPlot::yRight));
 }
 

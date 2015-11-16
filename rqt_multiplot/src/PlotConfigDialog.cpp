@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/plot_config_dialog.h"
+#include <ui_PlotConfigDialog.h>
+
+#include "rqt_multiplot/PlotConfigDialog.h"
 
 namespace rqt_multiplot {
 
@@ -25,16 +27,21 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 PlotConfigDialog::PlotConfigDialog(QWidget* parent, Qt::WindowFlags flags) :
-  QDialog(parent, flags) {
-  init();
+  QDialog(parent, flags),
+  ui_(new Ui::PlotConfigDialog()) {
+  ui_->setupUi(this);  
+}
+
+PlotConfigDialog::~PlotConfigDialog() {
+  delete ui_;
 }
 
 /*****************************************************************************/
-/* Methods                                                                   */
+/* Accessors                                                                 */
 /*****************************************************************************/
 
-void PlotConfigDialog::init() {
-  ui_.setupUi(this);  
+PlotConfigWidget* PlotConfigDialog::getWidget() const {
+  return ui_->widgetPlotConfig;
 }
 
 }

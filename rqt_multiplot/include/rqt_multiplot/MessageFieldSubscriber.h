@@ -16,29 +16,56 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_DIALOG_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_DIALOG_H
+#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_H
+#define RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_H
 
-#include <QDialog>
+#include <QObject>
+#include <QString>
 
-#include <ros/ros.h>
-
-#include <ui_plot_config_dialog.h>
+#include <rqt_multiplot/Message.h>
+#include <rqt_multiplot/MessageSubscriber.h>
+#include <rqt_multiplot/MessageSubscriberRegistry.h>
 
 namespace rqt_multiplot {
+  class MessageFieldSubscriber :
+    public QObject {
+  Q_OBJECT
+  public:
+    MessageFieldSubscriber(QObject* parent = 0);
+    ~MessageFieldSubscriber();
 
-class PlotConfigDialog :
-  public QDialog {
-Q_OBJECT
-public:
-  PlotConfigDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-  
-  void init();
-  
-private:
-  Ui::plot_config_dialog ui_;
-};
-
+    void setTopic(const QString& topic);
+    const QString& getTopic() const;
+    void setField(const QString& field);
+    const QString& getField() const;
+    void setQueueSize(size_t queueSize);
+    size_t getQueueSize() const;
+    size_t getNumPublishers() const;  
+    bool isValid() const;
+    
+  signals:
+    void subscribed(const QString& topic, const QString& field);
+    void valueReceived(const QString& topic, const QString& field,
+      double value);
+    void unsubscribed(const QString& topic, const QString& field);
+    
+  private:
+    QString topic_;
+    QString field_;
+    size_t queueSize_;
+    
+    MessageSubscriberRegistry* subscriberRegistry_;
+    MessageSubscriber* subscriber_;
+    
+    void subscribe();
+    void unsubscribe();
+    
+    void connectNotify(const char* signal);
+    void disconnectNotify(const char* signal);
+    
+  private slots:
+    void messageReceived(const QString& topic, const Message& message);
+  };
 };
 
 #endif
