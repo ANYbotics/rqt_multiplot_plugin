@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MessageFieldWidget</class>
+ <widget class="QWidget" name="MessageFieldWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>415</width>
+    <height>486</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>5</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="rqt_multiplot::MessageFieldLineEdit" name="lineEdit"/>
+   </item>
+   <item row="1" column="0">
+    <widget class="rqt_multiplot::MessageFieldTreeWidget" name="treeWidget">
+     <attribute name="headerDefaultSectionSize">
+      <number>100</number>
+     </attribute>
+     <column>
+      <property name="text">
+       <string>Name</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Type</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>rqt_multiplot::MessageFieldLineEdit</class>
+   <extends>QLineEdit</extends>
+   <header location="global">rqt_multiplot/MessageFieldLineEdit.h</header>
+  </customwidget>
+  <customwidget>
+   <class>rqt_multiplot::MessageFieldTreeWidget</class>
+   <extends>QTreeWidget</extends>
+   <header location="global">rqt_multiplot/MessageFieldTreeWidget.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

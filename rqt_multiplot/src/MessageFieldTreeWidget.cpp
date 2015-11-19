@@ -93,10 +93,8 @@ void MessageFieldTreeWidget::setCurrentField(const QString& field) {
           if (childItem) {
             item = childItem;
             fields.removeFirst();
-          }
-          else {
-            item = invisibleRootItem();
-            break;
+            
+            continue;
           }
         }
         else if (fieldType.isArray()) {
@@ -109,17 +107,14 @@ void MessageFieldTreeWidget::setCurrentField(const QString& field) {
             spinBoxIndex->setValue(index);
             item = item->child(0);
             fields.removeFirst();
+            
+            continue;
           }
-          else {
-            item = invisibleRootItem();
-            break;
-          }
-        }
-        else {
-          item = invisibleRootItem();
-          break;
         }
       }
+      
+      item = invisibleRootItem();
+      break;
     }
     
     setCurrentItem(item);

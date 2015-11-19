@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QStringList>
+
 #include <variant_topic_tools/ArrayDataType.h>
 #include <variant_topic_tools/BuiltinDataType.h>
 #include <variant_topic_tools/MessageDataType.h>
@@ -67,7 +69,7 @@ MessageFieldItem::~MessageFieldItem() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-MessageFieldItem* MessageFieldItem::getParent() {
+MessageFieldItem* MessageFieldItem::getParent() const {
   return parent_;
 }
 
@@ -75,8 +77,33 @@ size_t MessageFieldItem::getNumChildren() const {
   return children_.count();
 }
 
-MessageFieldItem* MessageFieldItem::getChild(int row) {
+MessageFieldItem* MessageFieldItem::getChild(int row) const {
   return children_.value(row);
+}
+
+MessageFieldItem* MessageFieldItem::getChild(const QString& name) const {
+  for (QList<MessageFieldItem*>::const_iterator it = children_.begin();
+      it != children_.end(); ++it) {
+    if ((*it)->name_ == name)
+      return *it;
+  }
+  
+  return 0;
+}
+
+MessageFieldItem* MessageFieldItem::getDescendant(const QString& path) const {
+  QStringList names = path.split("/");
+  
+  if (!names.isEmpty()) {
+    MessageFieldItem* child = getChild(names.first());
+    
+    if (child) {
+      names.removeFirst();
+      return child->getDescendant(names.join("/"));
+    }
+  }
+  
+  return 0;
 }
 
 size_t MessageFieldItem::getRow() const {

@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>MultiplotPlugin</class>
- <widget class="QWidget" name="MultiplotPlugin">
+ <class>MultiplotWidget</class>
+ <widget class="QWidget" name="MultiplotWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1197</width>
-    <height>206</height>
+    <width>861</width>
+    <height>119</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -286,7 +286,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QFrame" name="framePlots">
+      <widget class="QFrame" name="frame">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -299,6 +299,17 @@
        <property name="frameShadow">
         <enum>QFrame::Sunken</enum>
        </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>-1</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="rqt_multiplot::PlotTableWidget" name="plotTableWidget" native="true"/>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -306,6 +317,14 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>rqt_multiplot::PlotTableWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">rqt_multiplot/PlotTableWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

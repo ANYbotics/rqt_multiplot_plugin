@@ -16,9 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <ui_CurveConfigWidget.h>
+#include <rqt_multiplot/ColorOperations.h>
 
-#include "rqt_multiplot/CurveConfigWidget.h"
+#include "rqt_multiplot/CurveColor.h"
 
 namespace rqt_multiplot {
 
@@ -26,60 +26,81 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveConfigWidget()),
-  config_(new CurveConfig(this)) {
-  ui_->setupUi(this);
-  
-  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
-    CurveConfig::X));
-  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
-    CurveConfig::Y));
-  ui_->curveColorWidget->setColor(config_->getColor());
-  
-  connect(config_, SIGNAL(titleChanged(const QString&)), this,
-    SLOT(configTitleChanged(const QString&)));
-  
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
-  
-  messageTopicRegistry.update();
-  messageTypeRegistry.update();
-  
-  configTitleChanged(config_->getTitle());
+CurveColor::CurveColor(QObject* parent, Type type, unsigned char
+    autoColorIndex, const QColor& customColor) :
+  QObject(parent),
+  type_(type),
+  autoColorIndex_(autoColorIndex),
+  customColor_(customColor) {
 }
 
-CurveConfigWidget::~CurveConfigWidget() {
-  delete ui_;
+CurveColor::~CurveColor() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveConfigWidget::setConfig(const CurveConfig& config) {
-  *config_ = config;
+void CurveColor::setType(Type type) {
+  if (type != type_) {
+    type_ = type;
+    
+    emit typeChanged(type);
+    emit currentColorChanged(getCurrentColor());
+    emit changed();
+  }
 }
 
-CurveConfig& CurveConfigWidget::getConfig() {
-  return *config_;
+CurveColor::Type CurveColor::getType() const {
+  return type_;
 }
 
-const CurveConfig& CurveConfigWidget::getConfig() const {
-  return *config_;
+void CurveColor::setAutoColorIndex(unsigned char index) {
+  if (index != autoColorIndex_) {
+    autoColorIndex_ = index;
+    
+    emit autoColorIndexChanged(index);
+    emit currentColorChanged(getCurrentColor());
+    emit changed();
+  }
+}
+
+unsigned char CurveColor::getAutoColorIndex() const {
+  return autoColorIndex_;
+}
+
+void CurveColor::setCustomColor(const QColor& color) {
+  if (color != customColor_) {
+    customColor_ = color;
+    
+    emit customColorChanged(color);
+    if (type_ == Custom)
+      emit currentColorChanged(getCurrentColor());
+    emit changed();
+  }
+}
+
+const QColor& CurveColor::getCustomColor() const {
+  return customColor_;
+}
+
+QColor CurveColor::getCurrentColor() const {
+  if (type_ == Auto)
+    return ColorOperations::intToRgb(autoColorIndex_);
+  else
+    return customColor_;
 }
 
 /*****************************************************************************/
-/* Slots                                                                     */
+/* Operators                                                                 */
 /*****************************************************************************/
 
-void CurveConfigWidget::configTitleChanged(const QString& title) {
-  ui_->lineEditTitle->setText(title);
-}
-
-void CurveConfigWidget::lineEditTitleEditingFinished() {
-  config_->setTitle(ui_->lineEditTitle->text());
+CurveColor& CurveColor::operator=(const CurveColor& src) {
+  setType(src.type_);
+  setAutoColorIndex(src.autoColorIndex_);
+  setCustomColor(src.customColor_);
+  
+  return *this;
 }
 
 }

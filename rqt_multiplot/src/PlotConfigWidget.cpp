@@ -20,6 +20,7 @@
 
 #include <rqt_multiplot/CurveConfigDialog.h>
 #include <rqt_multiplot/CurveConfigWidget.h>
+#include <rqt_multiplot/CurveItemWidget.h>
 
 #include <ui_PlotConfigWidget.h>
 
@@ -33,7 +34,8 @@ namespace rqt_multiplot {
 
 PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::PlotConfigWidget()) {
+  ui_(new Ui::PlotConfigWidget()),
+  config_(new PlotConfig(this)) {
   ui_->setupUi(this);  
   
   ui_->pushButtonAdd->setIcon(
@@ -46,10 +48,23 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/22x22/remove.png"))));
   
-  connect(ui_->pushButtonAdd, SIGNAL(clicked()), this, SLOT(addClicked()));
-  connect(ui_->pushButtonEdit, SIGNAL(clicked()), this, SLOT(editClicked()));
+  connect(config_, SIGNAL(titleChanged(const QString&)),
+    this, SLOT(configTitleChanged(const QString&)));
+    
+  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
+    SLOT(lineEditTitleEditingFinished()));
+  
+  connect(ui_->pushButtonAdd, SIGNAL(clicked()), this,
+    SLOT(pushButtonAddClicked()));
+  connect(ui_->pushButtonEdit, SIGNAL(clicked()), this,
+    SLOT(pushButtonEditClicked()));
   connect(ui_->pushButtonRemove, SIGNAL(clicked()), this,
-    SLOT(removeClicked()));
+    SLOT(pushButtonRemoveClicked()));
+  
+  connect(ui_->listWidgetCurves, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+    this, SLOT(listWidgetCurvesItemDoubleClicked(QListWidgetItem*)));
+  
+  configTitleChanged(config_->getTitle());
 }
 
 PlotConfigWidget::~PlotConfigWidget() {
@@ -60,32 +75,102 @@ PlotConfigWidget::~PlotConfigWidget() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void PlotConfigWidget::setTitle(const QString& title) {
-  ui_->lineEditTitle->setText(title);
+void PlotConfigWidget::setConfig(const PlotConfig& config) {
+  ui_->listWidgetCurves->clear();
+  
+  *config_ = config;
+  
+  for (size_t index = 0; index < config_->getNumCurves(); ++index) {
+    CurveItemWidget* widget = new CurveItemWidget(ui_->listWidgetCurves);
+    widget->setConfig(config_->getCurveConfig(index));
+    
+    QListWidgetItem* item = new QListWidgetItem(ui_->listWidgetCurves);
+    item->setSizeHint(widget->sizeHint());
+    
+    ui_->listWidgetCurves->addItem(item);
+    ui_->listWidgetCurves->setItemWidget(item, widget);
+  }
 }
 
-QString PlotConfigWidget::getTitle() const {
-  return ui_->lineEditTitle->text();
+const PlotConfig& PlotConfigWidget::getConfig() const {
+  return *config_;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void PlotConfigWidget::addClicked() {
+void PlotConfigWidget::configTitleChanged(const QString& title) {
+  ui_->lineEditTitle->setText(title);
+}
+
+void PlotConfigWidget::lineEditTitleEditingFinished() {
+  if (config_)
+    config_->setTitle(ui_->lineEditTitle->text());
+}
+
+void PlotConfigWidget::pushButtonAddClicked() {
   CurveConfigDialog dialog(this);
   
-  dialog.setWindowTitle(getTitle().isEmpty() ? "Add Curve to Plot" :
-    "Add Curve to \""+getTitle()+"\"");
-  dialog.getWidget()->setTitle("Untitled Curve");
+  dialog.setWindowTitle(config_->getTitle().isEmpty() ?
+    "Add Curve to Plot" :
+    "Add Curve to \""+config_->getTitle()+"\"");
+  dialog.getWidget()->getConfig().getColor()->setAutoColorIndex(
+    config_->getNumCurves());
+
+  if (dialog.exec() == QDialog::Accepted) {
+    CurveConfig* curveConfig = config_->addCurve();
+    *curveConfig = dialog.getWidget()->getConfig();
+    
+    CurveItemWidget* widget = new CurveItemWidget(ui_->listWidgetCurves);
+    widget->setConfig(curveConfig);
+    
+    QListWidgetItem* item = new QListWidgetItem(ui_->listWidgetCurves);
+    item->setSizeHint(widget->sizeHint());
+    
+    ui_->listWidgetCurves->addItem(item);
+    ui_->listWidgetCurves->setItemWidget(item, widget);
+  }
+}
+
+void PlotConfigWidget::pushButtonEditClicked() {
+  QListWidgetItem* item = ui_->listWidgetCurves->currentItem();
   
-  dialog.exec();
+  if (item) {
+    CurveItemWidget* widget = static_cast<CurveItemWidget*>(
+      ui_->listWidgetCurves->itemWidget(item));
+    CurveConfig* curveConfig = widget->getConfig();
+    
+    CurveConfigDialog dialog(this);
+    
+    dialog.setWindowTitle(curveConfig->getTitle().isEmpty() ?
+      "Edit Curve" :
+      "Edit \""+curveConfig->getTitle()+"\"");
+    dialog.getWidget()->setConfig(*curveConfig);
+    
+    if (dialog.exec() == QDialog::Accepted) {
+      *curveConfig = dialog.getWidget()->getConfig();
+    }
+  }
 }
 
-void PlotConfigWidget::editClicked() {
+void PlotConfigWidget::pushButtonRemoveClicked() {
+  QListWidgetItem* item = ui_->listWidgetCurves->currentItem();
+  
+  if (item) {
+    CurveItemWidget* widget = static_cast<CurveItemWidget*>(
+      ui_->listWidgetCurves->itemWidget(item));
+    CurveConfig* curveConfig = widget->getConfig();
+    
+    delete item;
+    
+    config_->removeCurve(curveConfig);
+  }
 }
 
-void PlotConfigWidget::removeClicked() {
+void PlotConfigWidget::listWidgetCurvesItemDoubleClicked(QListWidgetItem*
+    item) {
+  pushButtonEditClicked();
 }
 
 }

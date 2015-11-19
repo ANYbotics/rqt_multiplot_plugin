@@ -16,56 +16,15 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
-
-#include <variant_topic_tools/MessageDefinition.h>
+#ifndef RQT_MULTIPLOT_BIT_OPERATIONS_H
+#define RQT_MULTIPLOT_BIT_OPERATIONS_H
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
-  Q_OBJECT
+  class BitOperations {
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    static QMutex mutex_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+    static unsigned int revertInt(unsigned int val);
+    static unsigned short revertShort(unsigned short val);
+    static unsigned char revertByte(unsigned char val);
   };
 };
 

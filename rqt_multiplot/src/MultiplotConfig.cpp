@@ -16,103 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
-
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/MultiplotConfig.h"
 
 namespace rqt_multiplot {
-
-/*****************************************************************************/
-/* Static Initializations                                                    */
-/*****************************************************************************/
-
-QMutex MessageDefinitionLoader::mutex_;
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
+MultiplotConfig::MultiplotConfig(QObject* parent) :
   QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+  tableConfig_(new PlotTableConfig(this)) {
+  connect(tableConfig_, SIGNAL(changed()), this, SLOT(tableConfigChanged()));
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
+MultiplotConfig::~MultiplotConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
-}
-
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.definition_;
-}
-
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
+PlotTableConfig* MultiplotConfig::getTableConfig() const {
+  return tableConfig_;
 }
 
 /*****************************************************************************/
-/* Methods                                                                   */
+/* Operators                                                                 */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.type_ = type;
-  impl_.start();
-}
-
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
-}
-
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
+MultiplotConfig& MultiplotConfig::operator=(const MultiplotConfig& src) {
+  *tableConfig_ = *src.tableConfig_;
   
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&MessageDefinitionLoader::mutex_);
-    
-    definition_.load(type_.toStdString());
-  }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
-  }
+  return *this;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
+void MultiplotConfig::tableConfigChanged() {
+  emit changed();
 }
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
-}
-  
+
 }

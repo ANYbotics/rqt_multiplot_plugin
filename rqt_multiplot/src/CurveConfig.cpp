@@ -16,103 +16,84 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
-
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/CurveConfig.h"
+#include <boost/concept_check.hpp>
 
 namespace rqt_multiplot {
-
-/*****************************************************************************/
-/* Static Initializations                                                    */
-/*****************************************************************************/
-
-QMutex MessageDefinitionLoader::mutex_;
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
+CurveConfig::CurveConfig(QObject* parent, const QString& title) :
   QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+  title_(title),
+  color_(new CurveColor(this)) {
+  axisConfig_[X] = new CurveAxisConfig(this);
+  axisConfig_[Y] = new CurveAxisConfig(this);
+    
+  connect(axisConfig_[X], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
+  connect(axisConfig_[Y], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
+  
+  connect(color_, SIGNAL(changed()), this, SLOT(colorChanged()));
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
+CurveConfig::~CurveConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
-}
-
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.definition_;
-}
-
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
-}
-
-/*****************************************************************************/
-/* Methods                                                                   */
-/*****************************************************************************/
-
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.type_ = type;
-  impl_.start();
-}
-
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
-}
-
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&MessageDefinitionLoader::mutex_);
+void CurveConfig::setTitle(const QString& title) {
+  if (title != title_) {
+    title_ = title;
     
-    definition_.load(type_.toStdString());
+    emit titleChanged(title);
+    emit changed();
   }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
-  }
+}
+
+const QString& CurveConfig::getTitle() const {
+  return title_;
+}
+
+CurveAxisConfig* CurveConfig::getAxisConfig(Axis axis) const {
+  QMap<Axis, CurveAxisConfig*>::const_iterator it = axisConfig_.find(axis);
+  
+  if (it != axisConfig_.end())
+    return it.value();
+  else
+    return 0;
+}
+
+CurveColor* CurveConfig::getColor() const {
+  return color_;
+}
+
+/*****************************************************************************/
+/* Operators                                                                 */
+/*****************************************************************************/
+
+CurveConfig& CurveConfig::operator=(const CurveConfig& src) {
+  setTitle(src.title_);  
+  *axisConfig_[X] = *src.axisConfig_[X];
+  *axisConfig_[Y] = *src.axisConfig_[Y];
+  *color_ = *src.color_;
+  
+  return *this;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
+void CurveConfig::axisConfigChanged() {
+  emit changed();
 }
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
+
+void CurveConfig::colorChanged() {
+  emit changed();
 }
-  
+
 }

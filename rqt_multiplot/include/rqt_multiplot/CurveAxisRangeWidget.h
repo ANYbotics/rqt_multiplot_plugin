@@ -16,56 +16,46 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_CURVE_AXIS_RANGE_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_AXIS_RANGE_WIDGET_H
 
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
+#include <QWidget>
 
-#include <variant_topic_tools/MessageDefinition.h>
+#include <rqt_multiplot/CurveAxisRange.h>
+
+namespace Ui {
+  class CurveAxisRangeWidget;
+};
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
+  class CurveAxisRangeWidget :
+    public QWidget {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
+    CurveAxisRangeWidget(QWidget* parent = 0);
+    virtual ~CurveAxisRangeWidget();
     
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
+    void setRange(CurveAxisRange* range);
+    CurveAxisRange* getRange() const;
     
   private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
+    Ui::CurveAxisRangeWidget* ui_;
     
-    Impl impl_;
-    static QMutex mutex_;
+    CurveAxisRange* range_;
     
   private slots:
-    void threadStarted();
-    void threadFinished();
+    void rangeTypeChanged(int type);
+    void rangeFixedMinimumChanged(double minimum);
+    void rangeFixedMaximumChanged(double maximum);
+    void rangeWindowSizeChanged(double size);
+    
+    void radioButtonFixedToggled(bool checked);
+    void radioButtonWindowToggled(bool checked);
+    void radioButtonAutoToggled(bool checked);
+    
+    void doubleSpinBoxFixedMinimumValueChanged(double value);
+    void doubleSpinBoxFixedMaximumValueChanged(double value);
+    void doubleSpinBoxWindowSizeValueChanged(double value);
   };
 };
 

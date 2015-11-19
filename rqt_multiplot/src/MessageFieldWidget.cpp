@@ -16,8 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <ui_MessageFieldWidget.h>
+
 #include "rqt_multiplot/MessageFieldWidget.h"
-#include <boost/concept_check.hpp>
 
 namespace rqt_multiplot {
 
@@ -27,20 +28,14 @@ namespace rqt_multiplot {
 
 MessageFieldWidget::MessageFieldWidget(QWidget* parent) :
   QWidget(parent),
-  layout_(new QGridLayout(this)),
-  lineEdit_(new MessageFieldLineEdit(this)),
-  treeWidget_(new MessageFieldTreeWidget(this)),
+  ui_(new Ui::MessageFieldWidget()),
   loader_(new MessageDefinitionLoader(this)),
   isLoading_(false),
   registry_(new MessageSubscriberRegistry(this)),
   isConnecting_(false),
   connectionTimer_(new QTimer(this)) {
-  setLayout(layout_);
+  ui_->setupUi(this);
   
-  layout_->setContentsMargins(0, 0, 0, 0);
-  layout_->addWidget(lineEdit_, 0, 0);
-  layout_->addWidget(treeWidget_, 1, 0);
-    
   connectionTimer_->setSingleShot(true);    
     
   connect(loader_, SIGNAL(loadingStarted()), this,
@@ -53,9 +48,9 @@ MessageFieldWidget::MessageFieldWidget(QWidget* parent) :
   connect(connectionTimer_, SIGNAL(timeout()), this,
     SLOT(connectionTimerTimeout()));
   
-  connect(lineEdit_, SIGNAL(currentFieldChanged(const QString&)),
+  connect(ui_->lineEdit, SIGNAL(currentFieldChanged(const QString&)),
     this, SLOT(lineEditCurrentFieldChanged(const QString&)));
-  connect(treeWidget_, SIGNAL(currentFieldChanged(const QString&)),
+  connect(ui_->treeWidget, SIGNAL(currentFieldChanged(const QString&)),
     this, SLOT(treeWidgetCurrentFieldChanged(const QString&)));
 }
 
@@ -77,8 +72,12 @@ variant_topic_tools::MessageDataType MessageFieldWidget::
 
 void MessageFieldWidget::setCurrentField(const QString& field) {
   if (field != currentField_) {
-    lineEdit_->setCurrentField(field);
-    treeWidget_->setCurrentField(field);
+    currentField_ = field;
+    
+    ui_->lineEdit->setCurrentField(field);
+    ui_->treeWidget->setCurrentField(field);
+    
+    emit currentFieldChanged(field);
   }
 }
 
@@ -88,7 +87,7 @@ QString MessageFieldWidget::getCurrentField() const {
 
 variant_topic_tools::DataType MessageFieldWidget::
     getCurrentFieldDataType() const {
-  return treeWidget_->getCurrentFieldDataType();
+  return ui_->treeWidget->getCurrentFieldDataType();
 }
 
 bool MessageFieldWidget::isLoading() const {
@@ -111,7 +110,7 @@ void MessageFieldWidget::loadFields(const QString& type) {
   if (isConnecting_) {
     disconnect();
     
-    treeWidget_->clear();
+    ui_->treeWidget->clear();
     setEnabled(true);
   }
   
@@ -126,7 +125,7 @@ void MessageFieldWidget::connectTopic(const QString& topic, double
     if (isConnecting_) {
       disconnect();
       
-      treeWidget_->clear();
+      ui_->treeWidget->clear();
       setEnabled(true);
     }
   
@@ -140,11 +139,11 @@ void MessageFieldWidget::connectTopic(const QString& topic, double
         connectionTimer_->start(timeout*1e3);
       emit connecting(topic);
       
-      treeWidget_->clear();
+      ui_->treeWidget->clear();
       
       QTreeWidgetItem* item = new QTreeWidgetItem();
       item->setText(0, "Connecting...");
-      treeWidget_->addTopLevelItem(item);
+      ui_->treeWidget->addTopLevelItem(item);
     }
   }
 }
@@ -168,17 +167,17 @@ void MessageFieldWidget::loaderLoadingStarted() {
   isLoading_ = true;
   emit loadingStarted();
   
-  treeWidget_->clear();
+  ui_->treeWidget->clear();
   
   QTreeWidgetItem* item = new QTreeWidgetItem();
   item->setText(0, "Loading...");
-  treeWidget_->addTopLevelItem(item);
+  ui_->treeWidget->addTopLevelItem(item);
 }
 
 void MessageFieldWidget::loaderLoadingFinished() {
-  lineEdit_->setMessageDataType(loader_->getDefinition().
+  ui_->lineEdit->setMessageDataType(loader_->getDefinition().
     getMessageDataType());
-  treeWidget_->setMessageDataType(loader_->getDefinition().
+  ui_->treeWidget->setMessageDataType(loader_->getDefinition().
     getMessageDataType());
   
   if (!currentField_.isEmpty())
@@ -191,7 +190,7 @@ void MessageFieldWidget::loaderLoadingFinished() {
 }
 
 void MessageFieldWidget::loaderLoadingFailed(const QString& error) {
-  treeWidget_->clear();
+  ui_->treeWidget->clear();
   
   isLoading_ = false;
   emit loadingFailed(error);
@@ -204,8 +203,8 @@ void MessageFieldWidget::subscriberMessageReceived(const QString& topic,
   
   disconnect();
   
-  lineEdit_->setMessageDataType(message.getVariant().getType());
-  treeWidget_->setMessageDataType(message.getVariant().getType());
+  ui_->lineEdit->setMessageDataType(message.getVariant().getType());
+  ui_->treeWidget->setMessageDataType(message.getVariant().getType());
   
   if (!currentField_.isEmpty())
     setCurrentField(currentField_);
@@ -224,33 +223,17 @@ void MessageFieldWidget::connectionTimerTimeout() {
   
   disconnect();
   
-  treeWidget_->clear();
+  ui_->treeWidget->clear();
   
   emit connectionTimeout(topic, timeout);
 }
 
 void MessageFieldWidget::lineEditCurrentFieldChanged(const QString& field) {
-  if (field != currentField_) {
-    currentField_ = field;
-    
-    treeWidget_->blockSignals(true);
-    treeWidget_->setCurrentField(field);
-    treeWidget_->blockSignals(false);
-    
-    emit currentFieldChanged(currentField_);
-  }
+  setCurrentField(field);
 }
 
 void MessageFieldWidget::treeWidgetCurrentFieldChanged(const QString& field) {
-  if (field != currentField_) {
-    currentField_ = field;
-    
-    lineEdit_->blockSignals(true);
-    lineEdit_->setCurrentField(field);
-    lineEdit_->blockSignals(false);
-    
-    emit currentFieldChanged(currentField_);
-  }
+  setCurrentField(field);
 }
 
 }

@@ -16,103 +16,60 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
-
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/CurveListWidget.h"
 
 namespace rqt_multiplot {
-
-/*****************************************************************************/
-/* Static Initializations                                                    */
-/*****************************************************************************/
-
-QMutex MessageDefinitionLoader::mutex_;
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
-  QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+CurveListWidget::CurveListWidget(QWidget* parent) :
+  QListWidget(parent) {
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
+CurveListWidget::~CurveListWidget() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
+size_t CurveListWidget::getNumCurves() const {
+  return count();
 }
 
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
+CurveItemWidget* CurveListWidget::getCurveItem(size_t index) const {
+  QListWidgetItem* widgetItem = item(index);
   
-  return impl_.definition_;
-}
-
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
+  if (widgetItem)
+    return static_cast<CurveItemWidget*>(itemWidget(widgetItem));
+  else
+    return 0;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.type_ = type;
-  impl_.start();
+void CurveListWidget::addCurve(const CurveConfig& config) {
+  QListWidgetItem* widgetItem = new QListWidgetItem(this);
+  CurveItemWidget* itemWidget = new CurveItemWidget(this);
+  
+  addItem(widgetItem);
+  setItemWidget(widgetItem, itemWidget);
+  
+  emit curveAdded(row(widgetItem));
 }
 
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
-}
+void CurveListWidget::removeCurve(size_t index) {
+  QListWidgetItem* widgetItem = item(index);
 
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&MessageDefinitionLoader::mutex_);
+  if (widgetItem) {
+    delete widgetItem;
     
-    definition_.load(type_.toStdString());
-  }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
+    emit curveRemoved(index);
   }
 }
 
-/*****************************************************************************/
-/* Slots                                                                     */
-/*****************************************************************************/
-
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
-}
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
-}
-  
 }

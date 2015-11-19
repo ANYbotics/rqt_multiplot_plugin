@@ -19,7 +19,10 @@
 #ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
 #define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
 
+#include <QListWidgetItem>
 #include <QWidget>
+
+#include <rqt_multiplot/PlotConfig.h>
 
 namespace Ui {
   class PlotConfigWidget;
@@ -33,16 +36,24 @@ namespace rqt_multiplot {
     PlotConfigWidget(QWidget* parent = 0);
     virtual ~PlotConfigWidget();
 
-    void setTitle(const QString& title);
-    QString getTitle() const;
+    void setConfig(const PlotConfig& config);
+    const PlotConfig& getConfig() const;
     
   private:
     Ui::PlotConfigWidget* ui_;
     
+    PlotConfig* config_;
+  
   private slots:
-    void addClicked();
-    void editClicked();
-    void removeClicked();
+    void configTitleChanged(const QString& title);
+
+    void lineEditTitleEditingFinished();
+    
+    void pushButtonAddClicked();
+    void pushButtonEditClicked();
+    void pushButtonRemoveClicked();
+    
+    void listWidgetCurvesItemDoubleClicked(QListWidgetItem* item);
   };
 };
 

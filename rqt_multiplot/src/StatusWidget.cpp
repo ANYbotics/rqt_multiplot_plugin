@@ -16,9 +16,6 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <iostream>
-#include <boost/concept_check.hpp>
-
 #include "rqt_multiplot/StatusWidget.h"
 
 namespace rqt_multiplot {
@@ -88,7 +85,7 @@ void StatusWidget::setFrames(Role role, const QList<QPixmap>& frameList,
     double frameRate) {
   bool wasStarted = false;
   
-  if ((role == currentRole_) && timer_->isActive()) {
+  if (role == currentRole_) {
     wasStarted = true;
     stop();
   }

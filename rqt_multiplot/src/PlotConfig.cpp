@@ -16,103 +16,110 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
-
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/PlotConfig.h"
 
 namespace rqt_multiplot {
-
-/*****************************************************************************/
-/* Static Initializations                                                    */
-/*****************************************************************************/
-
-QMutex MessageDefinitionLoader::mutex_;
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
+PlotConfig::PlotConfig(QObject* parent, const QString& title) :
   QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+  title_(title) {
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
+PlotConfig::~PlotConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
+void PlotConfig::setTitle(const QString& title) {
+  if (title != title_) {
+    title_ = title;
+    
+    emit titleChanged(title);
+    emit changed();
+  }
 }
 
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.definition_;
+const QString& PlotConfig::getTitle() const {
+  return title_;
 }
 
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
+size_t PlotConfig::getNumCurves() const {
+  return curveConfig_.count();
+}
+
+CurveConfig* PlotConfig::getCurveConfig(size_t index) const {
+  if (index < curveConfig_.count())
+    return curveConfig_[index];
+  else
+    return 0;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.type_ = type;
-  impl_.start();
+CurveConfig* PlotConfig::addCurve() {
+  CurveConfig* curveConfig = new CurveConfig(this);
+  curveConfig->getColor()->setAutoColorIndex(curveConfig_.count());
+  
+  curveConfig_.append(curveConfig);
+  connect(curveConfig, SIGNAL(changed()), this, SLOT(curveConfigChanged()));
+  
+  emit changed();
+  
+  return curveConfig;
 }
 
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
+void PlotConfig::removeCurve(CurveConfig* curveConfig) {
+  int index = curveConfig_.indexOf(curveConfig);
+  
+  if (index >= 0)
+    removeCurve(index);
 }
 
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&MessageDefinitionLoader::mutex_);
+void PlotConfig::removeCurve(size_t index) {
+  if (index < curveConfig_.count()) {
+    delete curveConfig_[index];
     
-    definition_.load(type_.toStdString());
+    curveConfig_.remove(index);
+    
+    for (size_t i = 0; i < curveConfig_.count(); ++i)
+      curveConfig_[i]->getColor()->setAutoColorIndex(i);
+    
+    emit changed();
   }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
-  }
+}
+
+/*****************************************************************************/
+/* Operators                                                                 */
+/*****************************************************************************/
+
+PlotConfig& PlotConfig::operator=(const PlotConfig& src) {
+  setTitle(src.title_);
+  
+  while (curveConfig_.count() < src.curveConfig_.count())
+    addCurve();
+  while (curveConfig_.count() > src.curveConfig_.count())
+    removeCurve(curveConfig_.count()-1);
+  
+  for (size_t index = 0; index < curveConfig_.count(); ++index)
+    *curveConfig_[index] = *src.curveConfig_[index];
+  
+  return *this;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
+void PlotConfig::curveConfigChanged() {
+  emit changed();
 }
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
-}
-  
+
 }

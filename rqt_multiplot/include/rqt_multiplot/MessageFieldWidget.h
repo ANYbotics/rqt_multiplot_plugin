@@ -28,6 +28,10 @@
 #include <rqt_multiplot/MessageFieldTreeWidget.h>
 #include <rqt_multiplot/MessageSubscriberRegistry.h>
 
+namespace Ui {
+  class MessageFieldWidget;
+};
+
 namespace rqt_multiplot {
   class MessageFieldWidget :
     public QWidget {
@@ -60,9 +64,7 @@ namespace rqt_multiplot {
     void currentFieldChanged(const QString& field);
     
   private:
-    QGridLayout* layout_;
-    MessageFieldLineEdit* lineEdit_;
-    MessageFieldTreeWidget* treeWidget_;
+    Ui::MessageFieldWidget* ui_;
     
     QString currentField_;
     

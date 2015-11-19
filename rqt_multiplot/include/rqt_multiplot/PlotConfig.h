@@ -16,56 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
+#define RQT_MULTIPLOT_PLOT_CONFIG_H
 
-#include <QMutex>
 #include <QObject>
 #include <QString>
-#include <QThread>
+#include <QVector>
 
-#include <variant_topic_tools/MessageDefinition.h>
+#include <rqt_multiplot/CurveConfig.h>
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
+  class PlotConfig :
     public QObject {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
+    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
+    ~PlotConfig();
+
+    void setTitle(const QString& title);
+    const QString& getTitle() const;
+    size_t getNumCurves() const;
+    CurveConfig* getCurveConfig(size_t index) const;
     
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
+    CurveConfig* addCurve();
+    void removeCurve(CurveConfig* curveConfig);
+    void removeCurve(size_t index);
     
-    void load(const QString& type);
-    void wait();
+    PlotConfig& operator=(const PlotConfig& src);
     
   signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
+    void titleChanged(const QString& title);
+    void changed();
     
   private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    static QMutex mutex_;
+    QString title_;
+    QVector<CurveConfig*> curveConfig_;
     
   private slots:
-    void threadStarted();
-    void threadFinished();
+    void curveConfigChanged();
   };
 };
 

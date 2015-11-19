@@ -63,6 +63,13 @@ variant_topic_tools::MessageDataType MessageFieldItemModel::
 
 variant_topic_tools::DataType MessageFieldItemModel::getFieldDataType(const
     QString& field) const {
+  if (rootItem_) {
+    MessageFieldItem* descendant = rootItem_->getDescendant(field);
+    
+    if (descendant)
+      return descendant->getDataType();
+  }
+  
   return variant_topic_tools::DataType();
 }
 

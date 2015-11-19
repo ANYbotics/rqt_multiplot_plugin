@@ -21,6 +21,7 @@
 
 #include <QWidget>
 
+#include <rqt_multiplot/CurveConfig.h>
 #include <rqt_multiplot/MessageTopicRegistry.h>
 #include <rqt_multiplot/MessageTypeRegistry.h>
 
@@ -36,16 +37,22 @@ namespace rqt_multiplot {
     CurveConfigWidget(QWidget* parent = 0);
     virtual ~CurveConfigWidget();
 
-    void setTitle(const QString& title);
-    QString getTitle() const;
-    void setColor(const QColor& color);
-    QColor getColor() const;
+    void setConfig(const CurveConfig& config);
+    CurveConfig& getConfig();
+    const CurveConfig& getConfig() const;
     
   private:
     Ui::CurveConfigWidget* ui_;
     
+    CurveConfig* config_;
+    
     MessageTopicRegistry messageTopicRegistry;
     MessageTypeRegistry messageTypeRegistry;
+  
+  private slots:
+    void configTitleChanged(const QString& title);
+    
+    void lineEditTitleEditingFinished();
   };
 };
 

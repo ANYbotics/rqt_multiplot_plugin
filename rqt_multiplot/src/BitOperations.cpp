@@ -16,57 +16,56 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#include <limits.h>
 
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
-
-#include <variant_topic_tools/MessageDefinition.h>
+#include "rqt_multiplot/BitOperations.h"
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
-  Q_OBJECT
-  public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    static QMutex mutex_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
-  };
-};
 
-#endif
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+unsigned int BitOperations::revertInt(unsigned int val) {
+  unsigned int reverse = val;
+  unsigned int shift = sizeof(unsigned int)*CHAR_BIT-1;
+
+  for (val >>= 1; val; val >>= 1) {
+    reverse <<= 1;
+    reverse |= val & 1;
+    --shift;
+  }
+  reverse <<= shift;
+
+  return reverse;
+}
+               
+unsigned short BitOperations::revertShort(unsigned short val) {
+  unsigned short reverse = val;
+  unsigned short shift = sizeof(unsigned short)*CHAR_BIT-1;
+
+  for (val >>= 1; val; val >>= 1) {
+    reverse <<= 1;
+    reverse |= val & 1;
+    --shift;
+  }
+  reverse <<= shift;
+
+  return reverse;
+}
+
+unsigned char BitOperations::revertByte(unsigned char val) {
+  unsigned char reverse = val;
+  unsigned char shift = sizeof(unsigned char)*CHAR_BIT-1;
+
+  for (val >>= 1; val; val >>= 1) {
+    reverse <<= 1;
+    reverse |= val & 1;
+    --shift;
+  }
+  reverse <<= shift;
+
+  return reverse;
+}
+
+};

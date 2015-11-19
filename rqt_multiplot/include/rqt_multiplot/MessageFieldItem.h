@@ -31,9 +31,11 @@ namespace rqt_multiplot {
       MessageFieldItem* parent = 0, const QString& name = QString());
     ~MessageFieldItem();
   
-    MessageFieldItem* getParent();
+    MessageFieldItem* getParent() const;
     size_t getNumChildren() const;
-    MessageFieldItem* getChild(int row);
+    MessageFieldItem* getChild(int row) const;
+    MessageFieldItem* getChild(const QString& name) const;
+    MessageFieldItem* getDescendant(const QString& path) const;
     size_t getRow() const;
     size_t getNumColumns() const;
     const QString& getName() const;

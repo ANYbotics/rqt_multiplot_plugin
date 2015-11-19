@@ -16,9 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <ui_CurveConfigWidget.h>
-
-#include "rqt_multiplot/CurveConfigWidget.h"
+#include "rqt_multiplot/CurveAxisConfig.h"
 
 namespace rqt_multiplot {
 
@@ -26,60 +24,100 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveConfigWidget()),
-  config_(new CurveConfig(this)) {
-  ui_->setupUi(this);
-  
-  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
-    CurveConfig::X));
-  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
-    CurveConfig::Y));
-  ui_->curveColorWidget->setColor(config_->getColor());
-  
-  connect(config_, SIGNAL(titleChanged(const QString&)), this,
-    SLOT(configTitleChanged(const QString&)));
-  
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
-  
-  messageTopicRegistry.update();
-  messageTypeRegistry.update();
-  
-  configTitleChanged(config_->getTitle());
+CurveAxisConfig::CurveAxisConfig(QObject* parent, const QString& topic,
+    const QString& type, FieldType fieldType, const QString& field) :
+  QObject(parent),
+  topic_(topic),
+  type_(type),
+  fieldType_(fieldType),
+  field_(field),
+  range_(new CurveAxisRange(this)) {
+  connect(range_, SIGNAL(changed()), this, SLOT(rangeChanged()));
 }
 
-CurveConfigWidget::~CurveConfigWidget() {
-  delete ui_;
+CurveAxisConfig::~CurveAxisConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveConfigWidget::setConfig(const CurveConfig& config) {
-  *config_ = config;
+void CurveAxisConfig::setTopic(const QString& topic) {
+  if (topic != topic_) {
+    topic_ = topic;
+    
+    emit topicChanged(topic);
+    emit changed();
+  }
 }
 
-CurveConfig& CurveConfigWidget::getConfig() {
-  return *config_;
+const QString& CurveAxisConfig::getTopic() const {
+  return topic_;
 }
 
-const CurveConfig& CurveConfigWidget::getConfig() const {
-  return *config_;
+void CurveAxisConfig::setType(const QString& type) {
+  if (type != type_) {
+    type_ = type;
+    
+    emit typeChanged(type);
+    emit changed();
+  }
+}
+
+const QString& CurveAxisConfig::getType() const {
+  return type_;
+}
+
+void CurveAxisConfig::setFieldType(FieldType fieldType) {
+  if (fieldType != fieldType_) {
+    fieldType_ = fieldType;
+    
+    emit fieldTypeChanged(fieldType);
+    emit changed();
+  }
+}
+
+CurveAxisConfig::FieldType CurveAxisConfig::getFieldType() const {
+  return fieldType_;
+}
+
+void CurveAxisConfig::setField(const QString& field) {
+  if (field != field_) {
+    field_ = field;
+    
+    emit fieldChanged(field);
+    emit changed();
+  }
+}
+
+const QString& CurveAxisConfig::getField() const {
+  return field_;
+}
+
+CurveAxisRange* CurveAxisConfig::getRange() const {
+  return range_;
+}
+
+/*****************************************************************************/
+/* Operators                                                                 */
+/*****************************************************************************/
+
+CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
+  setTopic(src.topic_);
+  setType(src.type_);
+  setFieldType(src.fieldType_);
+  setField(src.field_);
+  *range_ = *src.range_;
+  
+  return *this;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveConfigWidget::configTitleChanged(const QString& title) {
-  ui_->lineEditTitle->setText(title);
-}
-
-void CurveConfigWidget::lineEditTitleEditingFinished() {
-  config_->setTitle(ui_->lineEditTitle->text());
+void CurveAxisConfig::rangeChanged() {
+  emit changed();
 }
 
 }

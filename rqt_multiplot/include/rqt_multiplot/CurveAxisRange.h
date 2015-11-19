@@ -16,56 +16,51 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_CURVE_AXIS_RANGE_H
+#define RQT_MULTIPLOT_CURVE_AXIS_RANGE_H
 
-#include <QMutex>
 #include <QObject>
-#include <QString>
-#include <QThread>
-
-#include <variant_topic_tools/MessageDefinition.h>
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
+  class CurveAxisRange :
     public QObject {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
+    enum Type {
+      Auto,
+      Window,
+      Fixed
     };
     
-    Impl impl_;
-    static QMutex mutex_;
+    CurveAxisRange(QObject* parent = 0, Type type = Auto, double
+      fixedMinimum = 0.0, double fixedMaximum = 1000.0, double
+      windowSize = 1000.0);
+    ~CurveAxisRange();
     
-  private slots:
-    void threadStarted();
-    void threadFinished();
+    void setType(Type type);
+    Type getType() const;
+    void setFixedMinimum(double minimum);
+    double getFixedMinimum() const;
+    void setFixedMaximum(double maximum);
+    double getFixedMaximum() const;
+    void setWindowSize(double size);
+    double getWindowSize() const;
+    bool isEmpty() const;
+    
+    CurveAxisRange& operator=(const CurveAxisRange& src);
+    
+  signals:
+    void typeChanged(int type);
+    void fixedMinimumChanged(double minimum);
+    void fixedMaximumChanged(double maxnimum);
+    void windowSizeChanged(double size);
+    void changed();
+    
+  private:
+    Type type_;
+    double fixedMinimum_;
+    double fixedMaximum_;
+    double windowSize_;
   };
 };
 

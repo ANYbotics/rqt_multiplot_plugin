@@ -34,9 +34,19 @@ include(${QT_USE_FILE})
 catkin_python_setup()
 
 set(rqt_multiplot_SRCS
+  src/BitOperations.cpp
+  src/ColorOperations.cpp
+  src/CurveAxisConfig.cpp
   src/CurveAxisConfigWidget.cpp
+  src/CurveAxisRange.cpp
+  src/CurveAxisRangeWidget.cpp
+  src/CurveColor.cpp
+  src/CurveColorWidget.cpp
+  src/CurveConfig.cpp
   src/CurveConfigDialog.cpp
   src/CurveConfigWidget.cpp
+  src/CurveItemWidget.cpp
+  src/CurveListWidget.cpp
   src/Message.cpp
   src/MessageDefinitionLoader.cpp
   src/MessageFieldCompleter.cpp
@@ -52,17 +62,32 @@ set(rqt_multiplot_SRCS
   src/MessageTopicRegistry.cpp
   src/MessageTypeComboBox.cpp
   src/MessageTypeRegistry.cpp
+  src/MultiplotConfig.cpp
   src/MultiplotPlugin.cpp
+  src/MultiplotWidget.cpp
+  src/PlotConfig.cpp
   src/PlotConfigDialog.cpp
   src/PlotConfigWidget.cpp
+  src/PlotTableConfig.cpp
+  src/PlotTableWidget.cpp
   src/PlotWidget.cpp
   src/StatusWidget.cpp
 )
 
 set(rqt_multiplot_HDRS
+  include/rqt_multiplot/BitOperations.h
+  include/rqt_multiplot/ColorOperations.h
+  include/rqt_multiplot/CurveAxisConfig.h
   include/rqt_multiplot/CurveAxisConfigWidget.h
+  include/rqt_multiplot/CurveAxisRange.h
+  include/rqt_multiplot/CurveAxisRangeWidget.h
+  include/rqt_multiplot/CurveColor.h
+  include/rqt_multiplot/CurveColorWidget.h
+  include/rqt_multiplot/CurveConfig.h
   include/rqt_multiplot/CurveConfigDialog.h
   include/rqt_multiplot/CurveConfigWidget.h
+  include/rqt_multiplot/CurveItemWidget.h
+  include/rqt_multiplot/CurveListWidget.h
   include/rqt_multiplot/Message.h
   include/rqt_multiplot/MessageDefinitionLoader.h
   include/rqt_multiplot/MessageFieldCompleter.h
@@ -78,18 +103,27 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/MessageTopicRegistry.h
   include/rqt_multiplot/MessageTypeComboBox.h
   include/rqt_multiplot/MessageTypeRegistry.h
+  include/rqt_multiplot/MultiplotConfig.h
   include/rqt_multiplot/MultiplotPlugin.h
+  include/rqt_multiplot/MultiplotWidget.h
+  include/rqt_multiplot/PlotConfig.h
   include/rqt_multiplot/PlotConfigDialog.h
   include/rqt_multiplot/PlotConfigWidget.h
+  include/rqt_multiplot/PlotTableConfig.h
+  include/rqt_multiplot/PlotTableWidget.h
   include/rqt_multiplot/PlotWidget.h
   include/rqt_multiplot/StatusWidget.h
 )
 
 set(rqt_multiplot_UIS
   src/CurveAxisConfigWidget.ui
+  src/CurveAxisRangeWidget.ui
+  src/CurveColorWidget.ui
   src/CurveConfigDialog.ui
   src/CurveConfigWidget.ui
-  src/MultiplotPlugin.ui
+  src/CurveItemWidget.ui
+  src/MessageFieldWidget.ui
+  src/MultiplotWidget.ui
   src/PlotConfigDialog.ui
   src/PlotConfigWidget.ui
   src/PlotWidget.ui

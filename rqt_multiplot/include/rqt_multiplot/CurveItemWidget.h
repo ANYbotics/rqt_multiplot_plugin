@@ -16,56 +16,41 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_CURVE_ITEM_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_ITEM_WIDGET_H
 
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
+#include <QWidget>
 
-#include <variant_topic_tools/MessageDefinition.h>
+#include <rqt_multiplot/CurveConfig.h>
+
+namespace Ui {
+  class CurveItemWidget;
+};
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
+  class CurveItemWidget :
+    public QWidget {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
+    CurveItemWidget(QWidget* parent = 0);
+    virtual ~CurveItemWidget();
+
+    void setConfig(CurveConfig* config);
+    CurveConfig* getConfig() const;
+  
+  protected:
+    bool eventFilter(QObject* object, QEvent* event);
     
   private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
+    Ui::CurveItemWidget* ui_;
     
-    Impl impl_;
-    static QMutex mutex_;
+    CurveConfig* config_;
     
   private slots:
-    void threadStarted();
-    void threadFinished();
+    void configTitleChanged(const QString& title);
+    void configXAxisConfigChanged();
+    void configYAxisConfigChanged();
+    void configColorCurrentColorChanged(const QColor& color);
   };
 };
 

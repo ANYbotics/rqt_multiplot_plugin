@@ -16,56 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_CURVE_LIST_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_LIST_WIDGET_H
 
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
+#include <QListWidget>
 
-#include <variant_topic_tools/MessageDefinition.h>
+#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/CurveItemWidget.h>
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
+  class CurveListWidget :
+    public QListWidget {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
+    CurveListWidget(QWidget* parent = 0);
+    virtual ~CurveListWidget();
     
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
+    size_t getNumCurves() const;
+    CurveItemWidget* getCurveItem(size_t index) const;
     
-    void load(const QString& type);
-    void wait();
+    void addCurve(const CurveConfig& config);
+    void removeCurve(size_t index);
     
   signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    static QMutex mutex_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+    void curveAdded(size_t index);
+    void curveConfigChanged(size_t index);
+    void curveRemoved(size_t index);
   };
 };
 

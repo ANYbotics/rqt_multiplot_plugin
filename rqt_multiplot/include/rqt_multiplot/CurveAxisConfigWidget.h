@@ -21,6 +21,8 @@
 
 #include <QWidget>
 
+#include <rqt_multiplot/CurveAxisConfig.h>
+
 namespace Ui {
   class CurveAxisConfigWidget;
 }
@@ -33,12 +35,8 @@ namespace rqt_multiplot {
     CurveAxisConfigWidget(QWidget* parent = 0);
     virtual ~CurveAxisConfigWidget();
 
-    void setTopic(const QString& topic);
-    QString getTopic() const;
-    void setType(const QString& type);
-    QString getType() const;
-    void setField(const QString& field);
-    QString getField() const;
+    void setConfig(CurveAxisConfig* config);
+    CurveAxisConfig* getConfig() const;
     
     void updateTopics();
     void updateTypes();
@@ -47,11 +45,20 @@ namespace rqt_multiplot {
   private:
     Ui::CurveAxisConfigWidget* ui_;
     
+    CurveAxisConfig* config_;
+    
     bool validateTopic();
     bool validateType();
     bool validateField();
+    bool validateRange();
     
   private slots:
+    void configTopicChanged(const QString& topic);
+    void configTypeChanged(const QString& type);
+    void configFieldTypeChanged(int fieldType);
+    void configFieldChanged(const QString& field);
+    void configRangeChanged();
+    
     void comboBoxTopicUpdateStarted();
     void comboBoxTopicUpdateFinished();
     void comboBoxTopicCurrentTopicChanged(const QString& topic);

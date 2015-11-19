@@ -30,7 +30,8 @@ namespace rqt_multiplot {
 
 CurveAxisConfigWidget::CurveAxisConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::CurveAxisConfigWidget()) {
+  ui_(new Ui::CurveAxisConfigWidget()),
+  config_(0) {
   ui_->setupUi(this);
 
   QPixmap pixmapOkay = QPixmap(QString::fromStdString(ros::package::getPath(
@@ -51,6 +52,10 @@ CurveAxisConfigWidget::CurveAxisConfigWidget(QWidget* parent) :
   ui_->statusWidgetField->setIcon(StatusWidget::Okay, pixmapOkay);
   ui_->statusWidgetField->setIcon(StatusWidget::Error, pixmapError);
   ui_->statusWidgetField->setFrames(StatusWidget::Busy, pixmapBusy, 8);
+  
+  ui_->statusWidgetRange->setIcon(StatusWidget::Okay, pixmapOkay);
+  ui_->statusWidgetRange->setIcon(StatusWidget::Error, pixmapError);
+  ui_->statusWidgetRange->setFrames(StatusWidget::Busy, pixmapBusy, 8);
   
   connect(ui_->comboBoxTopic, SIGNAL(updateStarted()), this,
     SLOT(comboBoxTopicUpdateStarted()));
@@ -94,28 +99,51 @@ CurveAxisConfigWidget::~CurveAxisConfigWidget() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveAxisConfigWidget::setTopic(const QString& topic) {
-  ui_->comboBoxTopic->setCurrentTopic(topic);
+void CurveAxisConfigWidget::setConfig(CurveAxisConfig* config) {
+  if (config_ != config) {
+    if (config_) {
+      disconnect(config_, SIGNAL(topicChanged(const QString&)), this,
+        SLOT(configTopicChanged(const QString&)));
+      disconnect(config_, SIGNAL(typeChanged(const QString&)), this,
+        SLOT(configTypeChanged(const QString&)));
+      disconnect(config_, SIGNAL(fieldTypeChanged(int)), this,
+        SLOT(configFieldTypeChanged(int)));
+      disconnect(config_, SIGNAL(fieldChanged(const QString&)), this,
+        SLOT(configFieldChanged(const QString&)));
+      disconnect(config_->getRange(), SIGNAL(changed()), this,
+        SLOT(configRangeChanged()));
+    }
+    
+    config_ = config;
+    
+    if (config) {
+      ui_->widgetRange->setRange(config->getRange());
+            
+      connect(config, SIGNAL(topicChanged(const QString&)), this,
+        SLOT(configTopicChanged(const QString&)));
+      connect(config, SIGNAL(typeChanged(const QString&)), this,
+        SLOT(configTypeChanged(const QString&)));
+      connect(config, SIGNAL(fieldTypeChanged(int)), this,
+        SLOT(configFieldTypeChanged(int)));
+      connect(config, SIGNAL(fieldChanged(const QString&)), this,
+        SLOT(configFieldChanged(const QString&)));
+      connect(config->getRange(), SIGNAL(changed()), this,
+        SLOT(configRangeChanged()));
+      
+      configTopicChanged(config->getTopic());
+      configTypeChanged(config->getType());
+      configFieldTypeChanged(config->getFieldType());
+      configFieldChanged(config->getField());
+      configRangeChanged();
+    }
+    else {
+      ui_->widgetRange->setRange(0);
+    }
+  }
 }
 
-QString CurveAxisConfigWidget::getTopic() const {
-  return ui_->comboBoxTopic->getCurrentTopic();
-}
-
-void CurveAxisConfigWidget::setType(const QString& type) {
-  ui_->comboBoxType->setCurrentType(type);
-}
-
-QString CurveAxisConfigWidget::getType() const {
-  return ui_->comboBoxType->getCurrentType();
-}
-
-void CurveAxisConfigWidget::setField(const QString& field) {
-  ui_->widgetField->setCurrentField(field);
-}
-
-QString CurveAxisConfigWidget::getField() const {
-  return ui_->widgetField->getCurrentField();
+CurveAxisConfig* CurveAxisConfigWidget::getConfig() const {
+  return config_;
 }
 
 /*****************************************************************************/
@@ -131,30 +159,32 @@ void CurveAxisConfigWidget::updateTypes() {
 }
 
 void CurveAxisConfigWidget::updateFields() {
-  ui_->widgetField->loadFields(getType());
+  if (config_)
+    ui_->widgetField->loadFields(config_->getType());
 }
 
 bool CurveAxisConfigWidget::validateTopic() {
-  if (ui_->comboBoxTopic->isUpdating())
+  if (!config_ || ui_->comboBoxTopic->isUpdating())
     return false;
   
   if (ui_->comboBoxTopic->isCurrentTopicRegistered()) {
-    ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Okay, "Topic okay");
+    ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Okay,
+      "Topic okay");
     
     return true;
   }
   else {
     ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Error,
-      "Topic ["+getTopic()+"] not advertised");
+      "Topic ["+config_->getTopic()+"] not advertised");
     
     validateType();
     
     return false;
-  }    
+  }
 }
 
 bool CurveAxisConfigWidget::validateType() {
-  if (ui_->comboBoxType->isUpdating())
+  if (!config_ || ui_->comboBoxType->isUpdating())
     return false;
   
   if (!ui_->comboBoxTopic->isCurrentTopicRegistered()) {
@@ -166,13 +196,13 @@ bool CurveAxisConfigWidget::validateType() {
     }
     else {
       ui_->statusWidgetType->setCurrentRole(StatusWidget::Error,
-        "Message type ["+getType()+"] not found in package path");
+        "Message type ["+config_->getType()+"] not found in package path");
       
       return false;
     }
   }
   else {
-    if (ui_->comboBoxTopic->getCurrentTopicType() == getType()) {
+    if (ui_->comboBoxTopic->getCurrentTopicType() == config_->getType()) {
       ui_->statusWidgetType->setCurrentRole(StatusWidget::Okay,
         "Message type okay");
       
@@ -180,9 +210,10 @@ bool CurveAxisConfigWidget::validateType() {
     }
     else {
       ui_->statusWidgetType->setCurrentRole(StatusWidget::Error,
-        "Message type ["+getType()+"] mismatches advertised message type ["
+        "Message type ["+config_->getType()+
+        "] mismatches advertised message type ["
         +ui_->comboBoxTopic->getCurrentTopicType()+"] for topic ["+
-        getTopic()+"]");
+        config_->getTopic()+"]");
       
       return false;
     }
@@ -190,11 +221,11 @@ bool CurveAxisConfigWidget::validateType() {
 }
 
 bool CurveAxisConfigWidget::validateField() {
-  if (ui_->widgetField->isLoading())
+  if (!config_ || ui_->widgetField->isLoading())
     return false;
   
   if (ui_->checkBoxFieldReceiptTime->checkState() == Qt::Unchecked) {
-    QString field = getField();
+    QString field = config_->getField();
 
     if (!field.isEmpty()) {
       variant_topic_tools::DataType fieldType = ui_->widgetField->
@@ -233,9 +264,48 @@ bool CurveAxisConfigWidget::validateField() {
   return false;
 }
 
+bool CurveAxisConfigWidget::validateRange() {
+  if (config_) {
+    if (config_->getRange()->isEmpty()) {
+      ui_->statusWidgetRange->setCurrentRole(StatusWidget::Error,
+        "Axis range empty");
+      
+      return false;
+    }
+    else {
+      ui_->statusWidgetRange->setCurrentRole(StatusWidget::Okay,
+        "Axis range okay");
+      
+      return true;
+    }
+  }
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
+
+void CurveAxisConfigWidget::configTopicChanged(const QString& topic) {
+  ui_->comboBoxTopic->setCurrentTopic(topic);
+}
+
+void CurveAxisConfigWidget::configTypeChanged(const QString& type) {
+  ui_->comboBoxType->setCurrentType(type);
+}
+
+void CurveAxisConfigWidget::configFieldTypeChanged(int fieldType) {
+  ui_->checkBoxFieldReceiptTime->setCheckState(
+    (fieldType == CurveAxisConfig::MessageReceiptTime) ?
+    Qt::Checked : Qt::Unchecked);
+}
+
+void CurveAxisConfigWidget::configFieldChanged(const QString& field) {
+  ui_->widgetField->setCurrentField(field);
+}
+
+void CurveAxisConfigWidget::configRangeChanged() {
+  validateRange();
+}
 
 void CurveAxisConfigWidget::comboBoxTopicUpdateStarted() {
   ui_->statusWidgetTopic->pushCurrentRole();
@@ -245,13 +315,18 @@ void CurveAxisConfigWidget::comboBoxTopicUpdateStarted() {
 
 void CurveAxisConfigWidget::comboBoxTopicUpdateFinished() {
   ui_->statusWidgetTopic->popCurrentRole();
+  
   validateTopic();
 }
 
 void CurveAxisConfigWidget::comboBoxTopicCurrentTopicChanged(const QString&
     topic) {
-  if (ui_->comboBoxTopic->isCurrentTopicRegistered())
-    setType(ui_->comboBoxTopic->getCurrentTopicType());
+  if (config_) {
+    config_->setTopic(topic);
+    
+    if (ui_->comboBoxTopic->isCurrentTopicRegistered())
+      config_->setType(ui_->comboBoxTopic->getCurrentTopicType());
+  }
   
   validateTopic();
 }
@@ -264,11 +339,15 @@ void CurveAxisConfigWidget::comboBoxTypeUpdateStarted() {
 
 void CurveAxisConfigWidget::comboBoxTypeUpdateFinished() {
   ui_->statusWidgetType->popCurrentRole();
+  
   validateType();
 }
 
 void CurveAxisConfigWidget::comboBoxTypeCurrentTypeChanged(const QString&
     type) {
+  if (config_)
+    config_->setType(type);
+  
   validateType();
   updateFields();
 }
@@ -291,8 +370,9 @@ void CurveAxisConfigWidget::widgetFieldLoadingFailed(const QString&
     error) {
   ui_->statusWidgetField->popCurrentRole();
   
-  if (ui_->comboBoxTopic->getCurrentTopicType() == getType())
-    ui_->widgetField->connectTopic(getTopic());
+  if (config_ && (ui_->comboBoxTopic->getCurrentTopicType() == config_->
+      getType()))
+    ui_->widgetField->connectTopic(config_->getTopic());
   else
     validateField();
 }
@@ -314,16 +394,25 @@ void CurveAxisConfigWidget::widgetFieldConnected(const QString& topic) {
 void CurveAxisConfigWidget::widgetFieldConnectionTimeout(const QString&
     topic, double timeout) {
   ui_->statusWidgetField->popCurrentRole();
+  
   validateField();
 }
 
 void CurveAxisConfigWidget::widgetFieldCurrentFieldChanged(const QString&
     field) {
+  if (config_)
+    config_->setField(field);
+  
   validateField();
 }
 
 void CurveAxisConfigWidget::checkBoxFieldReceiptTimeStateChanged(int state) {
   ui_->widgetField->setEnabled(state == Qt::Unchecked);
+  
+  if (config_)
+    config_->setFieldType((state == Qt::Checked) ?
+      CurveAxisConfig::MessageReceiptTime : CurveAxisConfig::MessageData);
+    
   validateField();
 }
 

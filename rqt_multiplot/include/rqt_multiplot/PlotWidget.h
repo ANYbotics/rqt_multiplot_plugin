@@ -21,6 +21,8 @@
 
 #include <QWidget>
 
+#include <rqt_multiplot/PlotConfig.h>
+
 namespace Ui {
   class PlotWidget;
 };
@@ -31,11 +33,9 @@ namespace rqt_multiplot {
   Q_OBJECT
   public:
     PlotWidget(QWidget* parent = 0);
-    PlotWidget(const PlotWidget& src);
     virtual ~PlotWidget();
 
-    void setTitle(const QString& title);
-    QString getTitle() const;
+    PlotConfig* getConfig() const;
     
     void run();
     void pause();
@@ -47,19 +47,24 @@ namespace rqt_multiplot {
   private:
     Ui::PlotWidget* ui_;
     
+    PlotConfig* config_;
+    
     void init();
     
   private slots:
-    void titleTextChanged(const QString& text);
+    void configChanged();
     
-    void runPauseClicked();
-    void clearClicked();
-    void ejectClicked();
+    void lineEditTitleTextChanged(const QString& text);
+    void lineEditTitleEditingFinished();
     
-    void xTopScaleDivChanged();
-    void xBottomScaleDivChanged();
-    void yLeftScaleDivChanged();
-    void yRightScaleDivChanged();  
+    void pushButtonRunPauseClicked();
+    void pushButtonClearClicked();
+    void pushButtonEditClicked();
+    
+    void plotXTopScaleDivChanged();
+    void plotXBottomScaleDivChanged();
+    void plotYLeftScaleDivChanged();
+    void plotYRightScaleDivChanged();  
   };
 };
 

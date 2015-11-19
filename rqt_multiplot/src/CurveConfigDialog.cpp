@@ -29,7 +29,7 @@ namespace rqt_multiplot {
 CurveConfigDialog::CurveConfigDialog(QWidget* parent, Qt::WindowFlags flags) :
   QDialog(parent, flags),
   ui_(new Ui::CurveConfigDialog()) {
-  ui_->setupUi(this);  
+  ui_->setupUi(this);
 }
 
 CurveConfigDialog::~CurveConfigDialog() {
