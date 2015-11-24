@@ -36,6 +36,7 @@ catkin_python_setup()
 set(rqt_multiplot_SRCS
   src/BitOperations.cpp
   src/ColorOperations.cpp
+  src/ConfigComboBox.cpp
   src/CurveAxisConfig.cpp
   src/CurveAxisConfigWidget.cpp
   src/CurveAxisRange.cpp
@@ -47,6 +48,7 @@ set(rqt_multiplot_SRCS
   src/CurveConfigWidget.cpp
   src/CurveItemWidget.cpp
   src/CurveListWidget.cpp
+  src/FileScheme.cpp
   src/Message.cpp
   src/MessageDefinitionLoader.cpp
   src/MessageFieldCompleter.cpp
@@ -63,20 +65,30 @@ set(rqt_multiplot_SRCS
   src/MessageTypeComboBox.cpp
   src/MessageTypeRegistry.cpp
   src/MultiplotConfig.cpp
+  src/MultiplotConfigWidget.cpp
   src/MultiplotPlugin.cpp
   src/MultiplotWidget.cpp
+  src/PackageRegistry.cpp
+  src/PackageScheme.cpp
   src/PlotConfig.cpp
   src/PlotConfigDialog.cpp
   src/PlotConfigWidget.cpp
   src/PlotTableConfig.cpp
+  src/PlotTableConfigWidget.cpp
   src/PlotTableWidget.cpp
   src/PlotWidget.cpp
   src/StatusWidget.cpp
+  src/UrlComboBox.cpp
+  src/UrlCompleter.cpp
+  src/UrlItem.cpp
+  src/UrlItemModel.cpp
+  src/UrlScheme.cpp
 )
 
 set(rqt_multiplot_HDRS
   include/rqt_multiplot/BitOperations.h
   include/rqt_multiplot/ColorOperations.h
+  include/rqt_multiplot/ConfigComboBox.h
   include/rqt_multiplot/CurveAxisConfig.h
   include/rqt_multiplot/CurveAxisConfigWidget.h
   include/rqt_multiplot/CurveAxisRange.h
@@ -88,6 +100,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveConfigWidget.h
   include/rqt_multiplot/CurveItemWidget.h
   include/rqt_multiplot/CurveListWidget.h
+  include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/Message.h
   include/rqt_multiplot/MessageDefinitionLoader.h
   include/rqt_multiplot/MessageFieldCompleter.h
@@ -104,15 +117,24 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/MessageTypeComboBox.h
   include/rqt_multiplot/MessageTypeRegistry.h
   include/rqt_multiplot/MultiplotConfig.h
+  include/rqt_multiplot/MultiplotConfigWidget.h
   include/rqt_multiplot/MultiplotPlugin.h
   include/rqt_multiplot/MultiplotWidget.h
+  include/rqt_multiplot/PackageRegistry.h
+  include/rqt_multiplot/PackageScheme.h
   include/rqt_multiplot/PlotConfig.h
   include/rqt_multiplot/PlotConfigDialog.h
   include/rqt_multiplot/PlotConfigWidget.h
   include/rqt_multiplot/PlotTableConfig.h
+  include/rqt_multiplot/PlotTableConfigWidget.h
   include/rqt_multiplot/PlotTableWidget.h
   include/rqt_multiplot/PlotWidget.h
   include/rqt_multiplot/StatusWidget.h
+  include/rqt_multiplot/UrlComboBox.h
+  include/rqt_multiplot/UrlCompleter.h
+  include/rqt_multiplot/UrlItem.h
+  include/rqt_multiplot/UrlItemModel.h
+  include/rqt_multiplot/UrlScheme.h
 )
 
 set(rqt_multiplot_UIS
@@ -123,9 +145,11 @@ set(rqt_multiplot_UIS
   src/CurveConfigWidget.ui
   src/CurveItemWidget.ui
   src/MessageFieldWidget.ui
+  src/MultiplotConfigWidget.ui
   src/MultiplotWidget.ui
   src/PlotConfigDialog.ui
   src/PlotConfigWidget.ui
+  src/PlotTableConfigWidget.ui
   src/PlotWidget.ui
 )
 

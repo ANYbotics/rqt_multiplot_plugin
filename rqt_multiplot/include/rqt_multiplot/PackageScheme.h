@@ -16,50 +16,58 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#ifndef RQT_MULTIPLOT_PACKAGE_SCHEME_H
+#define RQT_MULTIPLOT_PACKAGE_SCHEME_H
 
-#include <QColor>
-#include <QObject>
-#include <QSettings>
-#include <QVector>
+#include <QDir>
+#include <QFileSystemModel>
+#include <QList>
+#include <QMap>
+#include <QStringListModel>
 
-#include <rqt_multiplot/PlotConfig.h>
+#include <rqt_multiplot/PackageRegistry.h>
+#include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
-    public QObject {
+  class PackageScheme :
+    public UrlScheme {
   Q_OBJECT
   public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
+    PackageScheme(QObject* parent = 0, const QString& prefix = "package",
+      QDir::Filters filter = QDir::NoFilter);
+    virtual ~PackageScheme();
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    PlotTableConfig& operator=(const PlotTableConfig& src);
-    
-  signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
+    void setFilter(QDir::Filters filter);
+    QDir::Filters getFilter() const;
+
+    size_t getNumHosts() const;
+    QModelIndex getHostIndex(size_t row) const;
+    QVariant getHostData(const QModelIndex& index, int role) const;
+      
+    size_t getNumPaths(const QModelIndex& hostIndex, const QModelIndex&
+      parent) const;
+    QModelIndex getPathIndex(const QModelIndex& hostIndex, size_t row,
+      const QModelIndex& parent = QModelIndex()) const;
+    QVariant getPathData(const QModelIndex& index, int role) const;
+      
+    QString getHost(const QModelIndex& hostIndex) const;
+    QString getPath(const QModelIndex& hostIndex, const QModelIndex&
+      pathIndex) const;
     
   private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
+    PackageRegistry* registry_;
+    
+    QFileSystemModel* fileSystemModel_;
+    QStringListModel* packageListModel_;
+    
+    QList<QString> packages_;
+    QMap<QString, QString> packagePaths_;    
     
   private slots:
-    void plotConfigChanged();
+    void registryUpdateStarted();
+    void registryUpdateFinished();
+    
+    void modelDirectoryLoaded(const QString& path);
   };
 };
 

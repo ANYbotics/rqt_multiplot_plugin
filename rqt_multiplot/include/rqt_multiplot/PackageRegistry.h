@@ -16,50 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#ifndef RQT_MULTIPLOT_PACKAGE_REGISTRY_H
+#define RQT_MULTIPLOT_PACKAGE_REGISTRY_H
 
-#include <QColor>
+#include <QMap>
+#include <QMutex>
 #include <QObject>
-#include <QSettings>
-#include <QVector>
-
-#include <rqt_multiplot/PlotConfig.h>
+#include <QString>
+#include <QThread>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
+  class PackageRegistry :
     public QObject {
   Q_OBJECT
   public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
-
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
+    PackageRegistry(QObject* parent = 0);
+    ~PackageRegistry();
     
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
+    QMap<QString, QString> getPackages() const;
     
-    PlotTableConfig& operator=(const PlotTableConfig& src);
+    void update();
+    void wait();
     
   signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
+    void updateStarted();
+    void updateFinished();
     
   private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
+    class Impl :
+      public QThread {
+    public:
+      Impl(QObject* parent = 0);
+      
+      void run();
+      
+      mutable QMutex mutex_;
+      QMap<QString, QString> packages_;
+    };
+    
+    static Impl impl_;
     
   private slots:
-    void plotConfigChanged();
+    void threadStarted();
+    void threadFinished();
   };
 };
 

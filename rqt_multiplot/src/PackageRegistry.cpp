@@ -16,72 +16,92 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <ui_CurveConfigWidget.h>
+#include <QDir>
+#include <QMutexLocker>
 
-#include "rqt_multiplot/CurveConfigWidget.h"
+#include <ros/package.h>
+
+#include "rqt_multiplot/PackageRegistry.h"
 
 namespace rqt_multiplot {
+
+/*****************************************************************************/
+/* Static Initializations                                                    */
+/*****************************************************************************/
+
+PackageRegistry::Impl PackageRegistry::impl_;
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveConfigWidget()),
-  config_(new CurveConfig(this)),
-  messageTopicRegistry_(new MessageTopicRegistry(this)),
-  messageTypeRegistry_(new MessageTypeRegistry(this)) {
-  ui_->setupUi(this);
-  
-  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
-    CurveConfig::X));
-  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
-    CurveConfig::Y));
-  ui_->curveColorWidget->setColor(config_->getColor());
-  
-  connect(config_, SIGNAL(titleChanged(const QString&)), this,
-    SLOT(configTitleChanged(const QString&)));
-  
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
-  
-  messageTopicRegistry_->update();
-  messageTypeRegistry_->update();
-  
-  configTitleChanged(config_->getTitle());
+PackageRegistry::PackageRegistry(QObject* parent) :
+  QObject(parent) {
+  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
+  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
 
-CurveConfigWidget::~CurveConfigWidget() {
-  delete ui_;
+PackageRegistry::~PackageRegistry() {
+}
+
+PackageRegistry::Impl::Impl(QObject* parent) :
+  QThread(parent) {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveConfigWidget::setConfig(const CurveConfig& config) {
-  *config_ = config;
+QMap<QString, QString> PackageRegistry::getPackages() const {
+  QMutexLocker lock(&impl_.mutex_);
+  
+  return impl_.packages_;
 }
 
-CurveConfig& CurveConfigWidget::getConfig() {
-  return *config_;
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void PackageRegistry::update() {
+  impl_.start();
 }
 
-const CurveConfig& CurveConfigWidget::getConfig() const {
-  return *config_;
+void PackageRegistry::wait() {
+  impl_.wait();
+}
+
+void PackageRegistry::Impl::run() {
+  std::vector<std::string> packages;
+  
+  mutex_.lock();
+  packages_.clear();
+  mutex_.unlock();
+  
+  if (ros::package::getAll(packages)) {
+    for (size_t i = 0; i < packages.size(); ++i) {
+      QString package = QString::fromStdString(packages[i]);
+      QDir directory(QString::fromStdString(ros::package::
+        getPath(packages[i])));
+
+      if (directory.exists()) {
+        mutex_.lock();
+        packages_[package] = directory.absolutePath();
+        mutex_.unlock();
+      }
+    }
+  }
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveConfigWidget::configTitleChanged(const QString& title) {
-  ui_->lineEditTitle->setText(title);
+void PackageRegistry::threadStarted() {
+  emit updateStarted();
 }
-
-void CurveConfigWidget::lineEditTitleEditingFinished() {
-  config_->setTitle(ui_->lineEditTitle->text());
+  
+void PackageRegistry::threadFinished() {
+  emit updateFinished();
 }
-
+  
 }

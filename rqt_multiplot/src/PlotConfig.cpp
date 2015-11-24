@@ -96,6 +96,61 @@ void PlotConfig::removeCurve(size_t index) {
   }
 }
 
+void PlotConfig::clearCurves() {
+  if (!curveConfig_.isEmpty()) {
+    for (size_t i = 0; i < curveConfig_.count(); ++i)
+      delete curveConfig_[i];
+    
+    curveConfig_.clear();
+    
+    emit changed();
+  }
+}
+
+void PlotConfig::save(QSettings& settings) const {
+  settings.setValue("title", title_);  
+  
+  settings.beginGroup("curves");
+  
+  for (size_t index = 0; index < curveConfig_.count(); ++index) {
+    settings.beginGroup(QString::number(index));
+    curveConfig_[index]->save(settings);
+    settings.endGroup();
+  }
+  
+  settings.endGroup();
+}
+
+void PlotConfig::load(QSettings& settings) {
+  setTitle(settings.value("title", "Untitled Curve").toString());
+  
+  settings.beginGroup("curves");
+  
+  QStringList groups = settings.childGroups();
+  size_t index = 0;
+  
+  for (QStringList::iterator it = groups.begin(); it != groups.end(); ++it) {
+    CurveConfig* curveConfig = 0;
+    
+    if (index < curveConfig_.count())
+      curveConfig = curveConfig_[index];
+    else
+      curveConfig = addCurve();
+    
+    settings.beginGroup(*it);
+    curveConfig->load(settings);
+    settings.endGroup();
+    
+    ++index;
+  }
+
+  settings.endGroup();
+  
+  while (index < curveConfig_.count())
+    removeCurve(index);  
+}
+
+
 /*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/

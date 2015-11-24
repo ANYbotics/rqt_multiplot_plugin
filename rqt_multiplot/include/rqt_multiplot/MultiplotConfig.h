@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_MULTIPLOT_CONFIG_H
 
 #include <QObject>
+#include <QSettings>
 
 #include <rqt_multiplot/PlotTableConfig.h>
 
@@ -34,6 +35,9 @@ namespace rqt_multiplot {
     PlotTableConfig* getTableConfig() const;
     
     MultiplotConfig& operator=(const MultiplotConfig& src);
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
     
   signals:
     void changed();

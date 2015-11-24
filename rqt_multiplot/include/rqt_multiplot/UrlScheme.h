@@ -16,50 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#ifndef RQT_MULTIPLOT_URL_SCHEME_H
+#define RQT_MULTIPLOT_URL_SCHEME_H
 
-#include <QColor>
 #include <QObject>
-#include <QSettings>
-#include <QVector>
-
-#include <rqt_multiplot/PlotConfig.h>
+#include <QModelIndex>
+#include <QString>
+#include <QVariant>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
+  class UrlScheme :
     public QObject {
   Q_OBJECT
   public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
+    UrlScheme(const QString& prefix, QObject* parent = 0);
+    virtual ~UrlScheme();
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
+    const QString& getPrefix() const;
     
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    PlotTableConfig& operator=(const PlotTableConfig& src);
+    virtual size_t getNumHosts() const = 0;
+    virtual QModelIndex getHostIndex(size_t row) const = 0;
+    virtual QVariant getHostData(const QModelIndex& index, int role)
+      const = 0;
+      
+    virtual size_t getNumPaths(const QModelIndex& hostIndex, const
+      QModelIndex& parent = QModelIndex()) const = 0;
+    virtual QModelIndex getPathIndex(const QModelIndex& hostIndex,
+      size_t row, const QModelIndex& parent = QModelIndex()) const = 0;
+    virtual QVariant getPathData(const QModelIndex& index, int role)
+      const = 0;
+      
+    virtual QString getHost(const QModelIndex& hostIndex) const = 0;
+    virtual QString getPath(const QModelIndex& hostIndex, const
+      QModelIndex& pathIndex) const = 0;
     
   signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
-    
+    void resetStarted();
+    void resetFinished();
+    void pathLoaded(const QString& host, const QString& path);
+
   private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
-    
-  private slots:
-    void plotConfigChanged();
+    QString prefix_;
   };
 };
 

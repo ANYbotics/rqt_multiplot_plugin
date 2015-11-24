@@ -18,6 +18,8 @@
 
 #include "rqt_multiplot/CurveAxisConfig.h"
 
+Q_DECLARE_METATYPE(rqt_multiplot::CurveAxisConfig::FieldType)
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
@@ -99,6 +101,32 @@ CurveAxisRange* CurveAxisConfig::getRange() const {
 }
 
 /*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void CurveAxisConfig::save(QSettings& settings) const {
+  settings.setValue("topic", topic_);
+  settings.setValue("type", type_);
+  settings.setValue("field_type", QVariant::fromValue<FieldType>(fieldType_));
+  settings.setValue("field", field_);
+  
+  settings.beginGroup("range");
+  range_->save(settings);
+  settings.endGroup();
+}
+
+void CurveAxisConfig::load(QSettings& settings) {
+  setTopic(settings.value("topic").toString());
+  setType(settings.value("type").toString());
+  setFieldType(settings.value("field_type").value<FieldType>());
+  setField(settings.value("field").toString());
+  
+  settings.beginGroup("range");
+  range_->load(settings);
+  settings.endGroup();
+}
+
+/*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 
@@ -107,6 +135,7 @@ CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
   setType(src.type_);
   setFieldType(src.fieldType_);
   setField(src.field_);
+  
   *range_ = *src.range_;
   
   return *this;

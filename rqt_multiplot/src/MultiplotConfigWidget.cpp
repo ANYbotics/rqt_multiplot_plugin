@@ -18,9 +18,9 @@
 
 #include <ros/package.h>
 
-#include <ui_MultiplotWidget.h>
+#include <ui_MultiplotConfigWidget.h>
 
-#include "rqt_multiplot/MultiplotWidget.h"
+#include "rqt_multiplot/MultiplotConfigWidget.h"
 
 namespace rqt_multiplot {
 
@@ -28,25 +28,39 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MultiplotWidget::MultiplotWidget(QWidget* parent) :
+MultiplotConfigWidget::MultiplotConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::MultiplotWidget()),
-  config_(new MultiplotConfig(this)) {
+  ui_(new Ui::MultiplotConfigWidget()),
+  config_(0) {
   ui_->setupUi(this);
   
-  ui_->configWidget->setConfig(config_);
-  ui_->plotTableConfigWidget->setConfig(config_->getTableConfig());
-  ui_->plotTableWidget->setConfig(config_->getTableConfig());
+  ui_->pushButtonNew->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/add.png"))));
+  ui_->pushButtonOpen->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/open.png"))));
+  ui_->pushButtonSave->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/save.png"))));
+  ui_->pushButtonSaveAs->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/save_as.png"))));
 }
 
-MultiplotWidget::~MultiplotWidget() {
+MultiplotConfigWidget::~MultiplotConfigWidget() {
+  delete ui_;
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-MultiplotConfig* MultiplotWidget::getConfig() const {
+void MultiplotConfigWidget::setConfig(MultiplotConfig* config) {
+  config_ = config;
+}
+
+MultiplotConfig* MultiplotConfigWidget::getConfig() const {
   return config_;
 }
 

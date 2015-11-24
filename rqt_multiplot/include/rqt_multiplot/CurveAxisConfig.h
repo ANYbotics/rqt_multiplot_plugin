@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_CURVE_AXIS_CONFIG_H
 
 #include <QObject>
+#include <QSettings>
 #include <QString>
 
 #include <rqt_multiplot/CurveAxisRange.h>
@@ -49,6 +50,9 @@ namespace rqt_multiplot {
     const QString& getField() const;
     CurveAxisRange* getRange() const;
   
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    
     CurveAxisConfig& operator=(const CurveAxisConfig& src);
     
   signals:
@@ -63,6 +67,7 @@ namespace rqt_multiplot {
     QString type_;
     FieldType fieldType_;
     QString field_;
+    
     CurveAxisRange* range_;
     
   private slots:

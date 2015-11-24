@@ -16,50 +16,49 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#ifndef RQT_MULTIPLOT_URL_ITEM_H
+#define RQT_MULTIPLOT_URL_ITEM_H
 
-#include <QColor>
-#include <QObject>
-#include <QSettings>
-#include <QVector>
+#include <QMap>
+#include <QModelIndex>
 
-#include <rqt_multiplot/PlotConfig.h>
+#include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
-    public QObject {
-  Q_OBJECT
+  class UrlItem {
   public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
+    enum Type {
+      Scheme,
+      Host,
+      Path
+    };
+    
+    UrlItem(UrlScheme* scheme = 0, Type type = Scheme, const QModelIndex&
+      index = QModelIndex(), UrlItem* parent = 0);
+    ~UrlItem();
+  
+    UrlItem* getParent() const;
+    size_t getNumChildren() const;
+    UrlItem* getChild(size_t row) const;
+    int getRow() const;
+    
+    void setScheme(UrlScheme* scheme);
+    UrlScheme* getScheme() const;
+    void setType(Type type);
+    Type getType() const;
+    void setIndex(const QModelIndex& index);
+    const QModelIndex& getIndex() const;
+    QModelIndex getIndex(Type type) const;
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    PlotTableConfig& operator=(const PlotTableConfig& src);
-    
-  signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
+    UrlItem* addChild(size_t row, Type type, const QModelIndex& index);
     
   private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
+    UrlItem* parent_;
+    QMap<size_t, UrlItem*> children_;
     
-  private slots:
-    void plotConfigChanged();
+    UrlScheme* scheme_;
+    Type type_;
+    QModelIndex index_;
   };
 };
 

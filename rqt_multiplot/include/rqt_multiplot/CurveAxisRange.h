@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_CURVE_AXIS_RANGE_H
 
 #include <QObject>
+#include <QSettings>
 
 namespace rqt_multiplot {
   class CurveAxisRange :
@@ -46,6 +47,9 @@ namespace rqt_multiplot {
     void setWindowSize(double size);
     double getWindowSize() const;
     bool isEmpty() const;
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
     
     CurveAxisRange& operator=(const CurveAxisRange& src);
     

@@ -16,51 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#include <QDir>
 
-#include <QColor>
-#include <QObject>
-#include <QSettings>
-#include <QVector>
-
-#include <rqt_multiplot/PlotConfig.h>
+#include "rqt_multiplot/ConfigComboBox.h"
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
-    public QObject {
-  Q_OBJECT
-  public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    PlotTableConfig& operator=(const PlotTableConfig& src);
-    
-  signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
-    
-  private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
-    
-  private slots:
-    void plotConfigChanged();
-  };
-};
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
 
-#endif
+ConfigComboBox::ConfigComboBox(QWidget* parent) :
+  UrlComboBox(parent),
+  rootFileScheme_(new FileScheme(this)),
+  homeFileScheme_(new FileScheme(this, "home", QDir::homePath())),
+  packageScheme_(new PackageScheme(this)) {
+  getCompleter()->getModel()->addScheme(rootFileScheme_);
+  getCompleter()->getModel()->addScheme(homeFileScheme_);
+  getCompleter()->getModel()->addScheme(packageScheme_);
+  
+  getCompleter()->setCompletionMode(QCompleter::InlineCompletion);
+}
+
+ConfigComboBox::~ConfigComboBox() {
+}
+
+}

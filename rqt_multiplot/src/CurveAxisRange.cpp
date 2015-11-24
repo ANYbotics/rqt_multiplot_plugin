@@ -18,6 +18,8 @@
 
 #include "rqt_multiplot/CurveAxisRange.h"
 
+Q_DECLARE_METATYPE(rqt_multiplot::CurveAxisRange::Type)
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
@@ -99,6 +101,24 @@ bool CurveAxisRange::isEmpty() const {
     return (windowSize_ <= 0.0);
   else
     return false;
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void CurveAxisRange::save(QSettings& settings) const {
+  settings.setValue("type", QVariant::fromValue<Type>(type_));
+  settings.setValue("fixed_minimum", fixedMinimum_);
+  settings.setValue("fixed_maximum", fixedMaximum_);
+  settings.setValue("window_size", windowSize_);
+}
+
+void CurveAxisRange::load(QSettings& settings) {
+  setType(settings.value("type").value<Type>());
+  setFixedMinimum(settings.value("fixed_minimum").toDouble());
+  setFixedMaximum(settings.value("fixed_maximum").toDouble());
+  setWindowSize(settings.value("window_size").toDouble());
 }
 
 /*****************************************************************************/

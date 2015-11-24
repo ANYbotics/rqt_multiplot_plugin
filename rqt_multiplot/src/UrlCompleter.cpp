@@ -16,11 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <ros/package.h>
+#include <QStringList>
 
-#include <ui_MultiplotWidget.h>
-
-#include "rqt_multiplot/MultiplotWidget.h"
+#include "rqt_multiplot/UrlCompleter.h"
 
 namespace rqt_multiplot {
 
@@ -28,26 +26,68 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MultiplotWidget::MultiplotWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::MultiplotWidget()),
-  config_(new MultiplotConfig(this)) {
-  ui_->setupUi(this);
+UrlCompleter::UrlCompleter(QObject* parent) :
+  QCompleter(parent),
+  model_(new UrlItemModel(this)) {
+  setModel(model_);
   
-  ui_->configWidget->setConfig(config_);
-  ui_->plotTableConfigWidget->setConfig(config_->getTableConfig());
-  ui_->plotTableWidget->setConfig(config_->getTableConfig());
+  connect(model_, SIGNAL(urlLoaded(const QString&)), this,
+    SLOT(modelUrlLoaded(const QString&)));
 }
 
-MultiplotWidget::~MultiplotWidget() {
+UrlCompleter::~UrlCompleter() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-MultiplotConfig* MultiplotWidget::getConfig() const {
-  return config_;
+UrlItemModel* UrlCompleter::getModel() const {
+  return model_;
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+QStringList UrlCompleter::splitPath(const QString& url) const {
+  QString scheme, path;
+  
+  QStringList urlParts = url.split("://");
+  
+  if (urlParts.count() > 1) {
+    scheme = urlParts[0];
+    path = urlParts[1];
+  }
+  else
+    path = url;
+  
+  QStringList pathParts = path.split("/");
+
+  if (path[0] == '/')
+    pathParts[0] = "/";
+
+  QStringList parts;
+  if (!scheme.isEmpty())
+    parts.append(scheme+"://");
+  parts.append(pathParts);
+  
+  return parts;
+}
+
+QString UrlCompleter::pathFromIndex(const QModelIndex& index) const {
+  return model_->getUrl(index);
+}
+
+/*****************************************************************************/
+/* Slots                                                                     */
+/*****************************************************************************/
+
+void UrlCompleter::modelUrlLoaded(const QString& url) {
+  QString prefix = completionPrefix();
+  
+  if (prefix.startsWith(url) && (prefix != (url+"/")))
+    complete();
 }
 
 }

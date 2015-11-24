@@ -21,6 +21,7 @@
 
 #include <QColor>
 #include <QObject>
+#include <QSettings>
 
 namespace rqt_multiplot {
   class CurveColor :
@@ -44,6 +45,9 @@ namespace rqt_multiplot {
     const QColor& getCustomColor() const;
     QColor getCurrentColor() const;
   
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    
     CurveColor& operator=(const CurveColor& src);
     
   signals:

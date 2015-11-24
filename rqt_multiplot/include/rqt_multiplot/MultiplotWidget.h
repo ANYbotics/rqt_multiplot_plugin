@@ -41,14 +41,6 @@ namespace rqt_multiplot {
     Ui::MultiplotWidget* ui_;
     
     MultiplotConfig* config_;
-
-  private slots:
-    void spinBoxRowsValueChanged(int value);
-    void spinBoxColumnsValueChanged(int value);
-    
-    void pushButtonRunClicked();
-    void pushButtonPauseClicked();
-    void pushButtonClearClicked();
   };
 };
 

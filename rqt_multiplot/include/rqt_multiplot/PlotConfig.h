@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_PLOT_CONFIG_H
 
 #include <QObject>
+#include <QSettings>
 #include <QString>
 #include <QVector>
 
@@ -41,6 +42,10 @@ namespace rqt_multiplot {
     CurveConfig* addCurve();
     void removeCurve(CurveConfig* curveConfig);
     void removeCurve(size_t index);
+    void clearCurves();
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
     
     PlotConfig& operator=(const PlotConfig& src);
     

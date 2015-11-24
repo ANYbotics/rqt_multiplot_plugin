@@ -46,8 +46,8 @@ namespace rqt_multiplot {
     
     CurveConfig* config_;
     
-    MessageTopicRegistry messageTopicRegistry;
-    MessageTypeRegistry messageTypeRegistry;
+    MessageTopicRegistry* messageTopicRegistry_;
+    MessageTypeRegistry* messageTypeRegistry_;
   
   private slots:
     void configTitleChanged(const QString& title);

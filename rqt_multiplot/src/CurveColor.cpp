@@ -20,6 +20,8 @@
 
 #include "rqt_multiplot/CurveColor.h"
 
+Q_DECLARE_METATYPE(rqt_multiplot::CurveColor::Type)
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
@@ -89,6 +91,20 @@ QColor CurveColor::getCurrentColor() const {
     return ColorOperations::intToRgb(autoColorIndex_);
   else
     return customColor_;
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void CurveColor::save(QSettings& settings) const {
+  settings.setValue("type", QVariant::fromValue<Type>(type_));
+  settings.setValue("custom_color", QVariant::fromValue<QColor>(customColor_));
+}
+
+void CurveColor::load(QSettings& settings) {
+  setType(settings.value("type").value<Type>());
+  setCustomColor(settings.value("custom_color").value<QColor>());
 }
 
 /*****************************************************************************/

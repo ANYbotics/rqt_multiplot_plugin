@@ -95,11 +95,11 @@ int MessageFieldItemModel::rowCount(const QModelIndex& parent) const {
 
 int MessageFieldItemModel::columnCount(const QModelIndex& parent) const {
   if (parent.isValid()) {
-    MessageFieldItem* item = static_cast<MessageFieldItem*>(
+    MessageFieldItem* parentItem = static_cast<MessageFieldItem*>(
       parent.internalPointer());
     
-    if (item)
-      return item->getNumColumns();
+    if (parentItem)
+      return parentItem->getNumColumns();
   }
   else if (rootItem_)
     return rootItem_->getNumColumns();

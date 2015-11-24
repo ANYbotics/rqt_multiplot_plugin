@@ -130,6 +130,73 @@ PlotConfig* PlotTableConfig::getPlotConfig(size_t row, size_t column) const {
 }
 
 /*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void PlotTableConfig::save(QSettings& settings) const {
+  settings.setValue("background_color", QVariant::fromValue<QColor>(
+    backgroundColor_));
+  
+  settings.beginGroup("plots");
+  
+  for (size_t row = 0; row < plotConfig_.count(); ++row) {
+    settings.beginGroup(QString::number(row));
+    
+    for (size_t column = 0; row < plotConfig_[row].count(); ++column) {
+      settings.beginGroup(QString::number(column));
+      plotConfig_[row][column]->save(settings);
+      settings.endGroup();
+    }
+    
+    settings.endGroup();
+  }
+  
+  settings.endGroup();
+}
+
+void PlotTableConfig::load(QSettings& settings) {
+  setBackgroundColor(settings.value("background_color").value<QColor>());
+  
+  settings.beginGroup("plots");
+  
+  QStringList rowGroups = settings.childGroups();
+  size_t row = 0;
+  size_t numColumns = 0;
+  
+  for (QStringList::iterator it = rowGroups.begin();
+      it != rowGroups.end(); ++it) {
+    if (row >= plotConfig_.count())
+      setNumRows(row+1);
+    
+    settings.beginGroup(*it);
+    
+    QStringList columnGroups = settings.childGroups();
+    size_t column = 0;
+    
+    for (QStringList::iterator jt = columnGroups.begin();
+        jt != columnGroups.end(); ++jt) {    
+      if (column >= plotConfig_[row].count())
+        setNumColumns(column+1);
+      
+      settings.beginGroup(*jt);
+      plotConfig_[row][column]->load(settings);
+      settings.endGroup();
+      
+      ++column;
+    }
+    
+    settings.endGroup();
+    
+    numColumns = std::max(numColumns, column);
+    ++row;
+  }
+    
+  settings.endGroup();
+  
+  setNumPlots(row, numColumns);
+}
+
+/*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 

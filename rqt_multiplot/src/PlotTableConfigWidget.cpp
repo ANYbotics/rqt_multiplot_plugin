@@ -16,9 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <ui_CurveConfigWidget.h>
+#include <ros/package.h>
 
-#include "rqt_multiplot/CurveConfigWidget.h"
+#include <ui_PlotTableConfigWidget.h>
+
+#include "rqt_multiplot/PlotTableConfigWidget.h"
 
 namespace rqt_multiplot {
 
@@ -26,33 +28,36 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
+PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::CurveConfigWidget()),
-  config_(new CurveConfig(this)),
-  messageTopicRegistry_(new MessageTopicRegistry(this)),
-  messageTypeRegistry_(new MessageTypeRegistry(this)) {
+  ui_(new Ui::PlotTableConfigWidget()),
+  config_(0) {
   ui_->setupUi(this);
   
-  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
-    CurveConfig::X));
-  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
-    CurveConfig::Y));
-  ui_->curveColorWidget->setColor(config_->getColor());
+  ui_->pushButtonRun->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/run.png"))));
+  ui_->pushButtonPause->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/pause.png"))));
+  ui_->pushButtonClear->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/clear.png"))));
   
-  connect(config_, SIGNAL(titleChanged(const QString&)), this,
-    SLOT(configTitleChanged(const QString&)));
-  
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
-  
-  messageTopicRegistry_->update();
-  messageTypeRegistry_->update();
-  
-  configTitleChanged(config_->getTitle());
+  connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
+    SLOT(spinBoxRowsValueChanged(int)));
+  connect(ui_->spinBoxColumns, SIGNAL(valueChanged(int)), this,
+    SLOT(spinBoxColumnsValueChanged(int)));
+
+  connect(ui_->pushButtonRun, SIGNAL(clicked()), this,
+    SLOT(pushButtonRunClicked()));
+  connect(ui_->pushButtonPause, SIGNAL(clicked()), this,
+    SLOT(pushButtonPauseClicked()));
+  connect(ui_->pushButtonClear, SIGNAL(clicked()), this,
+    SLOT(pushButtonClearClicked()));
 }
 
-CurveConfigWidget::~CurveConfigWidget() {
+PlotTableConfigWidget::~PlotTableConfigWidget() {
   delete ui_;
 }
 
@@ -60,28 +65,38 @@ CurveConfigWidget::~CurveConfigWidget() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveConfigWidget::setConfig(const CurveConfig& config) {
-  *config_ = config;
+void PlotTableConfigWidget::setConfig(PlotTableConfig* config) {
+  config_ = config;
 }
 
-CurveConfig& CurveConfigWidget::getConfig() {
-  return *config_;
-}
-
-const CurveConfig& CurveConfigWidget::getConfig() const {
-  return *config_;
+PlotTableConfig* PlotTableConfigWidget::getConfig() const {
+  return config_;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveConfigWidget::configTitleChanged(const QString& title) {
-  ui_->lineEditTitle->setText(title);
+void PlotTableConfigWidget::spinBoxRowsValueChanged(int value) {
+  if (config_)
+    config_->setNumRows(value);
 }
 
-void CurveConfigWidget::lineEditTitleEditingFinished() {
-  config_->setTitle(ui_->lineEditTitle->text());
+void PlotTableConfigWidget::spinBoxColumnsValueChanged(int value) {
+  if (config_)
+    config_->setNumColumns(value);
+}
+
+void PlotTableConfigWidget::pushButtonRunClicked() {
+//   ui_->plotTableWidget->runPlots();
+}
+
+void PlotTableConfigWidget::pushButtonPauseClicked() {
+//   ui_->plotTableWidget->pausePlots();
+}
+
+void PlotTableConfigWidget::pushButtonClearClicked() {
+//   ui_->plotTableWidget->clearPlots();
 }
 
 }

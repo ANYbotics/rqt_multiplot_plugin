@@ -16,50 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
+#ifndef RQT_MULTIPLOT_URL_ITEM_MODEL_H
+#define RQT_MULTIPLOT_URL_ITEM_MODEL_H
 
-#include <QColor>
-#include <QObject>
-#include <QSettings>
-#include <QVector>
+#include <QAbstractItemModel>
+#include <QList>
 
-#include <rqt_multiplot/PlotConfig.h>
+#include <rqt_multiplot/UrlItem.h>
+#include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
-    public QObject {
+  class UrlItemModel :
+    public QAbstractItemModel {
   Q_OBJECT
   public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, size_t numRows = 1, size_t numColumns = 1);
-    ~PlotTableConfig();
+    UrlItemModel(QObject* parent = 0);
+    virtual ~UrlItemModel();
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
+    QString getUrl(const QModelIndex& index) const;
+    UrlScheme* getScheme(const QModelIndex& index) const;
     
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
+    void addScheme(UrlScheme* scheme);
     
-    PlotTableConfig& operator=(const PlotTableConfig& src);
-    
+    int rowCount(const QModelIndex& parent) const;
+    int columnCount(const QModelIndex& parent) const;
+    QVariant data(const QModelIndex& index, int role) const;
+    QModelIndex index(int row, int column, const QModelIndex& parent) const;
+    QModelIndex parent(const QModelIndex& index) const;
+  
   signals:
-    void backgroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void changed();
+    void urlLoaded(const QString& url);
     
   private:
-    QColor backgroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
+    QList<UrlScheme*> schemes_;
+    QList<UrlItem*> schemeItems_;
     
   private slots:
-    void plotConfigChanged();
+    void schemeResetStarted();
+    void schemeResetFinished();
+    void schemePathLoaded(const QString& host, const QString& path);
   };
 };
 

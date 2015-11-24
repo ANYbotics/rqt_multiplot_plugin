@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/MultiplotConfig.h"
+#include "rqt_multiplot/UrlItem.h"
 
 namespace rqt_multiplot {
 
@@ -24,55 +24,109 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MultiplotConfig::MultiplotConfig(QObject* parent) :
-  QObject(parent),
-  tableConfig_(new PlotTableConfig(this)) {
-  connect(tableConfig_, SIGNAL(changed()), this, SLOT(tableConfigChanged()));
+UrlItem::UrlItem(UrlScheme* scheme, Type type, const QModelIndex& index,
+    UrlItem* parent) :
+  parent_(parent),
+  scheme_(scheme),
+  type_(type),
+  index_(index) {
 }
 
-MultiplotConfig::~MultiplotConfig() {
+UrlItem::~UrlItem() {
+  for (QMap<size_t, UrlItem*>::iterator it = children_.begin();
+      it != children_.end(); ++it)
+    delete it.value();
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-PlotTableConfig* MultiplotConfig::getTableConfig() const {
-  return tableConfig_;
+UrlItem* UrlItem::getParent() const {
+  return parent_;
 }
 
-/*****************************************************************************/
-/* Methods                                                                   */
-/*****************************************************************************/
-
-void MultiplotConfig::save(QSettings& settings) const {
-  settings.beginGroup("table");
-  tableConfig_->save(settings);
-  settings.endGroup();
+size_t UrlItem::getNumChildren() const {
+  return children_.count();
 }
 
-void MultiplotConfig::load(QSettings& settings) {
-  settings.beginGroup("table");
-  tableConfig_->load(settings);
-  settings.endGroup();
-}
-
-/*****************************************************************************/
-/* Operators                                                                 */
-/*****************************************************************************/
-
-MultiplotConfig& MultiplotConfig::operator=(const MultiplotConfig& src) {
-  *tableConfig_ = *src.tableConfig_;
+UrlItem* UrlItem::getChild(size_t row) const {
+  QMap<size_t, UrlItem*>::const_iterator it = children_.find(row);
   
-  return *this;
+  if (it != children_.end())
+    return it.value();
+  else
+    return 0;
+}
+
+int UrlItem::getRow() const {
+  if (parent_) {
+    for (QMap<size_t, UrlItem*>::const_iterator it = parent_->children_.
+        begin(); it != parent_->children_.end(); ++it) {
+      if (it.value() == this)
+        return it.key();
+    }
+  }
+
+  return -1;
+}
+
+void UrlItem::setScheme(UrlScheme* scheme) {
+  scheme_ = scheme;
+}
+
+UrlScheme* UrlItem::getScheme() const {
+  return scheme_;
+}
+
+void UrlItem::setType(Type type) {
+  type_ = type;
+}
+
+UrlItem::Type UrlItem::getType() const {
+  return type_;
+}
+
+void UrlItem::setIndex(const QModelIndex& index) {
+  index_ = index;
+}
+
+const QModelIndex& UrlItem::getIndex() const {
+  return index_;
+}
+
+QModelIndex UrlItem::getIndex(Type type) const {
+  const UrlItem* item = this;
+  
+  while (item) {
+    if (item->type_ != type)
+      item = item->parent_;
+    else
+      return item->index_;
+  }
+  
+  return QModelIndex();
 }
 
 /*****************************************************************************/
-/* Slots                                                                     */
+/* Accessors                                                                 */
 /*****************************************************************************/
 
-void MultiplotConfig::tableConfigChanged() {
-  emit changed();
+UrlItem* UrlItem::addChild(size_t row, Type type, const QModelIndex& index) {
+  QMap<size_t, UrlItem*>::iterator it = children_.find(row);
+  
+  if (it != children_.end()) {
+    it.value()->type_ = type;
+    it.value()->index_ = index;
+
+    return it.value();
+  }
+  else {
+    UrlItem* item = new UrlItem(scheme_, type, index, this);
+    children_.insert(row, item);
+    
+    return item;
+  }
 }
 
 }

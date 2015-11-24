@@ -77,7 +77,7 @@ size_t MessageFieldItem::getNumChildren() const {
   return children_.count();
 }
 
-MessageFieldItem* MessageFieldItem::getChild(int row) const {
+MessageFieldItem* MessageFieldItem::getChild(size_t row) const {
   return children_.value(row);
 }
 
@@ -106,11 +106,11 @@ MessageFieldItem* MessageFieldItem::getDescendant(const QString& path) const {
   return 0;
 }
 
-size_t MessageFieldItem::getRow() const {
+int MessageFieldItem::getRow() const {
   if (parent_)
     return parent_->children_.indexOf(const_cast<MessageFieldItem*>(this));
 
-  return 0;
+  return -1;
 }
 
 size_t MessageFieldItem::getNumColumns() const {

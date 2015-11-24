@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_TOPIC_COMBOBOX_H
-#define RQT_MULTIPLOT_MESSAGE_TOPIC_COMBOBOX_H
+#ifndef RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
+#define RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
 
 #include <QComboBox>
 

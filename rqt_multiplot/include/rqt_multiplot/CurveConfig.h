@@ -21,6 +21,7 @@
 
 #include <QObject>
 #include <QMap>
+#include <QSettings>
 #include <QString>
 
 #include <rqt_multiplot/CurveAxisConfig.h>
@@ -44,6 +45,9 @@ namespace rqt_multiplot {
     CurveAxisConfig* getAxisConfig(Axis axis) const;
     CurveColor* getColor() const;
 
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    
     CurveConfig& operator=(const CurveConfig& src);
     
   signals:

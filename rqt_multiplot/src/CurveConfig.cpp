@@ -72,6 +72,44 @@ CurveColor* CurveConfig::getColor() const {
 }
 
 /*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void CurveConfig::save(QSettings& settings) const {
+  settings.setValue("title", title_);
+  
+  settings.beginGroup("axes");
+  settings.beginGroup("x");
+  axisConfig_[X]->save(settings);
+  settings.endGroup();
+  settings.beginGroup("y");
+  axisConfig_[Y]->save(settings);
+  settings.endGroup();
+  settings.endGroup();
+  
+  settings.beginGroup("color");
+  color_->save(settings);
+  settings.endGroup();
+}
+
+void CurveConfig::load(QSettings& settings) {
+  setTitle(settings.value("title", "Untitled Curve").toString());
+  
+  settings.beginGroup("axes");
+  settings.beginGroup("x");
+  axisConfig_[X]->load(settings);
+  settings.endGroup();
+  settings.beginGroup("y");
+  axisConfig_[Y]->load(settings);
+  settings.endGroup();
+  settings.endGroup();
+  
+  settings.beginGroup("color");
+  color_->load(settings);
+  settings.endGroup();
+}
+
+/*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 
