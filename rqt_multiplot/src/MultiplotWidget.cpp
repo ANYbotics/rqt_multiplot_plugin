@@ -37,6 +37,13 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
   ui_->configWidget->setConfig(config_);
   ui_->plotTableConfigWidget->setConfig(config_->getTableConfig());
   ui_->plotTableWidget->setConfig(config_->getTableConfig());
+  
+  connect(ui_->configWidget, SIGNAL(currentConfigModifiedChanged(bool)),
+    this, SLOT(configWidgetCurrentConfigModifiedChanged(bool)));
+  connect(ui_->configWidget, SIGNAL(currentConfigUrlChanged(const QString&)),
+    this, SLOT(configWidgetCurrentConfigUrlChanged(const QString&)));
+  
+  configWidgetCurrentConfigUrlChanged(QString());  
 }
 
 MultiplotWidget::~MultiplotWidget() {
@@ -48,6 +55,71 @@ MultiplotWidget::~MultiplotWidget() {
 
 MultiplotConfig* MultiplotWidget::getConfig() const {
   return config_;
+}
+
+QDockWidget* MultiplotWidget::getDockWidget() const {
+  QDockWidget* dockWidget = 0;
+  QObject* currentParent = parent();
+  
+  while (currentParent) {
+    dockWidget = qobject_cast<QDockWidget*>(currentParent);
+    
+    if (dockWidget)
+      break;
+    
+    currentParent = currentParent->parent();
+  }
+  
+  return dockWidget;
+}
+
+void MultiplotWidget::setMaxConfigHistoryLength(size_t length) {
+  ui_->configWidget->setMaxConfigUrlHistoryLength(length);
+}
+
+size_t MultiplotWidget::getMaxConfigHistoryLength() const {
+  return ui_->configWidget->getMaxConfigUrlHistoryLength();
+}
+
+void MultiplotWidget::setConfigHistory(const QStringList& history) {
+  ui_->configWidget->setConfigUrlHistory(history);
+}
+
+QStringList MultiplotWidget::getConfigHistory() const {
+  return ui_->configWidget->getConfigUrlHistory();
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void MultiplotWidget::loadConfig(const QString& url) {
+  ui_->configWidget->loadConfig(url);
+}
+
+/*****************************************************************************/
+/* Slots                                                                     */
+/*****************************************************************************/
+
+void MultiplotWidget::configWidgetCurrentConfigModifiedChanged(bool
+    modified) {
+  configWidgetCurrentConfigUrlChanged(ui_->configWidget->
+    getCurrentConfigUrl());
+}
+
+void MultiplotWidget::configWidgetCurrentConfigUrlChanged(const QString&
+    url) {
+  QString windowTitle = "Multiplot";
+  
+  if (!url.isEmpty())
+    windowTitle += " - ["+url+"]";
+  else 
+    windowTitle += " - [untitled]";
+    
+  if (ui_->configWidget->isCurrentConfigModified())
+    windowTitle += "*";
+    
+  setWindowTitle(windowTitle);
 }
 
 }

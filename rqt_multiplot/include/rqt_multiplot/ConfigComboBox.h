@@ -30,7 +30,7 @@ namespace rqt_multiplot {
   public:
     ConfigComboBox(QWidget* parent = 0);
     virtual ~ConfigComboBox();
-    
+  
   private:
     FileScheme* rootFileScheme_;
     FileScheme* homeFileScheme_;

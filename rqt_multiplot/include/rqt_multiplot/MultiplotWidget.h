@@ -19,6 +19,8 @@
 #ifndef RQT_MULTIPLOT_MULTIPLOT_WIDGET_H
 #define RQT_MULTIPLOT_MULTIPLOT_WIDGET_H
 
+#include <QDockWidget>
+#include <QStringList>
 #include <QWidget>
 
 #include <rqt_multiplot/MultiplotConfig.h>
@@ -36,11 +38,23 @@ namespace rqt_multiplot {
     virtual ~MultiplotWidget();
     
     MultiplotConfig* getConfig() const;
+    QDockWidget* getDockWidget() const;
+    
+    void setMaxConfigHistoryLength(size_t length);
+    size_t getMaxConfigHistoryLength() const;
+    void setConfigHistory(const QStringList& history);
+    QStringList getConfigHistory() const;
+    
+    void loadConfig(const QString& url);
     
   private:
     Ui::MultiplotWidget* ui_;
     
     MultiplotConfig* config_;
+    
+  private slots:
+    void configWidgetCurrentConfigModifiedChanged(bool modified);
+    void configWidgetCurrentConfigUrlChanged(const QString& url);
   };
 };
 

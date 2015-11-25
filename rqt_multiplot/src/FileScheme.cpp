@@ -113,6 +113,19 @@ QString FileScheme::getPath(const QModelIndex& hostIndex, const QModelIndex&
     pathIndex));
 }
 
+QString FileScheme::getFilePath(const QModelIndex& hostIndex, const
+    QModelIndex& pathIndex) const {
+  if (pathIndex.isValid())
+    return model_->filePath(pathIndex);
+  
+  return QString();
+}
+
+QString FileScheme::getFilePath(const QString& host, const QString& path)
+    const {
+  return model_->rootDirectory().absoluteFilePath(path);
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/

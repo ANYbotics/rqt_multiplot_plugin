@@ -38,6 +38,7 @@ namespace rqt_multiplot {
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
     
   signals:
     void changed();

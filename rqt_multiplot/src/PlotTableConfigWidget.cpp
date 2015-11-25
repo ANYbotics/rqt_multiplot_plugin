@@ -36,13 +36,13 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   
   ui_->pushButtonRun->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/run.png"))));
+    append("/resource/16x16/run.png"))));
   ui_->pushButtonPause->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/pause.png"))));
+    append("/resource/16x16/pause.png"))));
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/clear.png"))));
+    append("/resource/16x16/clear.png"))));
   
   connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
     SLOT(spinBoxRowsValueChanged(int)));

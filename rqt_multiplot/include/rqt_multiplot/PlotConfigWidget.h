@@ -53,6 +53,7 @@ namespace rqt_multiplot {
     void pushButtonEditClicked();
     void pushButtonRemoveClicked();
     
+    void listWidgetCurvesItemSelectionChanged();
     void listWidgetCurvesItemDoubleClicked(QListWidgetItem* item);
   };
 };

@@ -100,7 +100,9 @@ void PlotTableWidget::clearPlots() {
 
 void PlotTableWidget::configBackgroundColorChanged(const QColor& color) {
   QPalette currentPalette = palette();
+  
   currentPalette.setColor(QPalette::Window, color);
+  currentPalette.setColor(QPalette::Base, color);
   
   setPalette(currentPalette);
 }
@@ -129,6 +131,10 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
         plotWidgets[row][column] = plotWidgets_[row][column];
       else
         plotWidgets[row][column] = new PlotWidget(this);
+      
+      if (config_)
+        plotWidgets[row][column]->setConfig(config_->getPlotConfig(
+          row, column));
       
       layout->addWidget(plotWidgets[row][column], row, column);
     }

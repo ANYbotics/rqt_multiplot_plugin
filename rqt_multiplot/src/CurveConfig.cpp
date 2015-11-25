@@ -17,7 +17,6 @@
  ******************************************************************************/
 
 #include "rqt_multiplot/CurveConfig.h"
-#include <boost/concept_check.hpp>
 
 namespace rqt_multiplot {
 
@@ -79,10 +78,10 @@ void CurveConfig::save(QSettings& settings) const {
   settings.setValue("title", title_);
   
   settings.beginGroup("axes");
-  settings.beginGroup("x");
+  settings.beginGroup("x_axis");
   axisConfig_[X]->save(settings);
   settings.endGroup();
-  settings.beginGroup("y");
+  settings.beginGroup("y_axis");
   axisConfig_[Y]->save(settings);
   settings.endGroup();
   settings.endGroup();
@@ -96,10 +95,10 @@ void CurveConfig::load(QSettings& settings) {
   setTitle(settings.value("title", "Untitled Curve").toString());
   
   settings.beginGroup("axes");
-  settings.beginGroup("x");
+  settings.beginGroup("x_axis");
   axisConfig_[X]->load(settings);
   settings.endGroup();
-  settings.beginGroup("y");
+  settings.beginGroup("y_axis");
   axisConfig_[Y]->load(settings);
   settings.endGroup();
   settings.endGroup();

@@ -34,6 +34,8 @@ namespace rqt_multiplot {
     virtual ~UrlItemModel();
 
     QString getUrl(const QModelIndex& index) const;
+    QString getFilePath(const QModelIndex& index) const;
+    QString getFilePath(const QString& url) const;
     UrlScheme* getScheme(const QModelIndex& index) const;
     
     void addScheme(UrlScheme* scheme);

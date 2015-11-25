@@ -83,6 +83,7 @@ set(rqt_multiplot_SRCS
   src/UrlItem.cpp
   src/UrlItemModel.cpp
   src/UrlScheme.cpp
+  src/XmlSettings.cpp
 )
 
 set(rqt_multiplot_HDRS
@@ -135,6 +136,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/UrlItem.h
   include/rqt_multiplot/UrlItemModel.h
   include/rqt_multiplot/UrlScheme.h
+  include/rqt_multiplot/XmlSettings.h
 )
 
 set(rqt_multiplot_UIS

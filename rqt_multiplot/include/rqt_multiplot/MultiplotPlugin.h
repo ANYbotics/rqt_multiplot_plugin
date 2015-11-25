@@ -19,10 +19,12 @@
 #ifndef RQT_MULTIPLOT_MULTIPLOT_PLUGIN_H
 #define RQT_MULTIPLOT_MULTIPLOT_PLUGIN_H
 
+#include <QStringList>
+
 #include <rqt_gui_cpp/plugin.h>
 
 namespace rqt_multiplot {
-  class PlotWidget;
+  class MultiplotWidget;
     
   class MultiplotPlugin :
     public rqt_gui_cpp::Plugin {
@@ -37,6 +39,11 @@ namespace rqt_multiplot {
       qt_gui_cpp::Settings& instanceSettings) const;
     void restoreSettings(const qt_gui_cpp::Settings& pluginSettings,
       const qt_gui_cpp::Settings& instanceSettings);
+    
+  private:
+    MultiplotWidget* widget_;
+    
+    void parseArguments(const QStringList& arguments);
   };
 };
 

@@ -33,9 +33,22 @@ namespace rqt_multiplot {
     
     void setEditable(bool editable);
     UrlCompleter* getCompleter() const;
+    void setCurrentUrl(const QString& url);
+    QString getCurrentUrl() const;
+    bool isCurrentUrlSelectable() const;
+    
+  signals:
+    void currentUrlChanged(const QString& url);
     
   private:
+    QString currentUrl_;
+    
     UrlCompleter* completer_;
+    
+  private slots:
+    void activated(int index);
+    void currentIndexChanged(const QString& text);
+    void lineEditEditingFinished();
   };
 };
 

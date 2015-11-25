@@ -35,6 +35,7 @@ namespace rqt_multiplot {
     PlotWidget(QWidget* parent = 0);
     virtual ~PlotWidget();
 
+    void setConfig(PlotConfig* config);
     PlotConfig* getConfig() const;
     
     void run();
@@ -52,7 +53,7 @@ namespace rqt_multiplot {
     void init();
     
   private slots:
-    void configChanged();
+    void configTitleChanged(const QString& title);
     
     void lineEditTitleTextChanged(const QString& text);
     void lineEditTitleEditingFinished();

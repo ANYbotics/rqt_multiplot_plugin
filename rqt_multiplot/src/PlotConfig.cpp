@@ -108,12 +108,12 @@ void PlotConfig::clearCurves() {
 }
 
 void PlotConfig::save(QSettings& settings) const {
-  settings.setValue("title", title_);  
+  settings.setValue("title", title_);
   
   settings.beginGroup("curves");
   
   for (size_t index = 0; index < curveConfig_.count(); ++index) {
-    settings.beginGroup(QString::number(index));
+    settings.beginGroup("curve_"+QString::number(index));
     curveConfig_[index]->save(settings);
     settings.endGroup();
   }
@@ -150,6 +150,10 @@ void PlotConfig::load(QSettings& settings) {
     removeCurve(index);  
 }
 
+void PlotConfig::reset() {
+  setTitle("Untitled Plot");
+  clearCurves();
+}
 
 /*****************************************************************************/
 /* Operators                                                                 */

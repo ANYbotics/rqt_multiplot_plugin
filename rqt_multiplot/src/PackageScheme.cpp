@@ -137,6 +137,42 @@ QString PackageScheme::getPath(const QModelIndex& hostIndex, const
   return QString();
 }
 
+QString PackageScheme::getFilePath(const QModelIndex& hostIndex, const
+    QModelIndex& pathIndex) const {
+  if (hostIndex.isValid()) {
+    if (pathIndex.isValid())
+      return fileSystemModel_->filePath(pathIndex);
+    else
+      return packagePaths_[packages_[hostIndex.row()]];
+  }
+  
+  return QString();
+}
+
+QString PackageScheme::getFilePath(const QString& host, const QString& path)
+    const {
+  QString packagePath;
+  
+  if (!packagePaths_.isEmpty()) {
+    QMap<QString, QString>::const_iterator it = packagePaths_.find(host);
+    
+    if (it != packagePaths_.end())
+      packagePath = it.value();
+  }
+  else
+    packagePath = QString::fromStdString(ros::package::getPath(
+      host.toStdString()));
+    
+  if (!packagePath.isEmpty())  {
+    QDir packageDir(packagePath);
+    
+    if (packageDir.exists())
+      return packageDir.absoluteFilePath(path);
+  }
+  
+  return QString();
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/

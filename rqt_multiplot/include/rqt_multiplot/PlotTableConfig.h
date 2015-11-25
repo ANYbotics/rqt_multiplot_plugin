@@ -46,6 +46,7 @@ namespace rqt_multiplot {
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
     
     PlotTableConfig& operator=(const PlotTableConfig& src);
     

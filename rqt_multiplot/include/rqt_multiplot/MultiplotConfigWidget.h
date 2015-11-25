@@ -19,6 +19,7 @@
 #ifndef RQT_MULTIPLOT_MULTIPLOT_CONFIG_WIDGET_H
 #define RQT_MULTIPLOT_MULTIPLOT_CONFIG_WIDGET_H
 
+#include <QStringList>
 #include <QWidget>
 
 #include <rqt_multiplot/MultiplotConfig.h>
@@ -32,16 +33,52 @@ namespace rqt_multiplot {
     public QWidget {
   Q_OBJECT
   public:
-    MultiplotConfigWidget(QWidget* parent = 0);
+    MultiplotConfigWidget(QWidget* parent = 0, size_t maxHistoryLength = 10);
     virtual ~MultiplotConfigWidget();
 
     void setConfig(MultiplotConfig* config);
     MultiplotConfig* getConfig() const;
+    void setCurrentConfigUrl(const QString& url, bool updateHistory = true);
+    QString getCurrentConfigUrl() const;
+    bool setCurrentConfigModified(bool modified);
+    bool isCurrentConfigModified() const;
+    void setMaxConfigUrlHistoryLength(size_t length);
+    size_t getMaxConfigUrlHistoryLength() const;
+    void setConfigUrlHistory(const QStringList& history);
+    QStringList getConfigUrlHistory() const;
+    
+    bool loadConfig(const QString& url);
+    bool saveCurrentConfig();
+    bool saveConfig(const QString& url);
+    void resetConfig();
+    
+    bool confirmSave();
+    
+    void addConfigUrlToHistory(const QString& url);
+    
+  signals:
+    void currentConfigModifiedChanged(bool modified);
+    void currentConfigUrlChanged(const QString& url);
     
   private:
     Ui::MultiplotConfigWidget* ui_;
     
     MultiplotConfig* config_;
+    
+    QString currentConfigUrl_;
+    bool currentConfigModified_;
+    size_t maxHistoryLength_;
+    
+  private slots:
+    void configChanged();
+    
+    void configComboBoxEditTextChanged(const QString& text);
+    void configComboBoxCurrentUrlChanged(const QString& url);
+    
+    void pushButtonNewClicked();
+    void pushButtonOpenClicked();
+    void pushButtonSaveClicked();
+    void pushButtonSaveAsClicked();
   };
 };
 

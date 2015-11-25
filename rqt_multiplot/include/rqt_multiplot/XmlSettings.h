@@ -16,52 +16,19 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_URL_SCHEME_H
-#define RQT_MULTIPLOT_URL_SCHEME_H
+#ifndef RQT_MULTIPLOT_XML_SETTINGS_H
+#define RQT_MULTIPLOT_XML_SETTINGS_H
 
-#include <QObject>
-#include <QModelIndex>
-#include <QString>
-#include <QVariant>
+#include <QIODevice>
+#include <QSettings>
 
 namespace rqt_multiplot {
-  class UrlScheme :
-    public QObject {
-  Q_OBJECT
+  class XmlSettings {
   public:
-    UrlScheme(const QString& prefix, QObject* parent = 0);
-    virtual ~UrlScheme();
-
-    const QString& getPrefix() const;
+    static const QSettings::Format format;
     
-    virtual size_t getNumHosts() const = 0;
-    virtual QModelIndex getHostIndex(size_t row) const = 0;
-    virtual QVariant getHostData(const QModelIndex& index, int role)
-      const = 0;
-      
-    virtual size_t getNumPaths(const QModelIndex& hostIndex, const
-      QModelIndex& parent = QModelIndex()) const = 0;
-    virtual QModelIndex getPathIndex(const QModelIndex& hostIndex,
-      size_t row, const QModelIndex& parent = QModelIndex()) const = 0;
-    virtual QVariant getPathData(const QModelIndex& index, int role)
-      const = 0;
-      
-    virtual QString getHost(const QModelIndex& hostIndex) const = 0;
-    virtual QString getPath(const QModelIndex& hostIndex, const
-      QModelIndex& pathIndex) const = 0;
-      
-    virtual QString getFilePath(const QModelIndex& hostIndex,
-      const QModelIndex& pathIndex) const = 0;
-    virtual QString getFilePath(const QString& host, const QString&
-      path) const = 0;
-    
-  signals:
-    void resetStarted();
-    void resetFinished();
-    void pathLoaded(const QString& host, const QString& path);
-
-  private:
-    QString prefix_;
+    static bool read(QIODevice& device, QSettings::SettingsMap& map);
+    static bool write(QIODevice& device, const QSettings::SettingsMap& map);
   };
 };
 

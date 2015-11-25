@@ -37,7 +37,7 @@ namespace rqt_multiplot {
 PlotWidget::PlotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotWidget()),
-  config_(new PlotConfig(this)) {
+  config_(0) {
   ui_->setupUi(this);
   
   ui_->pushButtonRunPause->setIcon(
@@ -64,8 +64,6 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->horizontalSpacerRight->changeSize(
     ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
       
-  connect(config_, SIGNAL(changed()), this, SLOT(configChanged()));
-  
   connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
     SLOT(lineEditTitleTextChanged(const QString&)));
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
@@ -98,6 +96,24 @@ PlotWidget::~PlotWidget() {
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
+
+void PlotWidget::setConfig(PlotConfig* config) {
+  if (config != config_) {
+    if (config_) {
+      disconnect(config_, SIGNAL(titleChanged(const QString&)), this,
+        SLOT(configTitleChanged(const QString&)));
+    }
+    
+    config_ = config;
+    
+    if (config) {
+      connect(config, SIGNAL(titleChanged(const QString&)), this,
+        SLOT(configTitleChanged(const QString&)));
+      
+      configTitleChanged(config->getTitle());
+    }
+  }
+}
 
 PlotConfig* PlotWidget::getConfig() const {
   return config_;
@@ -135,7 +151,7 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void PlotWidget::configChanged() {
+void PlotWidget::configTitleChanged(const QString& title) {
   ui_->lineEditTitle->setText(config_->getTitle());
 }
 
@@ -147,7 +163,8 @@ void PlotWidget::lineEditTitleTextChanged(const QString& text) {
 }
 
 void PlotWidget::lineEditTitleEditingFinished() {
-  config_->setTitle(ui_->lineEditTitle->text());
+  if (config_)
+    config_->setTitle(ui_->lineEditTitle->text());
 }
 
 void PlotWidget::pushButtonRunPauseClicked() {
@@ -158,15 +175,17 @@ void PlotWidget::pushButtonClearClicked() {
 }
 
 void PlotWidget::pushButtonEditClicked() {
-  PlotConfigDialog dialog(this);
-  
-  dialog.setWindowTitle(config_->getTitle().isEmpty() ?
-    "Configure Plot" :
-    "Configure \""+config_->getTitle()+"\"");
-  dialog.getWidget()->setConfig(*config_);
-  
-  if (dialog.exec() == QDialog::Accepted)
-    *config_ = dialog.getWidget()->getConfig();
+  if (config_) {
+    PlotConfigDialog dialog(this);
+    
+    dialog.setWindowTitle(config_->getTitle().isEmpty() ?
+      "Configure Plot" :
+      "Configure \""+config_->getTitle()+"\"");
+    dialog.getWidget()->setConfig(*config_);
+    
+    if (dialog.exec() == QDialog::Accepted)
+      *config_ = dialog.getWidget()->getConfig();
+  }
 }
 
 void PlotWidget::plotXTopScaleDivChanged() {

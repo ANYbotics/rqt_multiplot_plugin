@@ -140,10 +140,10 @@ void PlotTableConfig::save(QSettings& settings) const {
   settings.beginGroup("plots");
   
   for (size_t row = 0; row < plotConfig_.count(); ++row) {
-    settings.beginGroup(QString::number(row));
+    settings.beginGroup("row_"+QString::number(row));
     
-    for (size_t column = 0; row < plotConfig_[row].count(); ++column) {
-      settings.beginGroup(QString::number(column));
+    for (size_t column = 0; column < plotConfig_[row].count(); ++column) {
+      settings.beginGroup("column_"+QString::number(column));
       plotConfig_[row][column]->save(settings);
       settings.endGroup();
     }
@@ -194,6 +194,13 @@ void PlotTableConfig::load(QSettings& settings) {
   settings.endGroup();
   
   setNumPlots(row, numColumns);
+}
+
+void PlotTableConfig::reset() {
+  setBackgroundColor(Qt::white);
+  setNumPlots(1, 1);
+
+  plotConfig_[0][0]->reset();
 }
 
 /*****************************************************************************/

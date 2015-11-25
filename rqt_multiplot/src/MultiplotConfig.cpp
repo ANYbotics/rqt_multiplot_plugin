@@ -57,6 +57,10 @@ void MultiplotConfig::load(QSettings& settings) {
   settings.endGroup();
 }
 
+void MultiplotConfig::reset() {
+  tableConfig_->reset();
+}
+
 /*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/

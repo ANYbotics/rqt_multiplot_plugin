@@ -52,6 +52,10 @@ namespace rqt_multiplot {
     QString getPath(const QModelIndex& hostIndex, const QModelIndex&
       pathIndex) const;
     
+    QString getFilePath(const QModelIndex& hostIndex, const QModelIndex&
+      pathIndex) const;
+    QString getFilePath(const QString& host, const QString& path) const;
+      
   private:
     QFileSystemModel* model_;
     

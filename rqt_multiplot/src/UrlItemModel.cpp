@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QStringList>
+
 #include "rqt_multiplot/UrlItemModel.h"
 
 namespace rqt_multiplot {
@@ -52,6 +54,53 @@ QString UrlItemModel::getUrl(const QModelIndex& index) const {
       
       return itemScheme->getPrefix()+"://"+itemScheme->getHost(hostIndex)+
         "/"+itemScheme->getPath(hostIndex, item->getIndex());
+    }
+  }
+  
+  return QString();
+}
+
+QString UrlItemModel::getFilePath(const QModelIndex& index) const {
+  if (index.isValid()) {
+    UrlItem* item = static_cast<UrlItem*>(index.internalPointer());
+    UrlScheme* itemScheme = item->getScheme();
+
+    if (item->getType() == UrlItem::Host)
+      return itemScheme->getFilePath(item->getIndex(), QModelIndex());
+    else if (item->getType() == UrlItem::Path) {
+      QModelIndex hostIndex = item->getIndex(UrlItem::Host);
+      
+      return itemScheme->getFilePath(hostIndex, item->getIndex());
+    }
+  }
+  
+  return QString();
+}
+
+QString UrlItemModel::getFilePath(const QString& url) const {
+  QStringList urlParts = url.split("://");
+  
+  if (urlParts.count() > 1) {
+    QString prefix = urlParts[0];
+    
+    for (QList<UrlScheme*>::const_iterator it = schemes_.begin();
+        it != schemes_.end(); ++it) {
+      UrlScheme* scheme = *it;
+      
+      if (scheme->getPrefix() == prefix) {
+        QStringList hostPathParts = urlParts[1].split("/");
+        QString host, path;        
+        
+        if (hostPathParts.count() > 1) {
+          host = hostPathParts[0];
+          hostPathParts.removeFirst();
+          path = hostPathParts.join("/");
+        }
+        else
+          host = urlParts[1];
+        
+        return scheme->getFilePath(host, path);
+      }
     }
   }
   

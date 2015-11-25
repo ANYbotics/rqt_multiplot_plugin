@@ -40,13 +40,16 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   
   ui_->pushButtonAdd->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/add.png"))));
+    append("/resource/16x16/add.png"))));
   ui_->pushButtonEdit->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/edit.png"))));
+    append("/resource/16x16/edit.png"))));
   ui_->pushButtonRemove->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/remove.png"))));
+    append("/resource/16x16/remove.png"))));
+  
+  ui_->pushButtonEdit->setEnabled(false);
+  ui_->pushButtonRemove->setEnabled(false);
   
   connect(config_, SIGNAL(titleChanged(const QString&)),
     this, SLOT(configTitleChanged(const QString&)));
@@ -61,6 +64,8 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   connect(ui_->pushButtonRemove, SIGNAL(clicked()), this,
     SLOT(pushButtonRemoveClicked()));
   
+  connect(ui_->listWidgetCurves, SIGNAL(itemSelectionChanged()),
+    this, SLOT(listWidgetCurvesItemSelectionChanged()));
   connect(ui_->listWidgetCurves, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
     this, SLOT(listWidgetCurvesItemDoubleClicked(QListWidgetItem*)));
   
@@ -166,6 +171,13 @@ void PlotConfigWidget::pushButtonRemoveClicked() {
     
     config_->removeCurve(curveConfig);
   }
+}
+
+void PlotConfigWidget::listWidgetCurvesItemSelectionChanged() {
+  QListWidgetItem* currentItem = ui_->listWidgetCurves->currentItem();
+  
+  ui_->pushButtonEdit->setEnabled(currentItem);
+  ui_->pushButtonRemove->setEnabled(currentItem);
 }
 
 void PlotConfigWidget::listWidgetCurvesItemDoubleClicked(QListWidgetItem*
