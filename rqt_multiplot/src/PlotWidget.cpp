@@ -46,9 +46,12 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
-  ui_->pushButtonEdit->setIcon(
+  ui_->pushButtonSetup->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/eject.png"))));
+    append("/resource/16x16/setup.png"))));
+  ui_->pushButtonExport->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/export.png"))));
   
   ui_->plot->setAutoFillBackground(true);
   ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
@@ -73,8 +76,10 @@ PlotWidget::PlotWidget(QWidget* parent) :
     SLOT(pushButtonRunPauseClicked()));
   connect(ui_->pushButtonClear, SIGNAL(clicked()), this,
     SLOT(pushButtonClearClicked()));
-  connect(ui_->pushButtonEdit, SIGNAL(clicked()), this,
-    SLOT(pushButtonEditClicked()));
+  connect(ui_->pushButtonSetup, SIGNAL(clicked()), this,
+    SLOT(pushButtonSetupClicked()));
+  connect(ui_->pushButtonExport, SIGNAL(clicked()), this,
+    SLOT(pushButtonExportClicked()));
   
   connect(ui_->plot->axisWidget(QwtPlot::xTop), 
     SIGNAL(scaleDivChanged()), this, SLOT(plotXTopScaleDivChanged()));
@@ -132,6 +137,10 @@ void PlotWidget::pause() {
 void PlotWidget::clear() {
 }
 
+void PlotWidget::replot() {
+  ui_->plot->replot();
+}
+
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
   if ((object == ui_->plot->axisWidget(QwtPlot::yLeft)) &&
       (event->type() == QEvent::Resize)) {
@@ -174,7 +183,7 @@ void PlotWidget::pushButtonClearClicked() {
   clear();
 }
 
-void PlotWidget::pushButtonEditClicked() {
+void PlotWidget::pushButtonSetupClicked() {
   if (config_) {
     PlotConfigDialog dialog(this);
     
@@ -186,6 +195,9 @@ void PlotWidget::pushButtonEditClicked() {
     if (dialog.exec() == QDialog::Accepted)
       *config_ = dialog.getWidget()->getConfig();
   }
+}
+
+void PlotWidget::pushButtonExportClicked() {
 }
 
 void PlotWidget::plotXTopScaleDivChanged() {

@@ -38,18 +38,31 @@ namespace rqt_multiplot {
     void setConfig(PlotTableConfig* config);
     PlotTableConfig* getConfig() const;
     
+  protected:
+    bool eventFilter(QObject* object, QEvent* event);
+  
   private:
     Ui::PlotTableConfigWidget* ui_;
 
     PlotTableConfig* config_;
     
   private slots:
+    void configBackgroundColorChanged(const QColor& color);
+    void configForegroundColorChanged(const QColor& color);
+    void configNumPlotsChanged(size_t numRows, size_t numColumns);
+    void configLinkScaleChanged(bool link);
+    void configLinkCursorChanged(bool link);
+    
     void spinBoxRowsValueChanged(int value);
     void spinBoxColumnsValueChanged(int value);
+
+    void checkBoxLinkScaleStateChanged(int state);
+    void checkBoxLinkCursorStateChanged(int state);
     
     void pushButtonRunClicked();
     void pushButtonPauseClicked();
     void pushButtonClearClicked();
+    void pushButtonExportClicked();
   };
 };
 

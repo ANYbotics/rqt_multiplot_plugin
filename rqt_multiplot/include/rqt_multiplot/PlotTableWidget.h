@@ -41,6 +41,7 @@ namespace rqt_multiplot {
     void pausePlots();
     void clearPlots();
 
+    void replot();
   private:
     QGridLayout* layout_;
     QVector<QVector<PlotWidget*> > plotWidgets_;
@@ -49,6 +50,7 @@ namespace rqt_multiplot {
   
   private slots:
     void configBackgroundColorChanged(const QColor& color);
+    void configForegroundColorChanged(const QColor& color);
     void configNumPlotsChanged(size_t numRows, size_t numColumns);
   };
 };

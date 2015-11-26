@@ -47,6 +47,8 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
     if (config_) {
       disconnect(config_, SIGNAL(backgroundColorChanged(const QColor&)),
         this, SLOT(configBackgroundColorChanged(const QColor&)));
+      disconnect(config_, SIGNAL(foregroundColorChanged(const QColor&)),
+        this, SLOT(configForegroundColorChanged(const QColor&)));
       disconnect(config_, SIGNAL(numPlotsChanged(size_t, size_t)), this,
         SLOT(configNumPlotsChanged(size_t, size_t)));
     }
@@ -56,10 +58,13 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
     if (config) {
       connect(config, SIGNAL(backgroundColorChanged(const QColor&)),
         this, SLOT(configBackgroundColorChanged(const QColor&)));
+      connect(config, SIGNAL(foregroundColorChanged(const QColor&)),
+        this, SLOT(configForegroundColorChanged(const QColor&)));
       connect(config, SIGNAL(numPlotsChanged(size_t, size_t)), this,
         SLOT(configNumPlotsChanged(size_t, size_t)));
       
       configBackgroundColorChanged(config->getBackgroundColor());
+      configForegroundColorChanged(config->getForegroundColor());
       configNumPlotsChanged(config->getNumRows(), config->getNumColumns());
     }
   }
@@ -74,24 +79,51 @@ PlotTableConfig* PlotTableWidget::getConfig() const {
 /*****************************************************************************/
 
 void PlotTableWidget::runPlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row)
-    for (size_t column = 0; column < layout_->columnCount(); ++ column)
-      static_cast<PlotWidget*>(layout_->itemAtPosition(row, column)->
-        widget())->run();
+  for (size_t row = 0; row < layout_->rowCount(); ++row) {
+    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
+      QLayoutItem* item = layout_->itemAtPosition(row, column);
+      QWidget* widget = item ? item->widget() : 0;
+      
+      if (widget)
+        static_cast<PlotWidget*>(widget)->run();
+    }
+  }
 }
 
 void PlotTableWidget::pausePlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row)
-    for (size_t column = 0; column < layout_->columnCount(); ++ column)
-      static_cast<PlotWidget*>(layout_->itemAtPosition(row, column)->
-        widget())->pause();
+  for (size_t row = 0; row < layout_->rowCount(); ++row) {
+    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
+      QLayoutItem* item = layout_->itemAtPosition(row, column);
+      QWidget* widget = item ? item->widget() : 0;
+      
+      if (widget)
+        static_cast<PlotWidget*>(widget)->pause();
+    }
+  }
 }
 
 void PlotTableWidget::clearPlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row)
-    for (size_t column = 0; column < layout_->columnCount(); ++ column)
-      static_cast<PlotWidget*>(layout_->itemAtPosition(row, column)->
-        widget())->clear();
+  for (size_t row = 0; row < layout_->rowCount(); ++row) {
+    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
+      QLayoutItem* item = layout_->itemAtPosition(row, column);
+      QWidget* widget = item ? item->widget() : 0;
+      
+      if (widget)
+        static_cast<PlotWidget*>(widget)->clear();
+    }
+  }
+}
+
+void PlotTableWidget::replot() {
+  for (size_t row = 0; row < layout_->rowCount(); ++row) {
+    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
+      QLayoutItem* item = layout_->itemAtPosition(row, column);
+      QWidget* widget = item ? item->widget() : 0;
+      
+      if (widget)
+        static_cast<PlotWidget*>(widget)->replot();
+    }
+  }
 }
 
 /*****************************************************************************/
@@ -103,6 +135,17 @@ void PlotTableWidget::configBackgroundColorChanged(const QColor& color) {
   
   currentPalette.setColor(QPalette::Window, color);
   currentPalette.setColor(QPalette::Base, color);
+  
+  setPalette(currentPalette);
+
+  replot();
+}
+
+void PlotTableWidget::configForegroundColorChanged(const QColor& color) {
+  QPalette currentPalette = palette();
+  
+  currentPalette.setColor(QPalette::WindowText, color);
+  currentPalette.setColor(QPalette::Text, color);
   
   setPalette(currentPalette);
 }

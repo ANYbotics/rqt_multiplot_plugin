@@ -42,6 +42,8 @@ namespace rqt_multiplot {
     void pause();
     void clear();
     
+    void replot();
+    
   protected:
     bool eventFilter(QObject* object, QEvent* event);
     
@@ -60,7 +62,8 @@ namespace rqt_multiplot {
     
     void pushButtonRunPauseClicked();
     void pushButtonClearClicked();
-    void pushButtonEditClicked();
+    void pushButtonSetupClicked();
+    void pushButtonExportClicked();
     
     void plotXTopScaleDivChanged();
     void plotXBottomScaleDivChanged();

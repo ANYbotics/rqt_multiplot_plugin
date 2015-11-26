@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-7) unstable; urgency=low
+
+  * Enhanced plot table configuration and widget
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 26 Nov 2015 08:43:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-6) unstable; urgency=low
 
   * Added configuration file handling

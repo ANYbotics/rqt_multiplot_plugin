@@ -25,9 +25,13 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 PlotTableConfig::PlotTableConfig(QObject* parent, const QColor&
-    backgroundColor, size_t numRows, size_t numColumns) :
+    backgroundColor, const QColor& foregroundColor, size_t numRows,
+    size_t numColumns, bool linkScale, bool linkCursor) :
   QObject(parent),
-  backgroundColor_(backgroundColor) {
+  backgroundColor_(backgroundColor),
+  foregroundColor_(foregroundColor),
+  linkScale_(linkScale),
+  linkCursor_(linkCursor) {
   if (numRows && numColumns) {
     plotConfig_.resize(numRows);
     
@@ -62,6 +66,19 @@ void PlotTableConfig::setBackgroundColor(const QColor& color) {
 
 const QColor& PlotTableConfig::getBackgroundColor() const {
   return backgroundColor_;
+}
+
+void PlotTableConfig::setForegroundColor(const QColor& color) {
+  if (color != foregroundColor_) {
+    foregroundColor_ = color;
+    
+    emit foregroundColorChanged(color);
+    emit changed();
+  }
+}
+
+const QColor& PlotTableConfig::getForegroundColor() const {
+  return foregroundColor_;
 }
 
 void PlotTableConfig::setNumPlots(size_t numRows, size_t numColumns) {
@@ -129,6 +146,32 @@ PlotConfig* PlotTableConfig::getPlotConfig(size_t row, size_t column) const {
     return 0;
 }
 
+void PlotTableConfig::setLinkScale(bool link) {
+  if (link != linkScale_) {
+    linkScale_ = link;
+    
+    emit linkScaleChanged(link);
+    emit changed();
+  }
+}
+
+bool PlotTableConfig::isScaleLinked() const {
+  return linkScale_;
+}
+
+void PlotTableConfig::setLinkCursor(bool link) {
+  if (link != linkCursor_) {
+    linkCursor_ = link;
+    
+    emit linkCursorChanged(link);
+    emit changed();
+  }
+}
+
+bool PlotTableConfig::isCursorLinked() const {
+  return linkCursor_;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -136,6 +179,8 @@ PlotConfig* PlotTableConfig::getPlotConfig(size_t row, size_t column) const {
 void PlotTableConfig::save(QSettings& settings) const {
   settings.setValue("background_color", QVariant::fromValue<QColor>(
     backgroundColor_));
+  settings.setValue("foreground_color", QVariant::fromValue<QColor>(
+    foregroundColor_));
   
   settings.beginGroup("plots");
   
@@ -152,10 +197,16 @@ void PlotTableConfig::save(QSettings& settings) const {
   }
   
   settings.endGroup();
+  
+  settings.setValue("link_scale", linkScale_);
+  settings.setValue("link_cursor", linkCursor_);
 }
 
 void PlotTableConfig::load(QSettings& settings) {
-  setBackgroundColor(settings.value("background_color").value<QColor>());
+  setBackgroundColor(settings.value("background_color", Qt::white).
+    value<QColor>());
+  setForegroundColor(settings.value("foreground_color", Qt::black).
+    value<QColor>());
   
   settings.beginGroup("plots");
   
@@ -194,13 +245,20 @@ void PlotTableConfig::load(QSettings& settings) {
   settings.endGroup();
   
   setNumPlots(row, numColumns);
+  
+  setLinkScale(settings.value("link_scale", false).toBool());
+  setLinkCursor(settings.value("link_cursor", false).toBool());
 }
 
 void PlotTableConfig::reset() {
   setBackgroundColor(Qt::white);
-  setNumPlots(1, 1);
+  setForegroundColor(Qt::black);
 
+  setNumPlots(1, 1);
   plotConfig_[0][0]->reset();
+  
+  setLinkScale(false);
+  setLinkCursor(false);
 }
 
 /*****************************************************************************/
@@ -209,12 +267,17 @@ void PlotTableConfig::reset() {
 
 PlotTableConfig& PlotTableConfig::operator=(const PlotTableConfig& src) {
   setBackgroundColor(src.backgroundColor_);
+  setForegroundColor(src.foregroundColor_);
+  
   setNumPlots(src.getNumRows(), src.getNumColumns());
   
   for (size_t row = 0; row < getNumRows(); ++row)
     for (size_t column = 0; column < getNumColumns(); ++column)
       *plotConfig_[row][column] = *src.plotConfig_[row][column];
-  
+
+  setLinkScale(src.linkScale_);
+  setLinkCursor(src.linkCursor_);
+    
   return *this;
 }
 
