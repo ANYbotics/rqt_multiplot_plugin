@@ -16,54 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_H
+#ifndef RQT_MULTIPLOT_BOUNDING_RECTANGLE_H
+#define RQT_MULTIPLOT_BOUNDING_RECTANGLE_H
 
-#include <QObject>
-#include <QSettings>
-#include <QString>
-#include <QVector>
-
-#include <rqt_multiplot/CurveConfig.h>
+#include <QPair>
+#include <QPointF>
+#include <QRectF>
 
 namespace rqt_multiplot {
-  class PlotConfig :
-    public QObject {
-  Q_OBJECT
+  class BoundingRectangle {
   public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
-    ~PlotConfig();
-
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    size_t getNumCurves() const;
-    CurveConfig* getCurveConfig(size_t index) const;
+    BoundingRectangle(const QPointF& minimum = QPointF(0.0, 0.0),
+      const QPointF& maximum = QPointF(-1.0, -1.0));
+    BoundingRectangle(const QRectF& rectangle);
+    BoundingRectangle(const BoundingRectangle& src);
+    ~BoundingRectangle();
     
-    CurveConfig* addCurve();
-    void removeCurve(CurveConfig* curveConfig);
-    void removeCurve(size_t index);
-    void clearCurves();
+    void setMinimum(const QPointF& minimum);
+    QPointF& getMinimum();
+    const QPointF& getMinimum() const;
+    void setMaximum(const QPointF& maximum);
+    QPointF& getMaximum();
+    const QPointF& getMaximum() const;
+    QRectF getRectangle() const;
+    bool isValid() const;
+    bool isEmpty() const;
+    bool contains(const QPointF& point) const;
     
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
+    void initialize(const QPointF& point);
+    void clear();
     
-    PlotConfig& operator=(const PlotConfig& src);
+    bool operator==(const BoundingRectangle& rectangle) const;
+    bool operator!=(const BoundingRectangle& rectangle) const;
     
-  signals:
-    void titleChanged(const QString& title);
-    void curveAdded(size_t index);
-    void curveRemoved(size_t index);
-    void curvesCleared();
-    void curveConfigChanged(size_t index);
-    void changed();
+    BoundingRectangle& operator+=(const QPointF& point);
+    BoundingRectangle& operator+=(const BoundingRectangle& rectangle);
     
   private:
-    QString title_;
-    QVector<CurveConfig*> curveConfig_;
-    
-  private slots:
-    void curveConfigChanged();
+    QPointF minimum_;
+    QPointF maximum_;
   };
 };
 

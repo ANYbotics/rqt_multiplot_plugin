@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <rqt_multiplot/PlotWidget.h>
+
 #include "rqt_multiplot/PlotTableWidget.h"
 
 namespace rqt_multiplot {
@@ -51,6 +53,8 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
         this, SLOT(configForegroundColorChanged(const QColor&)));
       disconnect(config_, SIGNAL(numPlotsChanged(size_t, size_t)), this,
         SLOT(configNumPlotsChanged(size_t, size_t)));
+      disconnect(config_, SIGNAL(linkScaleChanged(bool)), this,
+        SLOT(configLinkScaleChanged(bool)));
     }
     
     config_ = config;
@@ -62,16 +66,34 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
         this, SLOT(configForegroundColorChanged(const QColor&)));
       connect(config, SIGNAL(numPlotsChanged(size_t, size_t)), this,
         SLOT(configNumPlotsChanged(size_t, size_t)));
+      connect(config, SIGNAL(linkScaleChanged(bool)), this,
+        SLOT(configLinkScaleChanged(bool)));
       
       configBackgroundColorChanged(config->getBackgroundColor());
       configForegroundColorChanged(config->getForegroundColor());
       configNumPlotsChanged(config->getNumRows(), config->getNumColumns());
+      configLinkScaleChanged(config->isScaleLinked());
     }
   }
 }
 
 PlotTableConfig* PlotTableWidget::getConfig() const {
   return config_;
+}
+
+size_t PlotTableWidget::getNumRows() const {
+  return plotWidgets_.count();
+}
+
+size_t PlotTableWidget::getNumColumns() const {
+  if (!plotWidgets_.isEmpty())
+    return plotWidgets_[0].count();
+  else
+    return 0;
+}
+
+PlotWidget* PlotTableWidget::getPlotWidget(size_t row, size_t column) const {
+  return plotWidgets_[row][column];
 }
 
 /*****************************************************************************/
@@ -126,6 +148,32 @@ void PlotTableWidget::replot() {
   }
 }
 
+void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds) {
+  BoundingRectangle validBounds = bounds;
+  
+  if (!bounds.isValid()) {
+    BoundingRectangle currentBounds;
+    
+    for (size_t row = 0; row < plotWidgets_.count(); ++row)
+      for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
+        currentBounds += plotWidgets_[row][column]->getCurrentScale();
+      
+    if (bounds.getMaximum().x() < bounds.getMinimum().x()) {
+      validBounds.getMinimum().setX(currentBounds.getMinimum().x());
+      validBounds.getMaximum().setX(currentBounds.getMaximum().x());
+    }
+    
+    if (bounds.getMaximum().y() < bounds.getMinimum().y()) {
+      validBounds.getMinimum().setY(currentBounds.getMinimum().y());
+      validBounds.getMaximum().setY(currentBounds.getMaximum().y());
+    }  
+  }
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
+      plotWidgets_[row][column]->setCurrentScale(validBounds);
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
@@ -172,12 +220,25 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
     for (size_t column = 0; column < numColumns; ++column) {
       if ((row < oldNumRows) && (column < oldNumColumns))
         plotWidgets[row][column] = plotWidgets_[row][column];
-      else
+      else {
         plotWidgets[row][column] = new PlotWidget(this);
+        
+        connect(plotWidgets[row][column], SIGNAL(preferredScaleChanged(
+          const BoundingRectangle&)), this, SLOT(plotPreferredScaleChanged(
+          const BoundingRectangle&)));
+        connect(plotWidgets[row][column], SIGNAL(currentScaleChanged(
+          const BoundingRectangle&)), this, SLOT(plotCurrentScaleChanged(
+          const BoundingRectangle&)));
+        connect(plotWidgets[row][column], SIGNAL(pausedChanged(bool)),
+          this, SLOT(plotPausedChanged(bool)));        
+      }
       
-      if (config_)
-        plotWidgets[row][column]->setConfig(config_->getPlotConfig(
-          row, column));
+      plotWidgets[row][column]->setConfig(config_->getPlotConfig(
+        row, column));
+      
+      if (config_->isScaleLinked())
+        plotWidgets_[row][column]->setCurrentScale(plotWidgets_[0][0]->
+          getCurrentScale());
       
       layout->addWidget(plotWidgets[row][column], row, column);
     }
@@ -193,6 +254,49 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
   delete layout_;
   layout_ = layout;
   setLayout(layout);
+  
+  emit plotPausedChanged();
+}
+
+void PlotTableWidget::configLinkScaleChanged(bool link) {
+  if (link) {
+    BoundingRectangle bounds;
+    
+    for (size_t row = 0; row < layout_->rowCount(); ++row)
+      for (size_t column = 0; column < layout_->columnCount(); ++ column)
+        bounds += plotWidgets_[row][column]->getPreferredScale();
+        
+    updatePlotScale(bounds);
+  }
+}
+
+void PlotTableWidget::plotPreferredScaleChanged(const BoundingRectangle&
+    bounds) {
+  if (config_) {
+    if (config_->isScaleLinked()) {
+      BoundingRectangle bounds;
+      
+      for (size_t row = 0; row < layout_->rowCount(); ++row)
+        for (size_t column = 0; column < layout_->columnCount(); ++ column)
+          bounds += plotWidgets_[row][column]->getPreferredScale();
+      
+      updatePlotScale(bounds);
+    }
+    else
+      static_cast<PlotWidget*>(sender())->setCurrentScale(bounds);
+  }
+}
+
+void PlotTableWidget::plotCurrentScaleChanged(const BoundingRectangle&
+    bounds) {
+  if (config_) {
+    if (config_->isScaleLinked())
+      updatePlotScale(bounds);
+  }
+}
+
+void PlotTableWidget::plotPausedChanged(bool paused) {
+  emit plotPausedChanged();
 }
 
 }

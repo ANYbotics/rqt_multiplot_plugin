@@ -53,9 +53,9 @@ CurveAxisConfigWidget::CurveAxisConfigWidget(QWidget* parent) :
   ui_->statusWidgetField->setIcon(StatusWidget::Error, pixmapError);
   ui_->statusWidgetField->setFrames(StatusWidget::Busy, pixmapBusy, 8);
   
-  ui_->statusWidgetRange->setIcon(StatusWidget::Okay, pixmapOkay);
-  ui_->statusWidgetRange->setIcon(StatusWidget::Error, pixmapError);
-  ui_->statusWidgetRange->setFrames(StatusWidget::Busy, pixmapBusy, 8);
+  ui_->statusWidgetScale->setIcon(StatusWidget::Okay, pixmapOkay);
+  ui_->statusWidgetScale->setIcon(StatusWidget::Error, pixmapError);
+  ui_->statusWidgetScale->setFrames(StatusWidget::Busy, pixmapBusy, 8);
   
   connect(ui_->comboBoxTopic, SIGNAL(updateStarted()), this,
     SLOT(comboBoxTopicUpdateStarted()));
@@ -110,14 +110,14 @@ void CurveAxisConfigWidget::setConfig(CurveAxisConfig* config) {
         SLOT(configFieldTypeChanged(int)));
       disconnect(config_, SIGNAL(fieldChanged(const QString&)), this,
         SLOT(configFieldChanged(const QString&)));
-      disconnect(config_->getRange(), SIGNAL(changed()), this,
-        SLOT(configRangeChanged()));
+      disconnect(config_->getScale(), SIGNAL(changed()), this,
+        SLOT(configScaleChanged()));
     }
     
     config_ = config;
     
     if (config) {
-      ui_->widgetRange->setRange(config->getRange());
+      ui_->widgetScale->setScale(config->getScale());
             
       connect(config, SIGNAL(topicChanged(const QString&)), this,
         SLOT(configTopicChanged(const QString&)));
@@ -127,17 +127,17 @@ void CurveAxisConfigWidget::setConfig(CurveAxisConfig* config) {
         SLOT(configFieldTypeChanged(int)));
       connect(config, SIGNAL(fieldChanged(const QString&)), this,
         SLOT(configFieldChanged(const QString&)));
-      connect(config->getRange(), SIGNAL(changed()), this,
-        SLOT(configRangeChanged()));
+      connect(config->getScale(), SIGNAL(changed()), this,
+        SLOT(configScaleChanged()));
       
       configTopicChanged(config->getTopic());
       configTypeChanged(config->getType());
       configFieldTypeChanged(config->getFieldType());
       configFieldChanged(config->getField());
-      configRangeChanged();
+      configScaleChanged();
     }
     else {
-      ui_->widgetRange->setRange(0);
+      ui_->widgetScale->setScale(0);
     }
   }
 }
@@ -264,17 +264,17 @@ bool CurveAxisConfigWidget::validateField() {
   return false;
 }
 
-bool CurveAxisConfigWidget::validateRange() {
+bool CurveAxisConfigWidget::validateScale() {
   if (config_) {
-    if (config_->getRange()->isEmpty()) {
-      ui_->statusWidgetRange->setCurrentRole(StatusWidget::Error,
-        "Axis range empty");
+    if (!config_->getScale()->isValid()) {
+      ui_->statusWidgetScale->setCurrentRole(StatusWidget::Error,
+        "Axis scale invalid");
       
       return false;
     }
     else {
-      ui_->statusWidgetRange->setCurrentRole(StatusWidget::Okay,
-        "Axis range okay");
+      ui_->statusWidgetScale->setCurrentRole(StatusWidget::Okay,
+        "Axis scale okay");
       
       return true;
     }
@@ -303,8 +303,8 @@ void CurveAxisConfigWidget::configFieldChanged(const QString& field) {
   ui_->widgetField->setCurrentField(field);
 }
 
-void CurveAxisConfigWidget::configRangeChanged() {
-  validateRange();
+void CurveAxisConfigWidget::configScaleChanged() {
+  validateScale();
 }
 
 void CurveAxisConfigWidget::comboBoxTopicUpdateStarted() {

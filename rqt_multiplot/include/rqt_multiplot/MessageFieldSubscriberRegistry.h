@@ -26,12 +26,12 @@
 #include <rqt_multiplot/MessageFieldSubscriber.h>
 
 namespace rqt_multiplot {
-  class MessageSubscriberRegistry :
+  class MessageFieldSubscriberRegistry :
     public QObject {
   Q_OBJECT
   public:
-    MessageSubscriberRegistry(QObject* parent = 0);
-    ~MessageSubscriberRegistry();
+    MessageFieldSubscriberRegistry(QObject* parent = 0);
+    ~MessageFieldSubscriberRegistry();
     
     MessageFieldSubscriber* getSubscriber(const QString& topic, const
       QString& field);

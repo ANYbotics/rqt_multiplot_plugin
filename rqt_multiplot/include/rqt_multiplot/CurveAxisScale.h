@@ -16,54 +16,59 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_H
+#ifndef RQT_MULTIPLOT_CURVE_AXIS_SCALE_H
+#define RQT_MULTIPLOT_CURVE_AXIS_SCALE_H
 
 #include <QObject>
 #include <QSettings>
-#include <QString>
-#include <QVector>
-
-#include <rqt_multiplot/CurveConfig.h>
 
 namespace rqt_multiplot {
-  class PlotConfig :
+  class CurveAxisScale :
     public QObject {
   Q_OBJECT
   public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
-    ~PlotConfig();
-
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    size_t getNumCurves() const;
-    CurveConfig* getCurveConfig(size_t index) const;
+    enum Type {
+      Auto,
+      Absolute,
+      Relative
+    };
     
-    CurveConfig* addCurve();
-    void removeCurve(CurveConfig* curveConfig);
-    void removeCurve(size_t index);
-    void clearCurves();
+    CurveAxisScale(QObject* parent = 0, Type type = Auto, double
+      absoluteMinimum = 0.0, double absoluteMaximum = 1000.0, double
+      relativeMinimum = -1000.0, double relativeMaximum = 0.0);
+    ~CurveAxisScale();
+    
+    void setType(Type type);
+    Type getType() const;
+    void setAbsoluteMinimum(double minimum);
+    double getAbsoluteMinimum() const;
+    void setAbsoluteMaximum(double maximum);
+    double getAbsoluteMaximum() const;
+    void setRelativeMinimum(double minimum);
+    double getRelativeMinimum() const;
+    void setRelativeMaximum(double maximum);
+    double getRelativeMaximum() const;
+    bool isValid() const;
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
-    void reset();
     
-    PlotConfig& operator=(const PlotConfig& src);
+    CurveAxisScale& operator=(const CurveAxisScale& src);
     
   signals:
-    void titleChanged(const QString& title);
-    void curveAdded(size_t index);
-    void curveRemoved(size_t index);
-    void curvesCleared();
-    void curveConfigChanged(size_t index);
+    void typeChanged(int type);
+    void absoluteMinimumChanged(double minimum);
+    void absoluteMaximumChanged(double maxnimum);
+    void relativeMinimumChanged(double minimum);
+    void relativeMaximumChanged(double maxnimum);
     void changed();
     
   private:
-    QString title_;
-    QVector<CurveConfig*> curveConfig_;
-    
-  private slots:
-    void curveConfigChanged();
+    Type type_;
+    double absoluteMinimum_;
+    double absoluteMaximum_;
+    double relativeMinimum_;
+    double relativeMaximum_;
   };
 };
 

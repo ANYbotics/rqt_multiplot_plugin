@@ -16,89 +16,75 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_CURVE_H
+#define RQT_MULTIPLOT_PLOT_CURVE_H
 
-#include <QIcon>
-#include <QVector>
-#include <QWidget>
+#include <QObject>
+#include <QPair>
+#include <QPointF>
 
 #include <rqt_multiplot/BoundingRectangle.h>
-#include <rqt_multiplot/PlotConfig.h>
+#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/MessageFieldSubscriber.h>
+#include <rqt_multiplot/MessageFieldSubscriberRegistry.h>
 
-class QwtPlotMagnifier;
-class QwtPlotPicker;
-class QwtPlotZoomer;
-
-namespace Ui {
-  class PlotWidget;
-};
+class QwtPlotCurve;
 
 namespace rqt_multiplot {
-  class PlotCurve;
+  class CurveData;
+  class PlotWidget;
   
-  class PlotWidget :
-    public QWidget {
+  class PlotCurve :
+    public QObject {
   Q_OBJECT
+  friend class PlotWidget;
   public:
-    PlotWidget(QWidget* parent = 0);
-    virtual ~PlotWidget();
-
-    void setConfig(PlotConfig* config);
-    PlotConfig* getConfig() const;
+    PlotCurve(PlotWidget* parent = 0);
+    virtual ~PlotCurve();
+    
+    void setConfig(CurveConfig* config);
+    CurveConfig* getConfig() const;
+    QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
+      axis) const;
     BoundingRectangle getPreferredScale() const;
-    void setCurrentScale(const BoundingRectangle& bounds);
-    BoundingRectangle getCurrentScale() const;
-    bool isPaused() const;
-
+    
     void run();
     void pause();
     void clear();
+  
+    void appendPoint(const QPointF& point);
     
     void replot();
-  
+    
   signals:
     void preferredScaleChanged(const BoundingRectangle& bounds);
-    void currentScaleChanged(const BoundingRectangle& bounds);
-    void pausedChanged(bool paused);
-    void cleared();
-    
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
     
   private:
-    Ui::PlotWidget* ui_;
+    CurveConfig* config_;
     
-    QIcon runIcon_;
-    QIcon pauseIcon_;
-        
-    PlotConfig* config_;
+    MessageFieldSubscriberRegistry* registry_;
+    MessageFieldSubscriber* subscriberX_;
+    MessageFieldSubscriber* subscriberY_;
     
-    QVector<PlotCurve*> curves_;
-    QwtPlotZoomer* zoomer_;
-    QwtPlotMagnifier* magnifier_;
-    QwtPlotPicker* picker_;
+    QwtPlotCurve* curve_;
+    CurveData* data_;
     
+    QPointF nextPoint_;
     bool paused_;
+    
+    MessageFieldSubscriber* resubscribe(CurveAxisConfig* axisConfig,
+      MessageFieldSubscriber* subscriber, const char* method);
     
   private slots:
     void configTitleChanged(const QString& title);
-    void configCurveAdded(size_t index);
-    void configCurveRemoved(size_t index);
-    void configCurvesCleared();
+    void configXAxisConfigChanged();
+    void configYAxisConfigChanged();
+    void configColorCurrentColorChanged(const QColor& color);
     
-    void curvePreferredScaleChanged(const BoundingRectangle& bounds);
-    
-    void lineEditTitleTextChanged(const QString& text);
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonRunPauseClicked();
-    void pushButtonClearClicked();
-    void pushButtonSetupClicked();
-    void pushButtonExportClicked();
-    
-    void plotXBottomScaleDivChanged();
-    void plotYLeftScaleDivChanged();
+    void xValueReceived(const QString& topic, const QString& field,
+      double value);
+    void yValueReceived(const QString& topic, const QString& field,
+      double value);
   };
 };
 

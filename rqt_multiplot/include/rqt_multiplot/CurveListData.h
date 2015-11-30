@@ -16,54 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_H
+#ifndef RQT_MULTIPLOT_CURVE_LIST_DATA_H
+#define RQT_MULTIPLOT_CURVE_LIST_DATA_H
 
-#include <QObject>
-#include <QSettings>
-#include <QString>
-#include <QVector>
-
-#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/BoundingRectangle.h>
+#include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class PlotConfig :
-    public QObject {
-  Q_OBJECT
+  class CurveListData :
+    public CurveData {
   public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
-    ~PlotConfig();
+    CurveListData();
+    ~CurveListData();
 
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    size_t getNumCurves() const;
-    CurveConfig* getCurveConfig(size_t index) const;
+    size_t getNumPoints() const;
+    const QPointF& getPoint(size_t index) const;
+    BoundingRectangle getBounds() const;
     
-    CurveConfig* addCurve();
-    void removeCurve(CurveConfig* curveConfig);
-    void removeCurve(size_t index);
-    void clearCurves();
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    PlotConfig& operator=(const PlotConfig& src);
-    
-  signals:
-    void titleChanged(const QString& title);
-    void curveAdded(size_t index);
-    void curveRemoved(size_t index);
-    void curvesCleared();
-    void curveConfigChanged(size_t index);
-    void changed();
+    void appendPoint(const QPointF& point);
+    void clearPoints();
     
   private:
-    QString title_;
-    QVector<CurveConfig*> curveConfig_;
-    
-  private slots:
-    void curveConfigChanged();
+    QList<QPointF> points_;
+    BoundingRectangle bounds_;
   };
 };
 

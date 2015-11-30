@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-8) unstable; urgency=low
+
+  * Plot scaling works
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Mon, 30 Nov 2015 12:35:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-7) unstable; urgency=low
 
   * Enhanced plot table configuration and widget

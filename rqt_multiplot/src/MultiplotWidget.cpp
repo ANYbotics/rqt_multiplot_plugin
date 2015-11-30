@@ -36,6 +36,7 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
   
   ui_->configWidget->setConfig(config_);
   ui_->plotTableConfigWidget->setConfig(config_->getTableConfig());
+  ui_->plotTableConfigWidget->setPlotTable(ui_->plotTableWidget);
   ui_->plotTableWidget->setConfig(config_->getTableConfig());
   
   connect(ui_->configWidget, SIGNAL(currentConfigModifiedChanged(bool)),

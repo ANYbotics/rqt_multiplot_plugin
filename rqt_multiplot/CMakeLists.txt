@@ -35,18 +35,23 @@ catkin_python_setup()
 
 set(rqt_multiplot_SRCS
   src/BitOperations.cpp
+  src/BoundingRectangle.cpp
   src/ColorOperations.cpp
   src/ConfigComboBox.cpp
   src/CurveAxisConfig.cpp
   src/CurveAxisConfigWidget.cpp
   src/CurveAxisRange.cpp
   src/CurveAxisRangeWidget.cpp
+  src/CurveAxisScale.cpp
+  src/CurveAxisScaleWidget.cpp
   src/CurveColor.cpp
   src/CurveColorWidget.cpp
   src/CurveConfig.cpp
   src/CurveConfigDialog.cpp
   src/CurveConfigWidget.cpp
+  src/CurveData.cpp
   src/CurveItemWidget.cpp
+  src/CurveListData.cpp
   src/CurveListWidget.cpp
   src/FileScheme.cpp
   src/Message.cpp
@@ -56,6 +61,7 @@ set(rqt_multiplot_SRCS
   src/MessageFieldItemModel.cpp
   src/MessageFieldLineEdit.cpp
   src/MessageFieldSubscriber.cpp
+  src/MessageFieldSubscriberRegistry.cpp
   src/MessageFieldTreeWidget.cpp
   src/MessageFieldWidget.cpp
   src/MessageSubscriber.cpp
@@ -73,6 +79,7 @@ set(rqt_multiplot_SRCS
   src/PlotConfig.cpp
   src/PlotConfigDialog.cpp
   src/PlotConfigWidget.cpp
+  src/PlotCurve.cpp
   src/PlotTableConfig.cpp
   src/PlotTableConfigWidget.cpp
   src/PlotTableWidget.cpp
@@ -88,18 +95,23 @@ set(rqt_multiplot_SRCS
 
 set(rqt_multiplot_HDRS
   include/rqt_multiplot/BitOperations.h
+  include/rqt_multiplot/BoundingRectangle.h
   include/rqt_multiplot/ColorOperations.h
   include/rqt_multiplot/ConfigComboBox.h
   include/rqt_multiplot/CurveAxisConfig.h
   include/rqt_multiplot/CurveAxisConfigWidget.h
   include/rqt_multiplot/CurveAxisRange.h
   include/rqt_multiplot/CurveAxisRangeWidget.h
+  include/rqt_multiplot/CurveAxisScale.h
+  include/rqt_multiplot/CurveAxisScaleWidget.h
   include/rqt_multiplot/CurveColor.h
   include/rqt_multiplot/CurveColorWidget.h
   include/rqt_multiplot/CurveConfig.h
   include/rqt_multiplot/CurveConfigDialog.h
   include/rqt_multiplot/CurveConfigWidget.h
+  include/rqt_multiplot/CurveData.h
   include/rqt_multiplot/CurveItemWidget.h
+  include/rqt_multiplot/CurveListData.h
   include/rqt_multiplot/CurveListWidget.h
   include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/Message.h
@@ -109,6 +121,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/MessageFieldItemModel.h
   include/rqt_multiplot/MessageFieldLineEdit.h
   include/rqt_multiplot/MessageFieldSubscriber.h
+  include/rqt_multiplot/MessageFieldSubscriberRegistry.h
   include/rqt_multiplot/MessageFieldTreeWidget.h
   include/rqt_multiplot/MessageFieldWidget.h
   include/rqt_multiplot/MessageSubscriber.h
@@ -126,6 +139,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/PlotConfig.h
   include/rqt_multiplot/PlotConfigDialog.h
   include/rqt_multiplot/PlotConfigWidget.h
+  include/rqt_multiplot/PlotCurve.h
   include/rqt_multiplot/PlotTableConfig.h
   include/rqt_multiplot/PlotTableConfigWidget.h
   include/rqt_multiplot/PlotTableWidget.h
@@ -142,6 +156,7 @@ set(rqt_multiplot_HDRS
 set(rqt_multiplot_UIS
   src/CurveAxisConfigWidget.ui
   src/CurveAxisRangeWidget.ui
+  src/CurveAxisScaleWidget.ui
   src/CurveColorWidget.ui
   src/CurveConfigDialog.ui
   src/CurveConfigWidget.ui

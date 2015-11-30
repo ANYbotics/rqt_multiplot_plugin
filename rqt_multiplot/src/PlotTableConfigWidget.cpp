@@ -20,6 +20,9 @@
 
 #include <ros/package.h>
 
+#include <rqt_multiplot/PlotTableWidget.h>
+#include <rqt_multiplot/PlotWidget.h>
+
 #include <ui_PlotTableConfigWidget.h>
 
 #include "rqt_multiplot/PlotTableConfigWidget.h"
@@ -33,7 +36,8 @@ namespace rqt_multiplot {
 PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotTableConfigWidget()),
-  config_(0) {
+  config_(0),
+  plotTable_(0) {
   ui_->setupUi(this);
   
   ui_->labelBackgroundColor->setAutoFillBackground(true);
@@ -51,6 +55,8 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   ui_->pushButtonExport->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/export.png"))));
+  
+  ui_->pushButtonPause->setEnabled(false);
   
   connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
     SLOT(spinBoxRowsValueChanged(int)));
@@ -123,6 +129,28 @@ void PlotTableConfigWidget::setConfig(PlotTableConfig* config) {
 
 PlotTableConfig* PlotTableConfigWidget::getConfig() const {
   return config_;
+}
+
+void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
+  if (plotTable != plotTable_) {
+    if (plotTable_) {
+      disconnect(plotTable_, SIGNAL(plotPausedChanged()),
+        this, SLOT(plotTablePlotPausedChanged()));
+    }
+    
+    plotTable_ = plotTable;
+    
+    if (plotTable) {
+      connect(plotTable, SIGNAL(plotPausedChanged()),
+        this, SLOT(plotTablePlotPausedChanged()));
+      
+      plotTablePlotPausedChanged();
+    }
+  }
+}
+
+PlotTableWidget* PlotTableConfigWidget::getPlotTableWidget() const {
+  return plotTable_;
 }
 
 /*****************************************************************************/
@@ -206,19 +234,39 @@ void PlotTableConfigWidget::checkBoxLinkCursorStateChanged(int state) {
 }
 
 void PlotTableConfigWidget::pushButtonRunClicked() {
-//   ui_->plotTableWidget->runPlots();
+  if (plotTable_)
+    plotTable_->runPlots();
 }
 
 void PlotTableConfigWidget::pushButtonPauseClicked() {
-//   ui_->plotTableWidget->pausePlots();
+  if (plotTable_)
+    plotTable_->pausePlots();
 }
 
 void PlotTableConfigWidget::pushButtonClearClicked() {
-//   ui_->plotTableWidget->clearPlots();
+  if (plotTable_)
+    plotTable_->clearPlots();
 }
 
 void PlotTableConfigWidget::pushButtonExportClicked() {
-//   ui_->plotTableWidget->clearPlots();
+}
+
+void PlotTableConfigWidget::plotTablePlotPausedChanged() {
+  if (plotTable_) {
+    bool allPlotsPaused = true;
+    bool anyPlotPaused = false;
+    
+    for (size_t row = 0; row < plotTable_->getNumRows(); ++row) {
+      for (size_t column = 0; column < plotTable_->getNumColumns();
+          ++column) {
+        allPlotsPaused &= plotTable_->getPlotWidget(row, column)->isPaused();
+        anyPlotPaused |= plotTable_->getPlotWidget(row, column)->isPaused();
+      }
+    }
+    
+    ui_->pushButtonRun->setEnabled(anyPlotPaused);
+    ui_->pushButtonPause->setEnabled(!allPlotsPaused);
+  }
 }
 
 }

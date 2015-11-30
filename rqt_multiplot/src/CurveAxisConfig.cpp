@@ -33,8 +33,8 @@ CurveAxisConfig::CurveAxisConfig(QObject* parent, const QString& topic,
   type_(type),
   fieldType_(fieldType),
   field_(field),
-  range_(new CurveAxisRange(this)) {
-  connect(range_, SIGNAL(changed()), this, SLOT(rangeChanged()));
+  scale_(new CurveAxisScale(this)) {
+  connect(scale_, SIGNAL(changed()), this, SLOT(scaleChanged()));
 }
 
 CurveAxisConfig::~CurveAxisConfig() {
@@ -96,8 +96,8 @@ const QString& CurveAxisConfig::getField() const {
   return field_;
 }
 
-CurveAxisRange* CurveAxisConfig::getRange() const {
-  return range_;
+CurveAxisScale* CurveAxisConfig::getScale() const {
+  return scale_;
 }
 
 /*****************************************************************************/
@@ -110,8 +110,8 @@ void CurveAxisConfig::save(QSettings& settings) const {
   settings.setValue("field_type", QVariant::fromValue<FieldType>(fieldType_));
   settings.setValue("field", field_);
   
-  settings.beginGroup("range");
-  range_->save(settings);
+  settings.beginGroup("scale");
+  scale_->save(settings);
   settings.endGroup();
 }
 
@@ -121,8 +121,8 @@ void CurveAxisConfig::load(QSettings& settings) {
   setFieldType(settings.value("field_type").value<FieldType>());
   setField(settings.value("field").toString());
   
-  settings.beginGroup("range");
-  range_->load(settings);
+  settings.beginGroup("scale");
+  scale_->load(settings);
   settings.endGroup();
 }
 
@@ -136,7 +136,7 @@ CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
   setFieldType(src.fieldType_);
   setField(src.field_);
   
-  *range_ = *src.range_;
+  *scale_ = *src.scale_;
   
   return *this;
 }
@@ -145,7 +145,7 @@ CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveAxisConfig::rangeChanged() {
+void CurveAxisConfig::scaleChanged() {
   emit changed();
 }
 

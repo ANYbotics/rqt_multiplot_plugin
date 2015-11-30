@@ -28,6 +28,8 @@ namespace Ui {
 };
 
 namespace rqt_multiplot {
+  class PlotTableWidget;
+  
   class PlotTableConfigWidget :
     public QWidget {
   Q_OBJECT
@@ -37,6 +39,8 @@ namespace rqt_multiplot {
 
     void setConfig(PlotTableConfig* config);
     PlotTableConfig* getConfig() const;
+    void setPlotTable(PlotTableWidget* plotTable);
+    PlotTableWidget* getPlotTableWidget() const;
     
   protected:
     bool eventFilter(QObject* object, QEvent* event);
@@ -45,6 +49,7 @@ namespace rqt_multiplot {
     Ui::PlotTableConfigWidget* ui_;
 
     PlotTableConfig* config_;
+    PlotTableWidget* plotTable_;
     
   private slots:
     void configBackgroundColorChanged(const QColor& color);
@@ -63,6 +68,8 @@ namespace rqt_multiplot {
     void pushButtonPauseClicked();
     void pushButtonClearClicked();
     void pushButtonExportClicked();
+    
+    void plotTablePlotPausedChanged();
   };
 };
 

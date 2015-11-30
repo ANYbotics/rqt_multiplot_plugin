@@ -23,7 +23,7 @@
 #include <QSettings>
 #include <QString>
 
-#include <rqt_multiplot/CurveAxisRange.h>
+#include <rqt_multiplot/CurveAxisScale.h>
 
 namespace rqt_multiplot {
   class CurveAxisConfig :
@@ -48,7 +48,7 @@ namespace rqt_multiplot {
     FieldType getFieldType() const;
     void setField(const QString& field);
     const QString& getField() const;
-    CurveAxisRange* getRange() const;
+    CurveAxisScale* getScale() const;
   
     void save(QSettings& settings) const;
     void load(QSettings& settings);
@@ -68,10 +68,10 @@ namespace rqt_multiplot {
     FieldType fieldType_;
     QString field_;
     
-    CurveAxisRange* range_;
+    CurveAxisScale* scale_;
     
   private slots:
-    void rangeChanged();
+    void scaleChanged();
   };
 };
 

@@ -23,10 +23,12 @@
 #include <QVector>
 #include <QWidget>
 
+#include <rqt_multiplot/BoundingRectangle.h>
 #include <rqt_multiplot/PlotTableConfig.h>
-#include <rqt_multiplot/PlotWidget.h>
 
 namespace rqt_multiplot {
+  class PlotWidget;
+  
   class PlotTableWidget :
     public QWidget {
   Q_OBJECT
@@ -36,22 +38,36 @@ namespace rqt_multiplot {
     
     void setConfig(PlotTableConfig* config);
     PlotTableConfig* getConfig() const;
+    size_t getNumRows() const;
+    size_t getNumColumns() const;
+    PlotWidget* getPlotWidget(size_t row, size_t column) const;
     
     void runPlots();
     void pausePlots();
     void clearPlots();
 
     void replot();
+  
+  signals:
+    void plotPausedChanged();
+    
   private:
     QGridLayout* layout_;
     QVector<QVector<PlotWidget*> > plotWidgets_;
     
     PlotTableConfig* config_;
   
+    void updatePlotScale(const BoundingRectangle& bounds);
+    
   private slots:
     void configBackgroundColorChanged(const QColor& color);
     void configForegroundColorChanged(const QColor& color);
     void configNumPlotsChanged(size_t numRows, size_t numColumns);
+    void configLinkScaleChanged(bool link);
+    
+    void plotPreferredScaleChanged(const BoundingRectangle& bounds);
+    void plotCurrentScaleChanged(const BoundingRectangle& bounds);
+    void plotPausedChanged(bool paused);
   };
 };
 

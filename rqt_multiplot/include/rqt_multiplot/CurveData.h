@@ -16,54 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_H
+#define RQT_MULTIPLOT_CURVE_DATA_H
 
-#include <QObject>
-#include <QSettings>
-#include <QString>
-#include <QVector>
+#include <QList>
+#include <QPair>
+#include <QPointF>
+#include <QRectF>
 
+#include <qwt/qwt_series_data.h>
+
+#include <rqt_multiplot/BoundingRectangle.h>
 #include <rqt_multiplot/CurveConfig.h>
 
 namespace rqt_multiplot {
-  class PlotConfig :
-    public QObject {
-  Q_OBJECT
+  class CurveData :
+    public QwtSeriesData<QPointF> {
   public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
-    ~PlotConfig();
+    CurveData();
+    ~CurveData();
 
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    size_t getNumCurves() const;
-    CurveConfig* getCurveConfig(size_t index) const;
+    virtual size_t getNumPoints() const = 0;
+    double getValue(size_t index, CurveConfig::Axis axis) const;
+    virtual const QPointF& getPoint(size_t index) const = 0;
+    QPair<double, double> getAxisBounds(CurveConfig::Axis axis) const;
+    virtual BoundingRectangle getBounds() const = 0;
+    bool isEmpty() const;
     
-    CurveConfig* addCurve();
-    void removeCurve(CurveConfig* curveConfig);
-    void removeCurve(size_t index);
-    void clearCurves();
+    size_t size() const;
+    QPointF sample(size_t i) const;
+    QRectF boundingRect() const;
     
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    PlotConfig& operator=(const PlotConfig& src);
-    
-  signals:
-    void titleChanged(const QString& title);
-    void curveAdded(size_t index);
-    void curveRemoved(size_t index);
-    void curvesCleared();
-    void curveConfigChanged(size_t index);
-    void changed();
-    
-  private:
-    QString title_;
-    QVector<CurveConfig*> curveConfig_;
-    
-  private slots:
-    void curveConfigChanged();
+    virtual void appendPoint(const QPointF& point) = 0;
+    void appendPoint(double x, double y);
+    virtual void clearPoints() = 0;
   };
 };
 

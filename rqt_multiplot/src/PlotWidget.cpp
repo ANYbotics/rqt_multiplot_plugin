@@ -17,12 +17,18 @@
  ******************************************************************************/
 
 #include <qwt/qwt_plot_canvas.h>
+#include <qwt/qwt_plot_curve.h>
+#include <qwt/qwt_plot_magnifier.h>
+#include <qwt/qwt_plot_picker.h>
+#include <qwt/qwt_plot_zoomer.h>
 #include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_picker_machine.h>
 
 #include <ros/package.h>
 
 #include <rqt_multiplot/PlotConfigDialog.h>
 #include <rqt_multiplot/PlotConfigWidget.h>
+#include <rqt_multiplot/PlotCurve.h>
 
 #include <ui_PlotWidget.h>
 
@@ -37,12 +43,19 @@ namespace rqt_multiplot {
 PlotWidget::PlotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotWidget()),
-  config_(0) {
+  config_(0),
+  magnifier_(0),
+  paused_(true) {
+  qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
+  
   ui_->setupUi(this);
   
-  ui_->pushButtonRunPause->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/run.png"))));
+  runIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
+    "rqt_multiplot").append("/resource/16x16/run.png")));
+  pauseIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
+    "rqt_multiplot").append("/resource/16x16/pause.png")));
+  
+  ui_->pushButtonRunPause->setIcon(runIcon_);
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
@@ -55,6 +68,9 @@ PlotWidget::PlotWidget(QWidget* parent) :
   
   ui_->plot->setAutoFillBackground(true);
   ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
+
+  ui_->plot->setAxisAutoScale(QwtPlot::yLeft, false);
+  ui_->plot->setAxisAutoScale(QwtPlot::xBottom, false);
   
   ui_->plot->enableAxis(QwtPlot::xTop);
   ui_->plot->enableAxis(QwtPlot::yRight);
@@ -81,20 +97,24 @@ PlotWidget::PlotWidget(QWidget* parent) :
   connect(ui_->pushButtonExport, SIGNAL(clicked()), this,
     SLOT(pushButtonExportClicked()));
   
-  connect(ui_->plot->axisWidget(QwtPlot::xTop), 
-    SIGNAL(scaleDivChanged()), this, SLOT(plotXTopScaleDivChanged()));
   connect(ui_->plot->axisWidget(QwtPlot::xBottom), 
     SIGNAL(scaleDivChanged()), this, SLOT(plotXBottomScaleDivChanged()));
   connect(ui_->plot->axisWidget(QwtPlot::yLeft), 
     SIGNAL(scaleDivChanged()), this, SLOT(plotYLeftScaleDivChanged()));
-  connect(ui_->plot->axisWidget(QwtPlot::yRight), 
-    SIGNAL(scaleDivChanged()), this, SLOT(plotYRightScaleDivChanged()));
   
   ui_->plot->axisWidget(QwtPlot::yLeft)->installEventFilter(this);
   ui_->plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);
+  
+  magnifier_ = new QwtPlotMagnifier(ui_->plot->canvas());
+  
+  zoomer_ = new QwtPlotZoomer(ui_->plot->canvas());
+  zoomer_->setTrackerMode(QwtPicker::AlwaysOff);
+  
+  picker_ = new QwtPlotPicker(ui_->plot->canvas());
+  picker_->setTrackerMode(QwtPicker::AlwaysOn);
 }
 
-PlotWidget::~PlotWidget() {
+PlotWidget::~PlotWidget() {  
   delete ui_;
 }
 
@@ -107,6 +127,14 @@ void PlotWidget::setConfig(PlotConfig* config) {
     if (config_) {
       disconnect(config_, SIGNAL(titleChanged(const QString&)), this,
         SLOT(configTitleChanged(const QString&)));
+      disconnect(config_, SIGNAL(curveAdded(size_t)), this,
+        SLOT(configCurveAdded(size_t)));
+      disconnect(config_, SIGNAL(curveRemoved(size_t)), this,
+        SLOT(configCurveRemoved(size_t)));
+      disconnect(config_, SIGNAL(curvesCleared()), this,
+        SLOT(configCurvesCleared()));
+      
+      configCurvesCleared();
     }
     
     config_ = config;
@@ -114,8 +142,17 @@ void PlotWidget::setConfig(PlotConfig* config) {
     if (config) {
       connect(config, SIGNAL(titleChanged(const QString&)), this,
         SLOT(configTitleChanged(const QString&)));
+      connect(config, SIGNAL(curveAdded(size_t)), this,
+        SLOT(configCurveAdded(size_t)));
+      connect(config, SIGNAL(curveRemoved(size_t)), this,
+        SLOT(configCurveRemoved(size_t)));
+      connect(config, SIGNAL(curvesCleared()), this,
+        SLOT(configCurvesCleared()));
       
       configTitleChanged(config->getTitle());
+      
+      for (size_t index = 0; index < config->getNumCurves(); ++index)
+        configCurveAdded(index);
     }
   }
 }
@@ -124,17 +161,76 @@ PlotConfig* PlotWidget::getConfig() const {
   return config_;
 }
 
+BoundingRectangle PlotWidget::getPreferredScale() const {
+  BoundingRectangle bounds;
+  
+  for (size_t index = 0; index < curves_.count(); ++index)
+    bounds += curves_[index]->getPreferredScale();
+    
+  return bounds;
+}
+
+void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
+  if (bounds != getCurrentScale()) {
+    if (bounds.getMaximum().x() >= bounds.getMinimum().x())
+      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(),
+        bounds.getMaximum().x());
+    if (bounds.getMaximum().y() >= bounds.getMinimum().y())
+      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(),
+        bounds.getMaximum().y());
+  
+    replot();
+  }
+}
+
+BoundingRectangle PlotWidget::getCurrentScale() const {
+  QPointF minimum(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound(),
+    ui_->plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound());
+  QPointF maximum(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->upperBound(),
+    ui_->plot->axisScaleDiv(QwtPlot::yLeft)->upperBound());
+  
+  return BoundingRectangle(minimum, maximum);
+}
+
+bool PlotWidget::isPaused() const {
+  return paused_;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
 void PlotWidget::run() {
+  if (paused_) {
+    paused_ = false;
+    
+    for (size_t index = 0; index < curves_.count(); ++index)
+      curves_[index]->run();
+    
+    ui_->pushButtonRunPause->setIcon(pauseIcon_);
+    
+    emit pausedChanged(false);
+  }
 }
 
 void PlotWidget::pause() {
+  if (!paused_) {
+    for (size_t index = 0; index < curves_.count(); ++index)
+      curves_[index]->pause();
+      
+    paused_ = true;
+    
+    ui_->pushButtonRunPause->setIcon(runIcon_);
+    
+    emit pausedChanged(true);
+  }
 }
 
 void PlotWidget::clear() {
+  for (size_t index = 0; index < curves_.count(); ++index)
+    curves_[index]->clear();
+  
+  emit cleared();
 }
 
 void PlotWidget::replot() {
@@ -164,6 +260,50 @@ void PlotWidget::configTitleChanged(const QString& title) {
   ui_->lineEditTitle->setText(config_->getTitle());
 }
 
+void PlotWidget::configCurveAdded(size_t index) {
+  PlotCurve* curve = new PlotCurve(this);
+
+  curve->curve_->attach(ui_->plot);
+  curve->setConfig(config_->getCurveConfig(index));
+  
+  connect(curve, SIGNAL(preferredScaleChanged(const BoundingRectangle&)),
+    this, SLOT(curvePreferredScaleChanged(const BoundingRectangle&)));
+  
+  curves_.insert(index, curve);
+  
+  replot();
+}
+
+void PlotWidget::configCurveRemoved(size_t index) {
+  curves_[index]->curve_->detach();
+
+  delete curves_[index];
+  
+  curves_.remove(index);
+  
+  replot();
+}
+
+void PlotWidget::configCurvesCleared() {
+  for (size_t index = 0; index < curves_.count(); ++index) {
+    curves_[index]->curve_->detach();
+    
+    delete curves_[index];
+  }
+  
+  curves_.clear();
+
+  replot();
+}
+
+void PlotWidget::curvePreferredScaleChanged(const BoundingRectangle& bounds) {
+  BoundingRectangle preferredBounds = getPreferredScale();
+  
+  zoomer_->setZoomBase(preferredBounds.getRectangle());
+  
+  emit preferredScaleChanged(preferredBounds);
+}
+
 void PlotWidget::lineEditTitleTextChanged(const QString& text) {
   QFontMetrics fontMetrics(ui_->lineEditTitle->font());
   
@@ -177,6 +317,10 @@ void PlotWidget::lineEditTitleEditingFinished() {
 }
 
 void PlotWidget::pushButtonRunPauseClicked() {
+  if (paused_)
+    run();
+  else
+    pause();
 }
 
 void PlotWidget::pushButtonClearClicked() {
@@ -200,24 +344,18 @@ void PlotWidget::pushButtonSetupClicked() {
 void PlotWidget::pushButtonExportClicked() {
 }
 
-void PlotWidget::plotXTopScaleDivChanged() {
-  ui_->plot->setAxisScaleDiv(QwtPlot::xBottom, *ui_->plot->axisScaleDiv(
-    QwtPlot::xTop));
-}
-
 void PlotWidget::plotXBottomScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::xTop, *ui_->plot->axisScaleDiv(
     QwtPlot::xBottom));
+  
+  emit currentScaleChanged(getCurrentScale());
 }
 
 void PlotWidget::plotYLeftScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::yRight, *ui_->plot->axisScaleDiv(
     QwtPlot::yLeft));
-}
-
-void PlotWidget::plotYRightScaleDivChanged() {
-  ui_->plot->setAxisScaleDiv(QwtPlot::yLeft, *ui_->plot->axisScaleDiv(
-    QwtPlot::yRight));
+  
+  emit currentScaleChanged(getCurrentScale());
 }
 
 }

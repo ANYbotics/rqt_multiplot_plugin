@@ -50,14 +50,14 @@ namespace rqt_multiplot {
     bool validateTopic();
     bool validateType();
     bool validateField();
-    bool validateRange();
+    bool validateScale();
     
   private slots:
     void configTopicChanged(const QString& topic);
     void configTypeChanged(const QString& type);
     void configFieldTypeChanged(int fieldType);
     void configFieldChanged(const QString& field);
-    void configRangeChanged();
+    void configScaleChanged();
     
     void comboBoxTopicUpdateStarted();
     void comboBoxTopicUpdateFinished();

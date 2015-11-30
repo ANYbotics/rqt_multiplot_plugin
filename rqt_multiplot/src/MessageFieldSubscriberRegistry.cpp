@@ -81,7 +81,7 @@ bool MessageFieldSubscriberRegistry::subscribe(const QString& topic, const
 
 bool MessageFieldSubscriberRegistry::unsubscribe(const QString& topic, const
     QString& field, QObject* receiver, const char* method) {
-  QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(
+  QMap<QString, MessageFieldSubscriber*>::iterator it = subscribers_.find(
     topic+":"+field);
     
   if (it != subscribers_.end())

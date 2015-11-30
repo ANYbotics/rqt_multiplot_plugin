@@ -71,6 +71,7 @@ CurveConfig* PlotConfig::addCurve() {
   curveConfig_.append(curveConfig);
   connect(curveConfig, SIGNAL(changed()), this, SLOT(curveConfigChanged()));
   
+  emit curveAdded(curveConfig_.count()-1);
   emit changed();
   
   return curveConfig;
@@ -92,6 +93,7 @@ void PlotConfig::removeCurve(size_t index) {
     for (size_t i = 0; i < curveConfig_.count(); ++i)
       curveConfig_[i]->getColor()->setAutoColorIndex(i);
     
+    emit curveRemoved(index);
     emit changed();
   }
 }
@@ -103,6 +105,7 @@ void PlotConfig::clearCurves() {
     
     curveConfig_.clear();
     
+    emit curvesCleared();
     emit changed();
   }
 }
@@ -178,6 +181,14 @@ PlotConfig& PlotConfig::operator=(const PlotConfig& src) {
 /*****************************************************************************/
 
 void PlotConfig::curveConfigChanged() {
+  for (size_t index = 0; index < curveConfig_.count(); ++index) {
+    if (curveConfig_[index] == sender()) {
+      emit curveConfigChanged(index);
+      
+      break;
+    }
+  }
+  
   emit changed();
 }
 
