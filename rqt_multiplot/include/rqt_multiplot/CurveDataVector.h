@@ -16,47 +16,62 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_VECTOR_H
+#define RQT_MULTIPLOT_CURVE_DATA_VECTOR_H
 
-#include <QTreeWidget>
+#include <QVector>
 
-#include <variant_topic_tools/MessageDataType.h>
+#include <boost/container/flat_set.hpp>
+
+#include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
-  Q_OBJECT
+  class CurveDataVector :
+    public CurveData {
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
+    CurveDataVector();
+    ~CurveDataVector();
+
+    size_t getNumPoints() const;
+    QPointF getPoint(size_t index) const;
+    QVector<size_t> getPointsInDistance(double x, double maxDistance)
+      const;
+    BoundingRectangle getBounds() const;
+    
+    void appendPoint(const QPointF& point);
+    void clearPoints();
   
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
-    
-  signals:
-    void currentFieldChanged(const QString& field);
-    
   private:
-    QString currentField_;
+    class XCoordinateRef {
+    public:
+      inline XCoordinateRef(double x = 0.0, size_t index = 0) :
+        x_(x),
+        index_(index) {
+      };
+
+      inline XCoordinateRef(const XCoordinateRef& src) :
+        x_(src.x_),
+        index_(src.index_) {
+      };
+      
+      inline bool operator==(const XCoordinateRef& reference) const {
+        return (x_ == reference.x_);
+      };
+      
+      inline bool operator<(const XCoordinateRef& reference) const {
+        return (x_ < reference.x_);
+      };
+      
+      double x_;
+      size_t index_;
+    };
     
-    void setCurrentItem(const QString& field);
+    typedef boost::container::flat_set<XCoordinateRef> XCoordinateRefSet;
     
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
+    QVector<QPointF> points_;
+    XCoordinateRefSet x_;
     
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
-    
-  private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    BoundingRectangle bounds_;
   };
 };
 

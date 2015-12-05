@@ -26,16 +26,16 @@
 #include <rqt_multiplot/BoundingRectangle.h>
 #include <rqt_multiplot/PlotConfig.h>
 
-class QwtPlotMagnifier;
-class QwtPlotPicker;
-class QwtPlotZoomer;
-
 namespace Ui {
   class PlotWidget;
 };
 
 namespace rqt_multiplot {
+  class PlotCursor;
   class PlotCurve;
+  class PlotMagnifier;
+  class PlotPanner;
+  class PlotZoomer;
   
   class PlotWidget :
     public QWidget {
@@ -46,6 +46,7 @@ namespace rqt_multiplot {
 
     void setConfig(PlotConfig* config);
     PlotConfig* getConfig() const;
+    PlotCursor* getCursor() const;
     BoundingRectangle getPreferredScale() const;
     void setCurrentScale(const BoundingRectangle& bounds);
     BoundingRectangle getCurrentScale() const;
@@ -75,9 +76,11 @@ namespace rqt_multiplot {
     PlotConfig* config_;
     
     QVector<PlotCurve*> curves_;
-    QwtPlotZoomer* zoomer_;
-    QwtPlotMagnifier* magnifier_;
-    QwtPlotPicker* picker_;
+    
+    PlotCursor* cursor_;
+    PlotPanner* panner_;
+    PlotMagnifier* magnifier_;
+    PlotZoomer* zoomer_;
     
     bool paused_;
     

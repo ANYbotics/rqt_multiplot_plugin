@@ -18,8 +18,6 @@
 
 #include "rqt_multiplot/CurveAxisScale.h"
 
-Q_DECLARE_METATYPE(rqt_multiplot::CurveAxisScale::Type)
-
 namespace rqt_multiplot {
 
 /*****************************************************************************/
@@ -123,7 +121,7 @@ bool CurveAxisScale::isValid() const {
 /*****************************************************************************/
 
 void CurveAxisScale::save(QSettings& settings) const {
-  settings.setValue("type", QVariant::fromValue<Type>(type_));
+  settings.setValue("type", type_);
   settings.setValue("absolute_minimum", absoluteMinimum_);
   settings.setValue("absolute_maximum", absoluteMaximum_);
   settings.setValue("relative_minimum", relativeMinimum_);
@@ -131,7 +129,7 @@ void CurveAxisScale::save(QSettings& settings) const {
 }
 
 void CurveAxisScale::load(QSettings& settings) {
-  setType(settings.value("type").value<Type>());  
+  setType(static_cast<Type>(settings.value("type", Auto).toInt()));  
   setAbsoluteMinimum(settings.value("absolute_minimum", 0.0).toDouble());
   setAbsoluteMaximum(settings.value("absolute_maximum", 1000.0).toDouble());
   setRelativeMinimum(settings.value("relative_minimum", -1000.0).toDouble());

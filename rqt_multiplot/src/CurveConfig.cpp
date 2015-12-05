@@ -24,10 +24,14 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfig::CurveConfig(QObject* parent, const QString& title) :
+CurveConfig::CurveConfig(QObject* parent, const QString& title, size_t
+    subscriberQueueSize) :
   QObject(parent),
   title_(title),
-  color_(new CurveColor(this)) {
+  color_(new CurveColor(this)),
+  style_(new CurveStyle(this)),
+  dataConfig_(new CurveDataConfig(this)),
+  subscriberQueueSize_(subscriberQueueSize) {
   axisConfig_[X] = new CurveAxisConfig(this);
   axisConfig_[Y] = new CurveAxisConfig(this);
     
@@ -35,6 +39,9 @@ CurveConfig::CurveConfig(QObject* parent, const QString& title) :
   connect(axisConfig_[Y], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
   
   connect(color_, SIGNAL(changed()), this, SLOT(colorChanged()));
+  connect(style_, SIGNAL(changed()), this, SLOT(styleChanged()));
+  
+  connect(dataConfig_, SIGNAL(changed()), this, SLOT(dataConfigChanged()));
 }
 
 CurveConfig::~CurveConfig() {
@@ -70,6 +77,27 @@ CurveColor* CurveConfig::getColor() const {
   return color_;
 }
 
+CurveStyle* CurveConfig::getStyle() const {
+  return style_;
+}
+
+CurveDataConfig* CurveConfig::getDataConfig() const {
+  return dataConfig_;
+}
+
+void CurveConfig::setSubscriberQueueSize(size_t queueSize) {
+  if (queueSize != subscriberQueueSize_) {
+    subscriberQueueSize_ = queueSize;
+    
+    emit subscriberQueueSizeChanged(queueSize);
+    emit changed();
+  }
+}
+
+size_t CurveConfig::getSubscriberQueueSize() const {
+  return subscriberQueueSize_;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -89,6 +117,17 @@ void CurveConfig::save(QSettings& settings) const {
   settings.beginGroup("color");
   color_->save(settings);
   settings.endGroup();
+  
+  settings.beginGroup("style");
+  style_->save(settings);
+  settings.endGroup();
+  
+  settings.beginGroup("data");
+  dataConfig_->save(settings);
+  settings.endGroup();
+  
+  settings.setValue("subscriber_queue_size", QVariant::
+    fromValue<qulonglong>(subscriberQueueSize_));
 }
 
 void CurveConfig::load(QSettings& settings) {
@@ -106,6 +145,17 @@ void CurveConfig::load(QSettings& settings) {
   settings.beginGroup("color");
   color_->load(settings);
   settings.endGroup();
+  
+  settings.beginGroup("style");
+  style_->load(settings);
+  settings.endGroup();
+  
+  settings.beginGroup("data");
+  dataConfig_->load(settings);
+  settings.endGroup();
+  
+  setSubscriberQueueSize(settings.value("subscriber_queue_size", 100).
+    toULongLong());
 }
 
 /*****************************************************************************/
@@ -113,10 +163,17 @@ void CurveConfig::load(QSettings& settings) {
 /*****************************************************************************/
 
 CurveConfig& CurveConfig::operator=(const CurveConfig& src) {
-  setTitle(src.title_);  
+  setTitle(src.title_);
+  
   *axisConfig_[X] = *src.axisConfig_[X];
   *axisConfig_[Y] = *src.axisConfig_[Y];
+  
   *color_ = *src.color_;
+  *style_ = *src.style_;
+  
+  *dataConfig_ = *src.dataConfig_;
+  
+  setSubscriberQueueSize(src.subscriberQueueSize_);  
   
   return *this;
 }
@@ -130,6 +187,14 @@ void CurveConfig::axisConfigChanged() {
 }
 
 void CurveConfig::colorChanged() {
+  emit changed();
+}
+
+void CurveConfig::styleChanged() {
+  emit changed();
+}
+
+void CurveConfig::dataConfigChanged() {
   emit changed();
 }
 

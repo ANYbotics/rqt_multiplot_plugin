@@ -19,10 +19,10 @@
 #ifndef RQT_MULTIPLOT_CURVE_DATA_H
 #define RQT_MULTIPLOT_CURVE_DATA_H
 
-#include <QList>
 #include <QPair>
 #include <QPointF>
 #include <QRectF>
+#include <QVector>
 
 #include <qwt/qwt_series_data.h>
 
@@ -38,7 +38,9 @@ namespace rqt_multiplot {
 
     virtual size_t getNumPoints() const = 0;
     double getValue(size_t index, CurveConfig::Axis axis) const;
-    virtual const QPointF& getPoint(size_t index) const = 0;
+    virtual QPointF getPoint(size_t index) const = 0;
+    virtual QVector<size_t> getPointsInDistance(double x, double
+      maxDistance) const;
     QPair<double, double> getAxisBounds(CurveConfig::Axis axis) const;
     virtual BoundingRectangle getBounds() const = 0;
     bool isEmpty() const;

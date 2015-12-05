@@ -16,47 +16,67 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_CURSOR_H
+#define RQT_MULTIPLOT_PLOT_CURSOR_H
 
-#include <QTreeWidget>
+#include <QColor>
+#include <QPoint>
+#include <QVector>
 
-#include <variant_topic_tools/MessageDataType.h>
+#include <qwt/qwt_plot_picker.h>
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
+  class PlotCursor :
+    public QwtPlotPicker {
   Q_OBJECT
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
+    PlotCursor(QwtPlotCanvas* canvas);
+    ~PlotCursor();
+    
+    void setActive(bool active, const QPointF& position = QPointF(0.0, 0.0));
+    using QwtPlotPicker::isActive;
+    void setCurrentPosition(const QPointF& position);
+    const QPointF& getCurrentPosition() const;
+    void setTrackPoints(bool track);
+    bool arePointsTracked() const;
+    bool hasMouseControl() const;
+    
+    void update();
+    
+    void drawRubberBand(QPainter* painter) const;
     
   signals:
-    void currentFieldChanged(const QString& field);
+    void activeChanged(bool active);
+    void currentPositionChanged(const QPointF& position);
+    
+  protected:
+    QRect getTextRect(const QPointF& point, const QFont& font) const;
+
+    void begin();
+    void move(const QPoint& point);
+    bool end(bool ok = true);
+    
+    bool eventFilter(QObject* object, QEvent* event);
+    
+    void updateDisplay();
+    void updateTrackedPoints();
+    
+    void drawTrackedPoints(QPainter* painter) const;
     
   private:
-    QString currentField_;
+    struct TrackedPoint {
+      QPointF position;
+      QColor color;
+    };
     
-    void setCurrentItem(const QString& field);
+    QPointF currentPosition_;
+    QVector<TrackedPoint> trackedPoints_;
     
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
-    
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
+    bool trackPoints_;
+    bool mouseControl_;
     
   private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    void plotAxisScaleDivChanged();
   };
 };
 

@@ -1,3 +1,11 @@
+ros-rqt-multiplot-plugin (0.0.1-9) unstable; urgency=low
+
+  * Added curve styles
+  * Revised plot controls
+  * Efficient curve data storage
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Sat, 05 Dec 2015 05:47:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-8) unstable; urgency=low
 
   * Plot scaling works

@@ -16,65 +16,62 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_CONFIG_H
-#define RQT_MULTIPLOT_CURVE_CONFIG_H
+#ifndef RQT_MULTIPLOT_CURVE_STYLE_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_STYLE_WIDGET_H
 
-#include <QObject>
-#include <QMap>
-#include <QSettings>
-#include <QString>
+#include <QButtonGroup>
+#include <QWidget>
 
-#include <rqt_multiplot/CurveAxisConfig.h>
-#include <rqt_multiplot/CurveColor.h>
-#include <rqt_multiplot/CurveDataConfig.h>
 #include <rqt_multiplot/CurveStyle.h>
 
+namespace Ui {
+  class CurveStyleWidget;
+};
+
 namespace rqt_multiplot {
-  class CurveConfig :
-    public QObject {
+  class CurveStyleWidget :
+    public QWidget {
   Q_OBJECT
   public:
-    enum Axis {
-      X,
-      Y
-    };
-    
-    CurveConfig(QObject* parent = 0, const QString& title = "Untitled Curve",
-      size_t subscriberQueueSize = 100);
-    ~CurveConfig();
+    CurveStyleWidget(QWidget* parent = 0);
+    virtual ~CurveStyleWidget();
 
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    CurveAxisConfig* getAxisConfig(Axis axis) const;
-    CurveColor* getColor() const;
+    void setStyle(CurveStyle* style);
     CurveStyle* getStyle() const;
-    CurveDataConfig* getDataConfig() const;
-    void setSubscriberQueueSize(size_t queueSize);
-    size_t getSubscriberQueueSize() const;
-
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    CurveConfig& operator=(const CurveConfig& src);
-    
-  signals:
-    void titleChanged(const QString& title);
-    void subscriberQueueSizeChanged(size_t queueSize);
-    void changed();
     
   private:
-    QString title_;
-    QMap<Axis, CurveAxisConfig*> axisConfig_;
-    CurveColor* color_;
+    Ui::CurveStyleWidget* ui_;
+    
+    QButtonGroup* buttonGroupSticksOrientation_;
+    
     CurveStyle* style_;
-    CurveDataConfig* dataConfig_;
-    size_t subscriberQueueSize_;
     
   private slots:
-    void axisConfigChanged();
-    void colorChanged();
-    void styleChanged();
-    void dataConfigChanged();
+    void styleTypeChanged(int type);
+    
+    void styleLinesInterpolateChanged(bool interpolate);
+    void styleSticksOrientationChanged(int orientation);
+    void styleSticksBaselineChanged(double baseline);
+    void styleStepsInvertChanged(bool invert);
+    
+    void stylePenWidthChanged(size_t width);
+    void stylePenStyleChanged(int style);
+    void styleRenderAntialiasChanged(bool antialias);
+    
+    void radioButtonLinesToggled(bool checked);
+    void radioButtonSticksToggled(bool checked);
+    void radioButtonStepsToggled(bool checked);
+    void radioButtonPointsToggled(bool checked);
+    
+    void checkBoxLinesInterpolateStateChanged(int state);
+    void radioButtonSticksOrientationHorizontalToggled(bool checked);
+    void radioButtonSticksOrientationVerticalToggled(bool checked);
+    void lineEditSticksBaselineEditingFinished();    
+    void checkBoxStepsInvertStateChanged(int state);
+    
+    void spinBoxPenWidthValueChanged(int value);
+    void comboBoxPenStyleCurrentStyleChanged(int style);
+    void checkBoxRenderAntialiasStateChanged(int state);
   };
 };
 

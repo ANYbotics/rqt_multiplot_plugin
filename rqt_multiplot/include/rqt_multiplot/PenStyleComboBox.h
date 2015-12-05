@@ -16,47 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_PEN_STYLE_COMBO_BOX_H
+#define RQT_MULTIPLOT_PEN_STYLE_COMBO_BOX_H
 
-#include <QTreeWidget>
-
-#include <variant_topic_tools/MessageDataType.h>
+#include <QComboBox>
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
+  class PenStyleComboBox :
+    public QComboBox {
   Q_OBJECT
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
+    PenStyleComboBox(QWidget* parent = 0);
+    virtual ~PenStyleComboBox();
+    
+    void setCurrentStyle(Qt::PenStyle style);
+    Qt::PenStyle getCurrentStyle() const;
     
   signals:
-    void currentFieldChanged(const QString& field);
-    
-  private:
-    QString currentField_;
-    
-    void setCurrentItem(const QString& field);
-    
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
-    
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
-    
+    void currentStyleChanged(int style);
+  
+  protected:
+    void paintEvent(QPaintEvent* event);
+ 
   private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    void currentIndexChanged(int index);
   };
 };
 

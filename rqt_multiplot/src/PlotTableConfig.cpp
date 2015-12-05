@@ -26,12 +26,13 @@ namespace rqt_multiplot {
 
 PlotTableConfig::PlotTableConfig(QObject* parent, const QColor&
     backgroundColor, const QColor& foregroundColor, size_t numRows,
-    size_t numColumns, bool linkScale, bool linkCursor) :
+    size_t numColumns, bool linkScale, bool linkCursor, bool trackPoints) :
   QObject(parent),
   backgroundColor_(backgroundColor),
   foregroundColor_(foregroundColor),
   linkScale_(linkScale),
-  linkCursor_(linkCursor) {
+  linkCursor_(linkCursor),
+  trackPoints_(trackPoints) {
   if (numRows && numColumns) {
     plotConfig_.resize(numRows);
     
@@ -172,6 +173,19 @@ bool PlotTableConfig::isCursorLinked() const {
   return linkCursor_;
 }
 
+void PlotTableConfig::setTrackPoints(bool track) {
+  if (track != trackPoints_) {
+    trackPoints_ = track;
+    
+    emit trackPointsChanged(track);
+    emit changed();
+  }
+}
+
+bool PlotTableConfig::arePointsTracked() const {
+  return trackPoints_;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -200,6 +214,7 @@ void PlotTableConfig::save(QSettings& settings) const {
   
   settings.setValue("link_scale", linkScale_);
   settings.setValue("link_cursor", linkCursor_);
+  settings.setValue("track_points", trackPoints_);
 }
 
 void PlotTableConfig::load(QSettings& settings) {
@@ -248,6 +263,7 @@ void PlotTableConfig::load(QSettings& settings) {
   
   setLinkScale(settings.value("link_scale", false).toBool());
   setLinkCursor(settings.value("link_cursor", false).toBool());
+  setTrackPoints(settings.value("track_points", false).toBool());
 }
 
 void PlotTableConfig::reset() {
@@ -259,6 +275,7 @@ void PlotTableConfig::reset() {
   
   setLinkScale(false);
   setLinkCursor(false);
+  setTrackPoints(false);
 }
 
 /*****************************************************************************/
@@ -277,6 +294,7 @@ PlotTableConfig& PlotTableConfig::operator=(const PlotTableConfig& src) {
 
   setLinkScale(src.linkScale_);
   setLinkCursor(src.linkCursor_);
+  setTrackPoints(src.trackPoints_);
     
   return *this;
 }

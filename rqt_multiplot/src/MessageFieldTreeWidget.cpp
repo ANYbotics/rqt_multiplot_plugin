@@ -62,7 +62,7 @@ void MessageFieldTreeWidget::setMessageDataType(const variant_topic_tools::
   blockSignals(false);
   
   if (!currentField_.isEmpty())
-    setCurrentField(currentField_);
+    setCurrentItem(currentField_);
 }
 
 variant_topic_tools::MessageDataType MessageFieldTreeWidget::
@@ -77,47 +77,9 @@ variant_topic_tools::MessageDataType MessageFieldTreeWidget::
 
 void MessageFieldTreeWidget::setCurrentField(const QString& field) {
   if (field != currentField_) {
-    QTreeWidgetItem* item = invisibleRootItem();
-    QStringList fields = field.split("/");
-
-    while (item && !fields.isEmpty()) {
-      QVariant itemData = item->data(1, Qt::UserRole);
-      
-      if (itemData.isValid()) {
-        variant_topic_tools::DataType fieldType = itemData.
-          value<variant_topic_tools::DataType>();
-          
-        if (fieldType.isMessage()) {
-          QTreeWidgetItem* childItem = findChild(item, 0, fields.front());
-          
-          if (childItem) {
-            item = childItem;
-            fields.removeFirst();
-            
-            continue;
-          }
-        }
-        else if (fieldType.isArray()) {
-          bool indexOkay = false;
-          size_t index = fields.front().toUInt(&indexOkay);
-          QSpinBox* spinBoxIndex = static_cast<QSpinBox*>(
-            itemWidget(item->child(0), 0));
-          
-          if (indexOkay && (index < spinBoxIndex->maximum())) {
-            spinBoxIndex->setValue(index);
-            item = item->child(0);
-            fields.removeFirst();
-            
-            continue;
-          }
-        }
-      }
-      
-      item = invisibleRootItem();
-      break;
-    }
+    currentField_ = field;
     
-    setCurrentItem(item);
+    setCurrentItem(field);
   }
 }
 
@@ -137,6 +99,52 @@ variant_topic_tools::DataType MessageFieldTreeWidget::
 
 bool MessageFieldTreeWidget::isCurrentFieldDefined() const {
   return getCurrentFieldDataType().isValid();
+}
+
+void MessageFieldTreeWidget::setCurrentItem(const QString& field) {
+  QTreeWidgetItem* item = invisibleRootItem();
+  QStringList fields = field.split("/");
+
+  while (item && !fields.isEmpty()) {
+    QVariant itemData = item->data(1, Qt::UserRole);
+    
+    if (itemData.isValid()) {
+      variant_topic_tools::DataType fieldType = itemData.
+        value<variant_topic_tools::DataType>();
+        
+      if (fieldType.isMessage()) {
+        QTreeWidgetItem* childItem = findChild(item, 0, fields.front());
+        
+        if (childItem) {
+          item = childItem;
+          fields.removeFirst();
+          
+          continue;
+        }
+      }
+      else if (fieldType.isArray()) {
+        bool indexOkay = false;
+        size_t index = fields.front().toUInt(&indexOkay);
+        QSpinBox* spinBoxIndex = static_cast<QSpinBox*>(
+          itemWidget(item->child(0), 0));
+        
+        if (indexOkay && (index < spinBoxIndex->maximum())) {
+          spinBoxIndex->setValue(index);
+          item = item->child(0);
+          fields.removeFirst();
+          
+          continue;
+        }
+      }
+    }
+    
+    item = invisibleRootItem();
+    break;
+  }
+  
+  blockSignals(true);
+  QTreeWidget::setCurrentItem(item);
+  blockSignals(false);
 }
 
 /*****************************************************************************/

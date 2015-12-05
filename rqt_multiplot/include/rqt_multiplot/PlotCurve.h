@@ -23,6 +23,8 @@
 #include <QPair>
 #include <QPointF>
 
+#include <qwt/qwt_plot_curve.h>
+
 #include <rqt_multiplot/BoundingRectangle.h>
 #include <rqt_multiplot/CurveConfig.h>
 #include <rqt_multiplot/MessageFieldSubscriber.h>
@@ -35,7 +37,8 @@ namespace rqt_multiplot {
   class PlotWidget;
   
   class PlotCurve :
-    public QObject {
+    public QObject,
+    private QwtPlotCurve {
   Q_OBJECT
   friend class PlotWidget;
   public:
@@ -47,6 +50,9 @@ namespace rqt_multiplot {
     QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
       axis) const;
     BoundingRectangle getPreferredScale() const;
+    
+    void attach(QwtPlot* plot);
+    void detach();
     
     void run();
     void pause();
@@ -66,7 +72,6 @@ namespace rqt_multiplot {
     MessageFieldSubscriber* subscriberX_;
     MessageFieldSubscriber* subscriberY_;
     
-    QwtPlotCurve* curve_;
     CurveData* data_;
     
     QPointF nextPoint_;
@@ -80,6 +85,9 @@ namespace rqt_multiplot {
     void configXAxisConfigChanged();
     void configYAxisConfigChanged();
     void configColorCurrentColorChanged(const QColor& color);
+    void configStyleChanged();
+    void configDataConfigChanged();
+    void configSubscriberQueueSizeChanged(size_t queueSize);
     
     void xValueReceived(const QString& topic, const QString& field,
       double value);

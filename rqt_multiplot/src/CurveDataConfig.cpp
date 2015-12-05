@@ -16,9 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveAxisRange.h"
-
-Q_DECLARE_METATYPE(rqt_multiplot::CurveAxisRange::Type)
+#include "rqt_multiplot/CurveDataConfig.h"
 
 namespace rqt_multiplot {
 
@@ -26,23 +24,21 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveAxisRange::CurveAxisRange(QObject* parent, Type type, double
-    fixedMinimum, double fixedMaximum, double windowSize) :
+CurveDataConfig::CurveDataConfig(QObject* parent, Type type, size_t
+    circularBufferCapacity) :
   QObject(parent),
   type_(type),
-  fixedMinimum_(fixedMinimum),
-  fixedMaximum_(fixedMaximum),
-  windowSize_(windowSize) {
+  circularBufferCapacity_(circularBufferCapacity) {
 }
 
-CurveAxisRange::~CurveAxisRange() {
+CurveDataConfig::~CurveDataConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveAxisRange::setType(Type type) {
+void CurveDataConfig::setType(Type type) {
   if (type != type_) {
     type_ = type;
     
@@ -51,85 +47,46 @@ void CurveAxisRange::setType(Type type) {
   }
 }
 
-CurveAxisRange::Type CurveAxisRange::getType() const {
+CurveDataConfig::Type CurveDataConfig::getType() const {
   return type_;
 }
 
-void CurveAxisRange::setFixedMinimum(double minimum) {
-  if (minimum != fixedMinimum_) {
-    fixedMinimum_ = minimum;
+void CurveDataConfig::setCircularBufferCapacity(size_t capacity) {
+  if (capacity != circularBufferCapacity_) {
+    circularBufferCapacity_ = capacity;
     
-    emit fixedMinimumChanged(minimum);
+    emit circularBufferCapacityChanged(capacity);
     emit changed();
   }
 }
 
-double CurveAxisRange::getFixedMinimum() const {
-  return fixedMinimum_;
-}
-
-void CurveAxisRange::setFixedMaximum(double maximum) {
-  if (maximum != fixedMaximum_) {
-    fixedMaximum_ = maximum;
-    
-    emit fixedMaximumChanged(maximum);
-    emit changed();
-  }
-}
-
-double CurveAxisRange::getFixedMaximum() const {
-  return fixedMaximum_;
-}
-
-void CurveAxisRange::setWindowSize(double size) {
-  if (size != windowSize_) {
-    windowSize_ = size;
-    
-    emit windowSizeChanged(size);
-    emit changed();
-  }
-}
-
-double CurveAxisRange::getWindowSize() const {
-  return windowSize_;
-}
-
-bool CurveAxisRange::isEmpty() const {
-  if (type_ == Fixed)
-    return (fixedMaximum_ <= fixedMinimum_);
-  else if (type_ == Window)
-    return (windowSize_ <= 0.0);
-  else
-    return false;
+size_t CurveDataConfig::getCircularBufferCapacity() const {
+  return circularBufferCapacity_;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void CurveAxisRange::save(QSettings& settings) const {
-  settings.setValue("type", QVariant::fromValue<Type>(type_));
-  settings.setValue("fixed_minimum", fixedMinimum_);
-  settings.setValue("fixed_maximum", fixedMaximum_);
-  settings.setValue("window_size", windowSize_);
+void CurveDataConfig::save(QSettings& settings) const {
+  settings.setValue("type", type_);
+  settings.setValue("circular_buffer_capacity", QVariant::
+    fromValue<qulonglong>(circularBufferCapacity_));
 }
 
-void CurveAxisRange::load(QSettings& settings) {
-  setType(settings.value("type").value<Type>());
-  setFixedMinimum(settings.value("fixed_minimum").toDouble());
-  setFixedMaximum(settings.value("fixed_maximum").toDouble());
-  setWindowSize(settings.value("window_size").toDouble());
+void CurveDataConfig::load(QSettings& settings) {
+  setType(static_cast<Type>(settings.value("type").toInt()));
+  setCircularBufferCapacity(settings.value("circular_buffer_capacity",
+    10000).toULongLong());
 }
 
 /*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 
-CurveAxisRange& CurveAxisRange::operator=(const CurveAxisRange& src) {
+CurveDataConfig& CurveDataConfig::operator=(const CurveDataConfig& src) {
   setType(src.type_);
-  setFixedMinimum(src.fixedMinimum_);
-  setFixedMaximum(src.fixedMaximum_);
-  setWindowSize(src.windowSize_);
+  setCircularBufferCapacity(src.circularBufferCapacity_);
   
   return *this;
 }

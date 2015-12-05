@@ -67,6 +67,8 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     SLOT(checkBoxLinkScaleStateChanged(int)));
   connect(ui_->checkBoxLinkCursor, SIGNAL(stateChanged(int)), this,
     SLOT(checkBoxLinkCursorStateChanged(int)));
+  connect(ui_->checkBoxTrackPoints, SIGNAL(stateChanged(int)), this,
+    SLOT(checkBoxTrackPointsStateChanged(int)));
   
   connect(ui_->pushButtonRun, SIGNAL(clicked()), this,
     SLOT(pushButtonRunClicked()));
@@ -102,6 +104,8 @@ void PlotTableConfigWidget::setConfig(PlotTableConfig* config) {
         this, SLOT(configLinkScaleChanged(bool)));
       disconnect(config_, SIGNAL(linkCursorChanged(bool)), 
         this, SLOT(configLinkCursorChanged(bool)));
+      disconnect(config_, SIGNAL(trackPointsChanged(bool)), 
+        this, SLOT(configTrackPointsChanged(bool)));
     }
     
     config_ = config;
@@ -117,12 +121,15 @@ void PlotTableConfigWidget::setConfig(PlotTableConfig* config) {
         this, SLOT(configLinkScaleChanged(bool)));
       connect(config, SIGNAL(linkCursorChanged(bool)), 
         this, SLOT(configLinkCursorChanged(bool)));
+      connect(config, SIGNAL(trackPointsChanged(bool)), 
+        this, SLOT(configTrackPointsChanged(bool)));
       
       configBackgroundColorChanged(config->getBackgroundColor());
       configForegroundColorChanged(config->getForegroundColor());
       configNumPlotsChanged(config->getNumRows(), config->getNumColumns());
       configLinkScaleChanged(config_->isScaleLinked());
       configLinkCursorChanged(config_->isCursorLinked());
+      configTrackPointsChanged(config_->arePointsTracked());
     }
   }
 }
@@ -213,6 +220,11 @@ void PlotTableConfigWidget::configLinkCursorChanged(bool link) {
   ui_->checkBoxLinkCursor->setCheckState(link ? Qt::Checked : Qt::Unchecked);
 }
 
+void PlotTableConfigWidget::configTrackPointsChanged(bool track) {
+  ui_->checkBoxTrackPoints->setCheckState(track ? Qt::Checked :
+    Qt::Unchecked);
+}
+
 void PlotTableConfigWidget::spinBoxRowsValueChanged(int value) {
   if (config_)
     config_->setNumRows(value);
@@ -231,6 +243,11 @@ void PlotTableConfigWidget::checkBoxLinkScaleStateChanged(int state) {
 void PlotTableConfigWidget::checkBoxLinkCursorStateChanged(int state) {
   if (config_)
     config_->setLinkCursor(state == Qt::Checked);
+}
+
+void PlotTableConfigWidget::checkBoxTrackPointsStateChanged(int state) {
+  if (config_)
+    config_->setTrackPoints(state == Qt::Checked);
 }
 
 void PlotTableConfigWidget::pushButtonRunClicked() {

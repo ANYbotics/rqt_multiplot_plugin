@@ -16,47 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_ZOOMER_MACHINE_H
+#define RQT_MULTIPLOT_PLOT_ZOOMER_MACHINE_H
 
-#include <QTreeWidget>
-
-#include <variant_topic_tools/MessageDataType.h>
+#include <qwt/qwt_picker_machine.h>
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
-  Q_OBJECT
+  class PlotZoomerMachine :
+    public QwtPickerDragRectMachine {
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
-    
-  signals:
-    void currentFieldChanged(const QString& field);
-    
-  private:
-    QString currentField_;
-    
-    void setCurrentItem(const QString& field);
-    
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
-    
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
-    
-  private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    PlotZoomerMachine();
+    ~PlotZoomerMachine();
+
+    QList<Command> transition(const QwtEventPattern& pattern,
+      const QEvent* event);
   };
 };
 

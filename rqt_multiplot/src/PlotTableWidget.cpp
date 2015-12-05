@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <rqt_multiplot/PlotCursor.h>
 #include <rqt_multiplot/PlotWidget.h>
 
 #include "rqt_multiplot/PlotTableWidget.h"
@@ -55,6 +56,8 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
         SLOT(configNumPlotsChanged(size_t, size_t)));
       disconnect(config_, SIGNAL(linkScaleChanged(bool)), this,
         SLOT(configLinkScaleChanged(bool)));
+      disconnect(config_, SIGNAL(trackPointsChanged(bool)), this,
+        SLOT(configTrackPointsChanged(bool)));
     }
     
     config_ = config;
@@ -68,11 +71,14 @@ void PlotTableWidget::setConfig(PlotTableConfig* config) {
         SLOT(configNumPlotsChanged(size_t, size_t)));
       connect(config, SIGNAL(linkScaleChanged(bool)), this,
         SLOT(configLinkScaleChanged(bool)));
+      connect(config, SIGNAL(trackPointsChanged(bool)), this,
+        SLOT(configTrackPointsChanged(bool)));
       
       configBackgroundColorChanged(config->getBackgroundColor());
       configForegroundColorChanged(config->getForegroundColor());
       configNumPlotsChanged(config->getNumRows(), config->getNumColumns());
       configLinkScaleChanged(config->isScaleLinked());
+      configTrackPointsChanged(config->arePointsTracked());
     }
   }
 }
@@ -101,54 +107,31 @@ PlotWidget* PlotTableWidget::getPlotWidget(size_t row, size_t column) const {
 /*****************************************************************************/
 
 void PlotTableWidget::runPlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row) {
-    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
-      QLayoutItem* item = layout_->itemAtPosition(row, column);
-      QWidget* widget = item ? item->widget() : 0;
-      
-      if (widget)
-        static_cast<PlotWidget*>(widget)->run();
-    }
-  }
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->run();
 }
 
 void PlotTableWidget::pausePlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row) {
-    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
-      QLayoutItem* item = layout_->itemAtPosition(row, column);
-      QWidget* widget = item ? item->widget() : 0;
-      
-      if (widget)
-        static_cast<PlotWidget*>(widget)->pause();
-    }
-  }
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->pause();
 }
 
 void PlotTableWidget::clearPlots() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row) {
-    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
-      QLayoutItem* item = layout_->itemAtPosition(row, column);
-      QWidget* widget = item ? item->widget() : 0;
-      
-      if (widget)
-        static_cast<PlotWidget*>(widget)->clear();
-    }
-  }
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->clear();
 }
 
 void PlotTableWidget::replot() {
-  for (size_t row = 0; row < layout_->rowCount(); ++row) {
-    for (size_t column = 0; column < layout_->columnCount(); ++ column) {
-      QLayoutItem* item = layout_->itemAtPosition(row, column);
-      QWidget* widget = item ? item->widget() : 0;
-      
-      if (widget)
-        static_cast<PlotWidget*>(widget)->replot();
-    }
-  }
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->replot();
 }
 
-void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds) {
+void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds,
+    PlotWidget* excluded) {
   BoundingRectangle validBounds = bounds;
   
   if (!bounds.isValid()) {
@@ -158,12 +141,12 @@ void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds) {
       for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
         currentBounds += plotWidgets_[row][column]->getCurrentScale();
       
-    if (bounds.getMaximum().x() < bounds.getMinimum().x()) {
+    if (bounds.getMaximum().x() <= bounds.getMinimum().x()) {
       validBounds.getMinimum().setX(currentBounds.getMinimum().x());
       validBounds.getMaximum().setX(currentBounds.getMaximum().x());
     }
     
-    if (bounds.getMaximum().y() < bounds.getMinimum().y()) {
+    if (bounds.getMaximum().y() <= bounds.getMinimum().y()) {
       validBounds.getMinimum().setY(currentBounds.getMinimum().y());
       validBounds.getMaximum().setY(currentBounds.getMaximum().y());
     }  
@@ -171,7 +154,8 @@ void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds) {
   
   for (size_t row = 0; row < plotWidgets_.count(); ++row)
     for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
-      plotWidgets_[row][column]->setCurrentScale(validBounds);
+      if (excluded != plotWidgets_[row][column])
+        plotWidgets_[row][column]->setCurrentScale(validBounds);
 }
 
 /*****************************************************************************/
@@ -229,6 +213,11 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
         connect(plotWidgets[row][column], SIGNAL(currentScaleChanged(
           const BoundingRectangle&)), this, SLOT(plotCurrentScaleChanged(
           const BoundingRectangle&)));
+        connect(plotWidgets[row][column]->getCursor(), SIGNAL(
+          activeChanged(bool)), this, SLOT(plotCursorActiveChanged(bool)));
+        connect(plotWidgets[row][column]->getCursor(), SIGNAL(
+          currentPositionChanged(const QPointF&)), this, SLOT(
+          plotCursorCurrentPositionChanged(const QPointF&)));
         connect(plotWidgets[row][column], SIGNAL(pausedChanged(bool)),
           this, SLOT(plotPausedChanged(bool)));        
       }
@@ -237,7 +226,7 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
         row, column));
       
       if (config_->isScaleLinked())
-        plotWidgets_[row][column]->setCurrentScale(plotWidgets_[0][0]->
+        plotWidgets[row][column]->setCurrentScale(plotWidgets[0][0]->
           getCurrentScale());
       
       layout->addWidget(plotWidgets[row][column], row, column);
@@ -262,12 +251,18 @@ void PlotTableWidget::configLinkScaleChanged(bool link) {
   if (link) {
     BoundingRectangle bounds;
     
-    for (size_t row = 0; row < layout_->rowCount(); ++row)
-      for (size_t column = 0; column < layout_->columnCount(); ++ column)
+    for (size_t row = 0; row < plotWidgets_.count(); ++row)
+      for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
         bounds += plotWidgets_[row][column]->getPreferredScale();
         
     updatePlotScale(bounds);
   }
+}
+
+void PlotTableWidget::configTrackPointsChanged(bool track) {
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->getCursor()->setTrackPoints(track);
 }
 
 void PlotTableWidget::plotPreferredScaleChanged(const BoundingRectangle&
@@ -276,10 +271,10 @@ void PlotTableWidget::plotPreferredScaleChanged(const BoundingRectangle&
     if (config_->isScaleLinked()) {
       BoundingRectangle bounds;
       
-      for (size_t row = 0; row < layout_->rowCount(); ++row)
-        for (size_t column = 0; column < layout_->columnCount(); ++ column)
+      for (size_t row = 0; row < plotWidgets_.count(); ++row)
+        for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
           bounds += plotWidgets_[row][column]->getPreferredScale();
-      
+
       updatePlotScale(bounds);
     }
     else
@@ -289,9 +284,27 @@ void PlotTableWidget::plotPreferredScaleChanged(const BoundingRectangle&
 
 void PlotTableWidget::plotCurrentScaleChanged(const BoundingRectangle&
     bounds) {
-  if (config_) {
-    if (config_->isScaleLinked())
-      updatePlotScale(bounds);
+  if (config_ && config_->isScaleLinked())
+    updatePlotScale(bounds, static_cast<PlotWidget*>(sender()));
+}
+
+void PlotTableWidget::plotCursorActiveChanged(bool active) {
+  if (config_ && config_->isCursorLinked()) {
+    for (size_t row = 0; row < plotWidgets_.count(); ++row)
+      for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+        if (sender() != plotWidgets_[row][column])
+          plotWidgets_[row][column]->getCursor()->setActive(active);
+  }
+}
+
+void PlotTableWidget::plotCursorCurrentPositionChanged(const QPointF&
+    position) {
+  if (config_ && config_->isCursorLinked()) {
+    for (size_t row = 0; row < plotWidgets_.count(); ++row)
+      for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+        if (sender() != plotWidgets_[row][column])
+          plotWidgets_[row][column]->getCursor()->setCurrentPosition(
+            position);
   }
 }
 

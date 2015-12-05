@@ -16,47 +16,42 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_PANNER_H
+#define RQT_MULTIPLOT_PLOT_PANNER_H
 
-#include <QTreeWidget>
+#include <QCursor>
+#include <QObject>
+#include <QPointF>
 
-#include <variant_topic_tools/MessageDataType.h>
+#include <qwt/qwt_scale_map.h>
+
+#include <rqt_multiplot/BoundingRectangle.h>
+
+class QwtPlotCanvas;
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
+  class PlotPanner :
+    public QObject {
   Q_OBJECT
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
+    PlotPanner(QwtPlotCanvas* canvas);
+    ~PlotPanner();
     
-  signals:
-    void currentFieldChanged(const QString& field);
+  protected:
+    bool eventFilter(QObject* object, QEvent* event);
     
   private:
-    QString currentField_;
+    QwtPlotCanvas* canvas_;
     
-    void setCurrentItem(const QString& field);
+    bool panning_;
     
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
+    QPoint position_;
+    QCursor cursor_;
+    QCursor canvasCursor_;
     
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
-    
-  private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    QwtScaleMap xMap_;
+    QwtScaleMap yMap_;
+    BoundingRectangle bounds_;
   };
 };
 

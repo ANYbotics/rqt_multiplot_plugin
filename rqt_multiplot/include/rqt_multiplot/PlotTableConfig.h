@@ -34,7 +34,7 @@ namespace rqt_multiplot {
     PlotTableConfig(QObject* parent, const QColor& backgroundColor =
       Qt::white, const QColor& foregroundColor = Qt::black, size_t
       numRows = 1, size_t numColumns = 1, bool linkScale = false,
-      bool linkCursor = false);
+      bool linkCursor = false, bool trackPoints = false);
     ~PlotTableConfig();
 
     void setBackgroundColor(const QColor& color);
@@ -51,6 +51,8 @@ namespace rqt_multiplot {
     bool isScaleLinked() const;
     void setLinkCursor(bool link);
     bool isCursorLinked() const;
+    void setTrackPoints(bool track);
+    bool arePointsTracked() const;
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
@@ -64,6 +66,7 @@ namespace rqt_multiplot {
     void numPlotsChanged(size_t numRows, size_t numColumns);
     void linkScaleChanged(bool link);
     void linkCursorChanged(bool link);
+    void trackPointsChanged(bool track);
     void changed();
     
   private:
@@ -72,6 +75,7 @@ namespace rqt_multiplot {
     QVector<QVector<PlotConfig*> > plotConfig_;
     bool linkScale_;
     bool linkCursor_;
+    bool trackPoints_;
     
   private slots:
     void plotConfigChanged();

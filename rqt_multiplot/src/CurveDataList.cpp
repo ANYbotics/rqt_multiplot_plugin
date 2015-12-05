@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveData.h"
+#include "rqt_multiplot/CurveDataList.h"
 
 namespace rqt_multiplot {
 
@@ -24,76 +24,41 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveData::CurveData() {
+CurveDataList::CurveDataList() {
 }
 
-CurveData::~CurveData() {
+CurveDataList::~CurveDataList() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-double CurveData::getValue(size_t index, CurveConfig::Axis axis) const {
-  if (axis == CurveConfig::X)
-    return getPoint(index).x();
-  else if (axis == CurveConfig::Y)
-    return getPoint(index).y();
-    
-  return std::numeric_limits<double>::quiet_NaN();
+size_t CurveDataList::getNumPoints() const {
+  return points_.count();
 }
 
-QVector<size_t> CurveData::getPointsInDistance(double x, double maxDistance)
-    const {
-  QVector<size_t> indexes;
-  
-  if (!isEmpty()) {
-    for (size_t index = 0; index < getNumPoints(); ++index) {
-      double distance = fabs(x-getPoint(index).x());
-      
-      if (distance <= maxDistance)
-        indexes.append(index);
-    }
-  }
-  
-  return indexes;
+QPointF CurveDataList::getPoint(size_t index) const {
+  return points_[index];
 }
 
-QPair<double, double> CurveData::getAxisBounds(CurveConfig::Axis axis) const {
-  BoundingRectangle bounds = getBounds();
-  
-  if (axis == CurveConfig::X)
-    return QPair<double, double>(bounds.getMinimum().x(),
-      bounds.getMaximum().x());
-  else if (axis == CurveConfig::Y)
-    return QPair<double, double>(bounds.getMinimum().y(),
-      bounds.getMaximum().y());
-  
-  return QPair<double, double>();
-}
-
-bool CurveData::isEmpty() const {
-  return !getNumPoints();
+BoundingRectangle CurveDataList::getBounds() const {
+  return bounds_;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-size_t CurveData::size() const {
-  return getNumPoints();
+void CurveDataList::appendPoint(const QPointF& point) {
+  bounds_ += point;
+  
+  points_.append(point);  
 }
 
-QPointF CurveData::sample(size_t i) const {
-  return getPoint(i);
-}
-
-QRectF CurveData::boundingRect() const {
-  return getBounds().getRectangle();
-}
-
-void CurveData::appendPoint(double x, double y) {
-  appendPoint(QPointF(x, y));
+void CurveDataList::clearPoints() {
+  points_.clear();
+  bounds_.clear();
 }
 
 }

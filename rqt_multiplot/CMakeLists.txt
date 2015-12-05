@@ -40,8 +40,6 @@ set(rqt_multiplot_SRCS
   src/ConfigComboBox.cpp
   src/CurveAxisConfig.cpp
   src/CurveAxisConfigWidget.cpp
-  src/CurveAxisRange.cpp
-  src/CurveAxisRangeWidget.cpp
   src/CurveAxisScale.cpp
   src/CurveAxisScaleWidget.cpp
   src/CurveColor.cpp
@@ -50,9 +48,15 @@ set(rqt_multiplot_SRCS
   src/CurveConfigDialog.cpp
   src/CurveConfigWidget.cpp
   src/CurveData.cpp
+  src/CurveDataCircularBuffer.cpp
+  src/CurveDataConfig.cpp
+  src/CurveDataConfigWidget.cpp
+  src/CurveDataList.cpp
+  src/CurveDataVector.cpp
   src/CurveItemWidget.cpp
-  src/CurveListData.cpp
   src/CurveListWidget.cpp
+  src/CurveStyle.cpp
+  src/CurveStyleWidget.cpp
   src/FileScheme.cpp
   src/Message.cpp
   src/MessageDefinitionLoader.cpp
@@ -76,14 +80,22 @@ set(rqt_multiplot_SRCS
   src/MultiplotWidget.cpp
   src/PackageRegistry.cpp
   src/PackageScheme.cpp
+  src/PenStyleComboBox.cpp
+  src/PenStyleItemDelegate.cpp
   src/PlotConfig.cpp
   src/PlotConfigDialog.cpp
   src/PlotConfigWidget.cpp
+  src/PlotCursor.cpp
+  src/PlotCursorMachine.cpp
   src/PlotCurve.cpp
+  src/PlotMagnifier.cpp
+  src/PlotPanner.cpp
   src/PlotTableConfig.cpp
   src/PlotTableConfigWidget.cpp
   src/PlotTableWidget.cpp
   src/PlotWidget.cpp
+  src/PlotZoomer.cpp
+  src/PlotZoomerMachine.cpp
   src/StatusWidget.cpp
   src/UrlComboBox.cpp
   src/UrlCompleter.cpp
@@ -100,8 +112,6 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/ConfigComboBox.h
   include/rqt_multiplot/CurveAxisConfig.h
   include/rqt_multiplot/CurveAxisConfigWidget.h
-  include/rqt_multiplot/CurveAxisRange.h
-  include/rqt_multiplot/CurveAxisRangeWidget.h
   include/rqt_multiplot/CurveAxisScale.h
   include/rqt_multiplot/CurveAxisScaleWidget.h
   include/rqt_multiplot/CurveColor.h
@@ -110,9 +120,15 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveConfigDialog.h
   include/rqt_multiplot/CurveConfigWidget.h
   include/rqt_multiplot/CurveData.h
+  include/rqt_multiplot/CurveDataCircularBuffer.h
+  include/rqt_multiplot/CurveDataConfig.h
+  include/rqt_multiplot/CurveDataConfigWidget.h
+  include/rqt_multiplot/CurveDataList.h
+  include/rqt_multiplot/CurveDataVector.h
   include/rqt_multiplot/CurveItemWidget.h
-  include/rqt_multiplot/CurveListData.h
   include/rqt_multiplot/CurveListWidget.h
+  include/rqt_multiplot/CurveStyle.h
+  include/rqt_multiplot/CurveStyleWidget.h
   include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/Message.h
   include/rqt_multiplot/MessageDefinitionLoader.h
@@ -136,14 +152,22 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/MultiplotWidget.h
   include/rqt_multiplot/PackageRegistry.h
   include/rqt_multiplot/PackageScheme.h
+  include/rqt_multiplot/PenStyleComboBox.h
+  include/rqt_multiplot/PenStyleItemDelegate.h
   include/rqt_multiplot/PlotConfig.h
   include/rqt_multiplot/PlotConfigDialog.h
   include/rqt_multiplot/PlotConfigWidget.h
+  include/rqt_multiplot/PlotCursor.h
+  include/rqt_multiplot/PlotCursorMachine.h
   include/rqt_multiplot/PlotCurve.h
+  include/rqt_multiplot/PlotMagnifier.h
+  include/rqt_multiplot/PlotPanner.h
   include/rqt_multiplot/PlotTableConfig.h
   include/rqt_multiplot/PlotTableConfigWidget.h
   include/rqt_multiplot/PlotTableWidget.h
   include/rqt_multiplot/PlotWidget.h
+  include/rqt_multiplot/PlotZoomer.h
+  include/rqt_multiplot/PlotZoomerMachine.h
   include/rqt_multiplot/StatusWidget.h
   include/rqt_multiplot/UrlComboBox.h
   include/rqt_multiplot/UrlCompleter.h
@@ -155,12 +179,13 @@ set(rqt_multiplot_HDRS
 
 set(rqt_multiplot_UIS
   src/CurveAxisConfigWidget.ui
-  src/CurveAxisRangeWidget.ui
   src/CurveAxisScaleWidget.ui
   src/CurveColorWidget.ui
   src/CurveConfigDialog.ui
   src/CurveConfigWidget.ui
+  src/CurveDataConfigWidget.ui
   src/CurveItemWidget.ui
+  src/CurveStyleWidget.ui
   src/MessageFieldWidget.ui
   src/MultiplotConfigWidget.ui
   src/MultiplotWidget.ui

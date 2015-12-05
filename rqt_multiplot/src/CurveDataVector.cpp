@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveListData.h"
+#include "rqt_multiplot/CurveDataVector.h"
 
 namespace rqt_multiplot {
 
@@ -24,25 +24,43 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveListData::CurveListData() {
+CurveDataVector::CurveDataVector() {
 }
 
-CurveListData::~CurveListData() {
+CurveDataVector::~CurveDataVector() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-size_t CurveListData::getNumPoints() const {
+size_t CurveDataVector::getNumPoints() const {
   return points_.count();
 }
 
-const QPointF& CurveListData::getPoint(size_t index) const {
+QPointF CurveDataVector::getPoint(size_t index) const {
   return points_[index];
 }
 
-BoundingRectangle CurveListData::getBounds() const {
+QVector<size_t> CurveDataVector::getPointsInDistance(double x, double
+    maxDistance) const {
+  QVector<size_t> indexes;
+      
+  XCoordinateRefSet::const_iterator it = x_.lower_bound(x-maxDistance);
+  
+  while (it != x_.end()) {
+    if (fabs(x-it->x_) <= maxDistance) {
+      indexes.push_back(it->index_);
+      ++it;
+    }
+    else
+      break;
+  }
+  
+  return indexes;
+}
+
+BoundingRectangle CurveDataVector::getBounds() const {
   return bounds_;
 }
 
@@ -50,14 +68,24 @@ BoundingRectangle CurveListData::getBounds() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void CurveListData::appendPoint(const QPointF& point) {
+void CurveDataVector::appendPoint(const QPointF& point) {
   bounds_ += point;
   
-  points_.append(point);  
+  if (points_.capacity() < points_.count()+1)
+    points_.reserve(points_.capacity() ? 2*points_.capacity() : 1);
+    
+  points_.append(point);
+  
+  if (x_.capacity() < x_.size()+1)
+    x_.reserve(x_.capacity() ? 2*x_.capacity() : 1);
+    
+  x_.insert(XCoordinateRef(point.x(), points_.size()-1));
 }
 
-void CurveListData::clearPoints() {
+void CurveDataVector::clearPoints() {
   points_.clear();
+  x_.clear();
+  
   bounds_.clear();
 }
 

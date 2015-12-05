@@ -16,7 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveData.h"
+#include <QPainter>
+
+#include "rqt_multiplot/PenStyleItemDelegate.h"
 
 namespace rqt_multiplot {
 
@@ -24,76 +26,45 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveData::CurveData() {
+PenStyleItemDelegate::PenStyleItemDelegate(QWidget* parent) :
+  QItemDelegate(parent) {
 }
 
-CurveData::~CurveData() {
-}
-
-/*****************************************************************************/
-/* Accessors                                                                 */
-/*****************************************************************************/
-
-double CurveData::getValue(size_t index, CurveConfig::Axis axis) const {
-  if (axis == CurveConfig::X)
-    return getPoint(index).x();
-  else if (axis == CurveConfig::Y)
-    return getPoint(index).y();
-    
-  return std::numeric_limits<double>::quiet_NaN();
-}
-
-QVector<size_t> CurveData::getPointsInDistance(double x, double maxDistance)
-    const {
-  QVector<size_t> indexes;
-  
-  if (!isEmpty()) {
-    for (size_t index = 0; index < getNumPoints(); ++index) {
-      double distance = fabs(x-getPoint(index).x());
-      
-      if (distance <= maxDistance)
-        indexes.append(index);
-    }
-  }
-  
-  return indexes;
-}
-
-QPair<double, double> CurveData::getAxisBounds(CurveConfig::Axis axis) const {
-  BoundingRectangle bounds = getBounds();
-  
-  if (axis == CurveConfig::X)
-    return QPair<double, double>(bounds.getMinimum().x(),
-      bounds.getMaximum().x());
-  else if (axis == CurveConfig::Y)
-    return QPair<double, double>(bounds.getMinimum().y(),
-      bounds.getMaximum().y());
-  
-  return QPair<double, double>();
-}
-
-bool CurveData::isEmpty() const {
-  return !getNumPoints();
+PenStyleItemDelegate::~PenStyleItemDelegate() {
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-size_t CurveData::size() const {
-  return getNumPoints();
-}
+void PenStyleItemDelegate::paint(QPainter* painter, const
+    QStyleOptionViewItem& option, const QModelIndex& index) const {
+  QVariant data = index.model()->data(index, Qt::UserRole);
 
-QPointF CurveData::sample(size_t i) const {
-  return getPoint(i);
-}
+  if (option.state & QStyle::State_Selected)
+    painter->fillRect(option.rect, option.palette.highlight());
+  
+  if (data.isValid()) {
+    painter->save();
 
-QRectF CurveData::boundingRect() const {
-  return getBounds().getRectangle();
-}
+    QPen pen = painter->pen();
 
-void CurveData::appendPoint(double x, double y) {
-  appendPoint(QPointF(x, y));
+    if (option.state & QStyle::State_Selected)
+      pen.setColor(option.palette.color(QPalette::HighlightedText));
+    else
+      pen.setColor(option.palette.color(QPalette::Text));
+    
+    pen.setWidth(1);
+    pen.setStyle(static_cast<Qt::PenStyle>(data.toInt()));
+    
+    painter->setPen(pen);
+    painter->drawLine(option.rect.left(), option.rect.center().y(),
+      option.rect.right(), option.rect.center().y());
+
+    painter->restore();
+  }
+  else
+    QItemDelegate::paint(painter, option, index);
 }
 
 }

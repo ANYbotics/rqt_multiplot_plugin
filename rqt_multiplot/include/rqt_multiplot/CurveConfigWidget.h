@@ -51,8 +51,10 @@ namespace rqt_multiplot {
   
   private slots:
     void configTitleChanged(const QString& title);
+    void configSubscriberQueueSizeChanged(size_t queueSize);
     
     void lineEditTitleEditingFinished();
+    void spinBoxSubscriberQueueSizeValueChanged(int value);
   };
 };
 

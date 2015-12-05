@@ -229,7 +229,7 @@ bool CurveAxisConfigWidget::validateField() {
 
     if (!field.isEmpty()) {
       variant_topic_tools::DataType fieldType = ui_->widgetField->
-        getCurrentFieldDataType();
+        getCurrentFieldDataType();  
       
       if (fieldType.isValid()) {
         if (fieldType.isBuiltin() && variant_topic_tools::

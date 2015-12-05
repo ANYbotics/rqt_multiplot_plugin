@@ -16,47 +16,50 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_AXIS_RANGE_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_AXIS_RANGE_WIDGET_H
+#include <qwt/qwt_painter.h>
 
-#include <QWidget>
+#include <rqt_multiplot/PlotZoomerMachine.h>
 
-#include <rqt_multiplot/CurveAxisRange.h>
-
-namespace Ui {
-  class CurveAxisRangeWidget;
-};
+#include "rqt_multiplot/PlotZoomer.h"
 
 namespace rqt_multiplot {
-  class CurveAxisRangeWidget :
-    public QWidget {
-  Q_OBJECT
-  public:
-    CurveAxisRangeWidget(QWidget* parent = 0);
-    virtual ~CurveAxisRangeWidget();
-    
-    void setRange(CurveAxisRange* range);
-    CurveAxisRange* getRange() const;
-    
-  private:
-    Ui::CurveAxisRangeWidget* ui_;
-    
-    CurveAxisRange* range_;
-    
-  private slots:
-    void rangeTypeChanged(int type);
-    void rangeFixedMinimumChanged(double minimum);
-    void rangeFixedMaximumChanged(double maximum);
-    void rangeWindowSizeChanged(double size);
-    
-    void radioButtonFixedToggled(bool checked);
-    void radioButtonWindowToggled(bool checked);
-    void radioButtonAutoToggled(bool checked);
-    
-    void doubleSpinBoxFixedMinimumValueChanged(double value);
-    void doubleSpinBoxFixedMaximumValueChanged(double value);
-    void doubleSpinBoxWindowSizeValueChanged(double value);
-  };
-};
 
-#endif
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
+
+PlotZoomer::PlotZoomer(QwtPlotCanvas* canvas, bool doReplot) :
+  QwtPlotZoomer(canvas, doReplot) {
+  if (canvas)
+    setStateMachine(new PlotZoomerMachine());
+}
+
+PlotZoomer::~PlotZoomer() {
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void PlotZoomer::drawRubberBand(QPainter* painter) const {
+  if (!isActive())
+    return;
+  
+  if ((stateMachine()->selectionType() == QwtPickerMachine::RectSelection) &&
+      (rubberBand() == RectRubberBand)) {
+    if (pickedPoints().count() < 2)
+      return;
+    
+    QPoint p1 = pickedPoints()[0];
+    QPoint p2 = pickedPoints()[pickedPoints().count()-1];
+  
+    QRect rect = QRect(p1, p2).normalized();
+    rect.adjust(0, 0, -1, -1);
+  
+    QwtPainter::drawRect(painter, rect);
+  }
+  else
+    QwtPlotZoomer::drawRubberBand(painter);
+}
+
+}

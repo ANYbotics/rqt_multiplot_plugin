@@ -39,17 +39,24 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
   ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
     CurveConfig::Y));
   ui_->curveColorWidget->setColor(config_->getColor());
+  ui_->curveStyleWidget->setStyle(config_->getStyle());
+  ui_->curveDataConfigWidget->setConfig(config_->getDataConfig());
   
   connect(config_, SIGNAL(titleChanged(const QString&)), this,
     SLOT(configTitleChanged(const QString&)));
+  connect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)), this,
+    SLOT(configSubscriberQueueSizeChanged(size_t)));
   
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
     SLOT(lineEditTitleEditingFinished()));
+  connect(ui_->spinBoxSubscriberQueueSize, SIGNAL(valueChanged(int)),
+    this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
   
   messageTopicRegistry_->update();
   messageTypeRegistry_->update();
   
   configTitleChanged(config_->getTitle());
+  configSubscriberQueueSizeChanged(config_->getSubscriberQueueSize());
 }
 
 CurveConfigWidget::~CurveConfigWidget() {
@@ -80,8 +87,16 @@ void CurveConfigWidget::configTitleChanged(const QString& title) {
   ui_->lineEditTitle->setText(title);
 }
 
+void CurveConfigWidget::configSubscriberQueueSizeChanged(size_t queueSize) {
+  ui_->spinBoxSubscriberQueueSize->setValue(queueSize);
+}
+
 void CurveConfigWidget::lineEditTitleEditingFinished() {
   config_->setTitle(ui_->lineEditTitle->text());
+}
+
+void CurveConfigWidget::spinBoxSubscriberQueueSizeValueChanged(int value) {
+  config_->setSubscriberQueueSize(value);
 }
 
 }

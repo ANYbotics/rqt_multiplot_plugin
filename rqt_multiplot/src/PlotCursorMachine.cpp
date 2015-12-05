@@ -16,30 +16,37 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_LIST_DATA_H
-#define RQT_MULTIPLOT_CURVE_LIST_DATA_H
+#include <QEvent>
 
-#include <rqt_multiplot/BoundingRectangle.h>
-#include <rqt_multiplot/CurveData.h>
+#include "rqt_multiplot/PlotCursorMachine.h"
 
 namespace rqt_multiplot {
-  class CurveListData :
-    public CurveData {
-  public:
-    CurveListData();
-    ~CurveListData();
 
-    size_t getNumPoints() const;
-    const QPointF& getPoint(size_t index) const;
-    BoundingRectangle getBounds() const;
-    
-    void appendPoint(const QPointF& point);
-    void clearPoints();
-    
-  private:
-    QList<QPointF> points_;
-    BoundingRectangle bounds_;
-  };
-};
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
 
-#endif
+PlotCursorMachine::PlotCursorMachine() {
+}
+
+PlotCursorMachine::~PlotCursorMachine() {
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+QList<QwtPickerMachine::Command> PlotCursorMachine::transition(const
+    QwtEventPattern& pattern, const QEvent* event) {
+  QList<QwtPickerMachine::Command> commands = QwtPickerTrackerMachine::
+    transition(pattern, event);
+
+  if (event->type() == QEvent::Resize) {
+    if (state() == 1)
+      commands += Move;
+  }
+
+  return commands;
+}
+
+}

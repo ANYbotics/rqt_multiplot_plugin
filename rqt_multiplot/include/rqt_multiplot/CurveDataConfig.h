@@ -16,47 +16,45 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_TREE_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_CONFIG_H
+#define RQT_MULTIPLOT_CURVE_DATA_CONFIG_H
 
-#include <QTreeWidget>
-
-#include <variant_topic_tools/MessageDataType.h>
+#include <QObject>
+#include <QSettings>
 
 namespace rqt_multiplot {
-  class MessageFieldTreeWidget :
-    public QTreeWidget {
+  class CurveDataConfig :
+    public QObject {
   Q_OBJECT
   public:
-    MessageFieldTreeWidget(QWidget* parent = 0);
-    virtual ~MessageFieldTreeWidget();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
+    enum Type {
+      Vector,
+      List,
+      CircularBuffer
+    };
+    
+    CurveDataConfig(QObject* parent = 0, Type type = Vector, size_t
+      circularBufferCapacity = 1000);
+    ~CurveDataConfig();
+    
+    void setType(Type type);
+    Type getType() const;
+    void setCircularBufferCapacity(size_t capacity);
+    size_t getCircularBufferCapacity() const;
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    
+    CurveDataConfig& operator=(const CurveDataConfig& src);
     
   signals:
-    void currentFieldChanged(const QString& field);
+    void typeChanged(int type);
+    void circularBufferCapacityChanged(size_t capacity);
+    void changed();
     
   private:
-    QString currentField_;
-    
-    void setCurrentItem(const QString& field);
-    
-    void addField(const variant_topic_tools::MessageVariable& variable,
-      QTreeWidgetItem* parent = 0);
-    
-    QTreeWidgetItem* findChild(QTreeWidgetItem* item, int column, const
-      QString& text) const;
-    
-  private slots:
-    void currentItemChanged(QTreeWidgetItem* current, QTreeWidgetItem*
-      previous);
-    void spinBoxIndexValueChanged(int value);
+    Type type_;
+    size_t circularBufferCapacity_;
   };
 };
 

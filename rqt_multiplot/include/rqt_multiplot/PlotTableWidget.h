@@ -57,17 +57,21 @@ namespace rqt_multiplot {
     
     PlotTableConfig* config_;
   
-    void updatePlotScale(const BoundingRectangle& bounds);
+    void updatePlotScale(const BoundingRectangle& bounds, PlotWidget*
+      excluded = 0);
     
   private slots:
     void configBackgroundColorChanged(const QColor& color);
     void configForegroundColorChanged(const QColor& color);
     void configNumPlotsChanged(size_t numRows, size_t numColumns);
     void configLinkScaleChanged(bool link);
+    void configTrackPointsChanged(bool track);
     
     void plotPreferredScaleChanged(const BoundingRectangle& bounds);
     void plotCurrentScaleChanged(const BoundingRectangle& bounds);
-    void plotPausedChanged(bool paused);
+    void plotCursorActiveChanged(bool active);
+    void plotCursorCurrentPositionChanged(const QPointF& position);
+    void plotPausedChanged(bool paused);    
   };
 };
 

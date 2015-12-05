@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CurveDataConfigWidget</class>
+ <widget class="QWidget" name="CurveDataConfigWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>728</width>
+    <height>23</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>5</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="5">
+    <spacer name="horizontalSpacer_2">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>10</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="2">
+    <widget class="QRadioButton" name="radioButtonList">
+     <property name="toolTip">
+      <string>Curve data is stored in a list with unbound capacity</string>
+     </property>
+     <property name="text">
+      <string>List</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="4">
+    <widget class="QRadioButton" name="radioButtonCircularBuffer">
+     <property name="toolTip">
+      <string>Curve data is stored in a circular buffer with fixed capacity</string>
+     </property>
+     <property name="text">
+      <string>Circular buffer</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7">
+    <widget class="QSpinBox" name="spinBoxCircularBufferCapacity">
+     <property name="minimum">
+      <number>1</number>
+     </property>
+     <property name="maximum">
+      <number>999999999</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Capacity:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="8">
+    <spacer name="horizontalSpacer">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>40</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="0">
+    <widget class="QRadioButton" name="radioButtonVector">
+     <property name="toolTip">
+      <string>Curve data is stored in a vector with unbound capacity</string>
+     </property>
+     <property name="text">
+      <string>Vector</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

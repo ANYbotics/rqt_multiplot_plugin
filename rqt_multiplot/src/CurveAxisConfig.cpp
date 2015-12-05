@@ -18,8 +18,6 @@
 
 #include "rqt_multiplot/CurveAxisConfig.h"
 
-Q_DECLARE_METATYPE(rqt_multiplot::CurveAxisConfig::FieldType)
-
 namespace rqt_multiplot {
 
 /*****************************************************************************/
@@ -107,7 +105,7 @@ CurveAxisScale* CurveAxisConfig::getScale() const {
 void CurveAxisConfig::save(QSettings& settings) const {
   settings.setValue("topic", topic_);
   settings.setValue("type", type_);
-  settings.setValue("field_type", QVariant::fromValue<FieldType>(fieldType_));
+  settings.setValue("field_type", fieldType_);
   settings.setValue("field", field_);
   
   settings.beginGroup("scale");
@@ -118,7 +116,7 @@ void CurveAxisConfig::save(QSettings& settings) const {
 void CurveAxisConfig::load(QSettings& settings) {
   setTopic(settings.value("topic").toString());
   setType(settings.value("type").toString());
-  setFieldType(settings.value("field_type").value<FieldType>());
+  setFieldType(static_cast<FieldType>(settings.value("field_type").toInt()));
   setField(settings.value("field").toString());
   
   settings.beginGroup("scale");

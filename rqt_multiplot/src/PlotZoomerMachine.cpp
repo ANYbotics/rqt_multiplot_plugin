@@ -16,7 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveData.h"
+#include <QEvent>
+#include <QMouseEvent>
+
+#include <qwt/qwt_event_pattern.h>
+
+#include "rqt_multiplot/PlotZoomerMachine.h"
 
 namespace rqt_multiplot {
 
@@ -24,76 +29,36 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveData::CurveData() {
+PlotZoomerMachine::PlotZoomerMachine() {
 }
 
-CurveData::~CurveData() {
-}
-
-/*****************************************************************************/
-/* Accessors                                                                 */
-/*****************************************************************************/
-
-double CurveData::getValue(size_t index, CurveConfig::Axis axis) const {
-  if (axis == CurveConfig::X)
-    return getPoint(index).x();
-  else if (axis == CurveConfig::Y)
-    return getPoint(index).y();
-    
-  return std::numeric_limits<double>::quiet_NaN();
-}
-
-QVector<size_t> CurveData::getPointsInDistance(double x, double maxDistance)
-    const {
-  QVector<size_t> indexes;
-  
-  if (!isEmpty()) {
-    for (size_t index = 0; index < getNumPoints(); ++index) {
-      double distance = fabs(x-getPoint(index).x());
-      
-      if (distance <= maxDistance)
-        indexes.append(index);
-    }
-  }
-  
-  return indexes;
-}
-
-QPair<double, double> CurveData::getAxisBounds(CurveConfig::Axis axis) const {
-  BoundingRectangle bounds = getBounds();
-  
-  if (axis == CurveConfig::X)
-    return QPair<double, double>(bounds.getMinimum().x(),
-      bounds.getMaximum().x());
-  else if (axis == CurveConfig::Y)
-    return QPair<double, double>(bounds.getMinimum().y(),
-      bounds.getMaximum().y());
-  
-  return QPair<double, double>();
-}
-
-bool CurveData::isEmpty() const {
-  return !getNumPoints();
+PlotZoomerMachine::~PlotZoomerMachine() {
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-size_t CurveData::size() const {
-  return getNumPoints();
-}
+QList<QwtPickerMachine::Command> PlotZoomerMachine::transition(const
+    QwtEventPattern& pattern, const QEvent* event) {
+  QList<QwtPickerMachine::Command> commands;
+  
+  if (event->type() == QEvent::MouseButtonDblClick) {
+    if (pattern.mouseMatch(QwtEventPattern::MouseSelect1,
+        static_cast<const QMouseEvent*>(event))) {
+      if (state() == 0) {
+        commands += Begin;
+        commands += Append;
+        commands += Append;
+        
+        setState(2);
+      }
+    }
+  }
+  else if (event->type() != QEvent::MouseButtonPress)
+    commands = QwtPickerDragRectMachine::transition(pattern, event);
 
-QPointF CurveData::sample(size_t i) const {
-  return getPoint(i);
-}
-
-QRectF CurveData::boundingRect() const {
-  return getBounds().getRectangle();
-}
-
-void CurveData::appendPoint(double x, double y) {
-  appendPoint(QPointF(x, y));
+  return commands;
 }
 
 }

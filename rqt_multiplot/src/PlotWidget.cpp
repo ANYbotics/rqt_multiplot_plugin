@@ -18,17 +18,18 @@
 
 #include <qwt/qwt_plot_canvas.h>
 #include <qwt/qwt_plot_curve.h>
-#include <qwt/qwt_plot_magnifier.h>
 #include <qwt/qwt_plot_picker.h>
-#include <qwt/qwt_plot_zoomer.h>
 #include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_picker_machine.h>
 
 #include <ros/package.h>
 
 #include <rqt_multiplot/PlotConfigDialog.h>
 #include <rqt_multiplot/PlotConfigWidget.h>
+#include <rqt_multiplot/PlotCursor.h>
 #include <rqt_multiplot/PlotCurve.h>
+#include <rqt_multiplot/PlotMagnifier.h>
+#include <rqt_multiplot/PlotPanner.h>
+#include <rqt_multiplot/PlotZoomer.h>
 
 #include <ui_PlotWidget.h>
 
@@ -69,11 +70,13 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->plot->setAutoFillBackground(true);
   ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
 
-  ui_->plot->setAxisAutoScale(QwtPlot::yLeft, false);
-  ui_->plot->setAxisAutoScale(QwtPlot::xBottom, false);
-  
   ui_->plot->enableAxis(QwtPlot::xTop);
   ui_->plot->enableAxis(QwtPlot::yRight);
+  
+  ui_->plot->setAxisAutoScale(QwtPlot::yLeft, false);
+  ui_->plot->setAxisAutoScale(QwtPlot::yRight, false);
+  ui_->plot->setAxisAutoScale(QwtPlot::xTop, false);
+  ui_->plot->setAxisAutoScale(QwtPlot::xBottom, false);
   
   ui_->plot->axisScaleDraw(QwtPlot::xTop)->enableComponent(
     QwtAbstractScaleDraw::Labels, false);
@@ -82,7 +85,13 @@ PlotWidget::PlotWidget(QWidget* parent) :
   
   ui_->horizontalSpacerRight->changeSize(
     ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
-      
+  
+  cursor_ = new PlotCursor(ui_->plot->canvas());
+  magnifier_ = new PlotMagnifier(ui_->plot->canvas());
+  panner_ = new PlotPanner(ui_->plot->canvas());
+  zoomer_ = new PlotZoomer(ui_->plot->canvas());
+  zoomer_->setTrackerMode(QwtPicker::AlwaysOff);  
+  
   connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
     SLOT(lineEditTitleTextChanged(const QString&)));
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
@@ -103,15 +112,7 @@ PlotWidget::PlotWidget(QWidget* parent) :
     SIGNAL(scaleDivChanged()), this, SLOT(plotYLeftScaleDivChanged()));
   
   ui_->plot->axisWidget(QwtPlot::yLeft)->installEventFilter(this);
-  ui_->plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);
-  
-  magnifier_ = new QwtPlotMagnifier(ui_->plot->canvas());
-  
-  zoomer_ = new QwtPlotZoomer(ui_->plot->canvas());
-  zoomer_->setTrackerMode(QwtPicker::AlwaysOff);
-  
-  picker_ = new QwtPlotPicker(ui_->plot->canvas());
-  picker_->setTrackerMode(QwtPicker::AlwaysOn);
+  ui_->plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);  
 }
 
 PlotWidget::~PlotWidget() {  
@@ -161,6 +162,10 @@ PlotConfig* PlotWidget::getConfig() const {
   return config_;
 }
 
+PlotCursor* PlotWidget::getCursor() const {
+  return cursor_;
+}
+
 BoundingRectangle PlotWidget::getPreferredScale() const {
   BoundingRectangle bounds;
   
@@ -171,8 +176,8 @@ BoundingRectangle PlotWidget::getPreferredScale() const {
 }
 
 void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
-  if (bounds != getCurrentScale()) {
-    if (bounds.getMaximum().x() >= bounds.getMinimum().x())
+  if (bounds != getCurrentScale())
+    if (bounds.getMaximum().x() >= bounds.getMinimum().x()) {
       ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(),
         bounds.getMaximum().x());
     if (bounds.getMaximum().y() >= bounds.getMinimum().y())
@@ -263,7 +268,7 @@ void PlotWidget::configTitleChanged(const QString& title) {
 void PlotWidget::configCurveAdded(size_t index) {
   PlotCurve* curve = new PlotCurve(this);
 
-  curve->curve_->attach(ui_->plot);
+  curve->attach(ui_->plot);
   curve->setConfig(config_->getCurveConfig(index));
   
   connect(curve, SIGNAL(preferredScaleChanged(const BoundingRectangle&)),
@@ -275,7 +280,7 @@ void PlotWidget::configCurveAdded(size_t index) {
 }
 
 void PlotWidget::configCurveRemoved(size_t index) {
-  curves_[index]->curve_->detach();
+  curves_[index]->detach();
 
   delete curves_[index];
   
@@ -286,7 +291,7 @@ void PlotWidget::configCurveRemoved(size_t index) {
 
 void PlotWidget::configCurvesCleared() {
   for (size_t index = 0; index < curves_.count(); ++index) {
-    curves_[index]->curve_->detach();
+    curves_[index]->detach();
     
     delete curves_[index];
   }
@@ -347,15 +352,19 @@ void PlotWidget::pushButtonExportClicked() {
 void PlotWidget::plotXBottomScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::xTop, *ui_->plot->axisScaleDiv(
     QwtPlot::xBottom));
-  
-  emit currentScaleChanged(getCurrentScale());
+    
+  if (ui_->plot->axisScaleDiv(QwtPlot::yLeft)->isValid() &&
+      ui_->plot->axisScaleDiv(QwtPlot::xBottom)->isValid())
+    emit currentScaleChanged(getCurrentScale());
 }
 
 void PlotWidget::plotYLeftScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::yRight, *ui_->plot->axisScaleDiv(
     QwtPlot::yLeft));
-  
-  emit currentScaleChanged(getCurrentScale());
+    
+  if (ui_->plot->axisScaleDiv(QwtPlot::yLeft)->isValid() &&
+      ui_->plot->axisScaleDiv(QwtPlot::xBottom)->isValid())
+    emit currentScaleChanged(getCurrentScale());
 }
 
 }

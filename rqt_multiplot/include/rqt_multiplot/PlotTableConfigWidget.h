@@ -57,12 +57,14 @@ namespace rqt_multiplot {
     void configNumPlotsChanged(size_t numRows, size_t numColumns);
     void configLinkScaleChanged(bool link);
     void configLinkCursorChanged(bool link);
+    void configTrackPointsChanged(bool track);
     
     void spinBoxRowsValueChanged(int value);
     void spinBoxColumnsValueChanged(int value);
 
     void checkBoxLinkScaleStateChanged(int state);
     void checkBoxLinkCursorStateChanged(int state);
+    void checkBoxTrackPointsStateChanged(int state);
     
     void pushButtonRunClicked();
     void pushButtonPauseClicked();

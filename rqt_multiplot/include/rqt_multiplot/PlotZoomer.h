@@ -16,55 +16,20 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_AXIS_RANGE_H
-#define RQT_MULTIPLOT_CURVE_AXIS_RANGE_H
+#ifndef RQT_MULTIPLOT_PLOT_ZOOMER_H
+#define RQT_MULTIPLOT_PLOT_ZOOMER_H
 
-#include <QObject>
-#include <QSettings>
+#include <qwt/qwt_plot_zoomer.h>
 
 namespace rqt_multiplot {
-  class CurveAxisRange :
-    public QObject {
+  class PlotZoomer :
+    public QwtPlotZoomer {
   Q_OBJECT
   public:
-    enum Type {
-      Auto,
-      Window,
-      Fixed
-    };
+    PlotZoomer(QwtPlotCanvas* canvas, bool doReplot = true);
+    ~PlotZoomer();
     
-    CurveAxisRange(QObject* parent = 0, Type type = Auto, double
-      fixedMinimum = 0.0, double fixedMaximum = 1000.0, double
-      windowSize = 1000.0);
-    ~CurveAxisRange();
-    
-    void setType(Type type);
-    Type getType() const;
-    void setFixedMinimum(double minimum);
-    double getFixedMinimum() const;
-    void setFixedMaximum(double maximum);
-    double getFixedMaximum() const;
-    void setWindowSize(double size);
-    double getWindowSize() const;
-    bool isEmpty() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    CurveAxisRange& operator=(const CurveAxisRange& src);
-    
-  signals:
-    void typeChanged(int type);
-    void fixedMinimumChanged(double minimum);
-    void fixedMaximumChanged(double maxnimum);
-    void windowSizeChanged(double size);
-    void changed();
-    
-  private:
-    Type type_;
-    double fixedMinimum_;
-    double fixedMaximum_;
-    double windowSize_;
+    void drawRubberBand(QPainter* painter) const;
   };
 };
 

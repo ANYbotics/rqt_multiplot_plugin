@@ -19,9 +19,10 @@
 #include <limits>
 
 #include <qwt/qwt_plot.h>
-#include <qwt/qwt_plot_curve.h>
 
-#include <rqt_multiplot/CurveListData.h>
+#include <rqt_multiplot/CurveDataCircularBuffer.h>
+#include <rqt_multiplot/CurveDataList.h>
+#include <rqt_multiplot/CurveDataVector.h>
 #include <rqt_multiplot/PlotWidget.h>
 
 #include "rqt_multiplot/PlotCurve.h"
@@ -38,14 +39,13 @@ PlotCurve::PlotCurve(PlotWidget* parent) :
   registry_(new MessageFieldSubscriberRegistry(this)),
   subscriberX_(0),
   subscriberY_(0),
-  curve_(new QwtPlotCurve()),
-  data_(new CurveListData()),
+  data_(new CurveDataVector()),
   nextPoint_(std::numeric_limits<double>::quiet_NaN(),
     std::numeric_limits<double>::quiet_NaN()),
   paused_(true) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
   
-  curve_->setData(data_);
+  setData(data_);
 }
 
 PlotCurve::~PlotCurve() {
@@ -95,6 +95,14 @@ BoundingRectangle PlotCurve::getPreferredScale() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
+void PlotCurve::attach(QwtPlot* plot) {
+  QwtPlotCurve::attach(plot);
+}
+
+void PlotCurve::detach() {
+  QwtPlotCurve::detach();
+}
+
 void PlotCurve::run() {
   paused_ = false;
 }
@@ -123,7 +131,7 @@ void PlotCurve::appendPoint(const QPointF& point) {
 }
 
 void PlotCurve::replot() {
-  curve_->plot()->replot();
+  plot()->replot();
 }
 
 /*****************************************************************************/
@@ -142,6 +150,12 @@ void PlotCurve::setConfig(CurveConfig* config) {
       disconnect(config_->getColor(), SIGNAL(currentColorChanged(
         const QColor&)), this, SLOT(configColorCurrentColorChanged(
         const QColor&)));
+      disconnect(config_->getStyle(), SIGNAL(changed()), this,
+        SLOT(configStyleChanged()));
+      disconnect(config_->getDataConfig(), SIGNAL(changed()), this,
+        SLOT(configDataConfigChanged()));
+      disconnect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)),
+        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
     }
     
     config_ = config;
@@ -156,11 +170,20 @@ void PlotCurve::setConfig(CurveConfig* config) {
       connect(config->getColor(), SIGNAL(currentColorChanged(
         const QColor&)), this, SLOT(configColorCurrentColorChanged(
         const QColor&)));
+      connect(config->getStyle(), SIGNAL(changed()), this,
+        SLOT(configStyleChanged()));
+      connect(config->getDataConfig(), SIGNAL(changed()), this,
+        SLOT(configDataConfigChanged()));
+      connect(config, SIGNAL(subscriberQueueSizeChanged(size_t)),
+        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
       
       configTitleChanged(config->getTitle());
       configXAxisConfigChanged();
       configYAxisConfigChanged();
       configColorCurrentColorChanged(config->getColor()->getCurrentColor());
+      configStyleChanged();
+      configDataConfigChanged();
+      configSubscriberQueueSizeChanged(config->getSubscriberQueueSize());
     }
   }
 }
@@ -187,7 +210,7 @@ MessageFieldSubscriber* PlotCurve::resubscribe(CurveAxisConfig* axisConfig,
     if (!axisConfig->getTopic().isEmpty() && !axisConfig->getField().
         isEmpty()) {
       if (registry_->subscribe(axisConfig->getTopic(), axisConfig->getField(),
-          this, method)) {
+          this, method, config_->getSubscriberQueueSize())) {
         subscriber = registry_->getSubscriber(axisConfig->getTopic(),
           axisConfig->getField());
       }
@@ -202,7 +225,7 @@ MessageFieldSubscriber* PlotCurve::resubscribe(CurveAxisConfig* axisConfig,
 /*****************************************************************************/
 
 void PlotCurve::configTitleChanged(const QString& title) {
-  curve_->setTitle(title);
+  setTitle(title);
 }
 
 void PlotCurve::configXAxisConfigChanged() {
@@ -222,9 +245,68 @@ void PlotCurve::configYAxisConfigChanged() {
 }
 
 void PlotCurve::configColorCurrentColorChanged(const QColor& color) {
-  curve_->setPen(color);
+  setPen(color);
   
   replot();
+}
+
+void PlotCurve::configStyleChanged() {
+  rqt_multiplot::CurveStyle* style = config_->getStyle();
+  
+  if (style->getType() == rqt_multiplot::CurveStyle::Sticks) {
+    setStyle(QwtPlotCurve::Sticks);
+    
+    setOrientation(style->getSticksOrientation());
+    setBaseline(style->getSticksBaseline());
+  }
+  else if (style->getType() == rqt_multiplot::CurveStyle::Steps) {
+    setStyle(QwtPlotCurve::Steps);
+    
+    setCurveAttribute(QwtPlotCurve::Inverted, style->areStepsInverted());    
+  }
+  else if (style->getType() == rqt_multiplot::CurveStyle::Points) {
+    setStyle(QwtPlotCurve::Dots);
+  }
+  else {
+    setStyle(QwtPlotCurve::Lines);
+    
+    setCurveAttribute(QwtPlotCurve::Fitted, style->areLinesInterpolated());    
+  }
+  
+  QPen pen = QwtPlotCurve::pen();
+
+  pen.setWidth(style->getPenWidth());
+  pen.setStyle(style->getPenStyle());
+  
+  setPen(pen);
+  
+  setRenderHint(QwtPlotItem::RenderAntialiased, style->
+    isRenderAntialiased());
+  
+  replot();
+}
+
+void PlotCurve::configDataConfigChanged() {
+  CurveDataConfig* config = config_->getDataConfig();
+
+  if (config->getType() == CurveDataConfig::List)
+    data_ = new CurveDataList();
+  if (config->getType() == CurveDataConfig::CircularBuffer)
+    data_ = new CurveDataCircularBuffer(config->getCircularBufferCapacity());
+  else
+    data_ = new CurveDataVector();
+  
+  setData(data_);
+  
+  replot();
+}
+
+void PlotCurve::configSubscriberQueueSizeChanged(size_t queueSize) {
+  if (subscriberX_)
+    subscriberX_->setQueueSize(queueSize);
+  
+  if (subscriberY_)
+    subscriberY_->setQueueSize(queueSize);
 }
 
 void PlotCurve::xValueReceived(const QString& topic, const QString&
