@@ -226,6 +226,8 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
           plotCursorCurrentPositionChanged(const QPointF&)));
         connect(plotWidgets[row][column], SIGNAL(pausedChanged(bool)),
           this, SLOT(plotPausedChanged(bool)));        
+        connect(plotWidgets[row][column], SIGNAL(stateChanged(int)),
+          this, SLOT(plotStateChanged(int)));        
       }
       
       plotWidgets[row][column]->setConfig(config_->getPlotConfig(
@@ -316,6 +318,19 @@ void PlotTableWidget::plotCursorCurrentPositionChanged(const QPointF&
 
 void PlotTableWidget::plotPausedChanged(bool paused) {
   emit plotPausedChanged();
+}
+
+void PlotTableWidget::plotStateChanged(int state) {
+  for (size_t row = 0; row < plotWidgets_.count(); ++row) {
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column) {
+      if (state == PlotWidget::Maximized) {
+        if (sender() != plotWidgets_[row][column])
+          plotWidgets_[row][column]->hide();
+      }
+      else if (state == PlotWidget::Normal)
+        plotWidgets_[row][column]->show();
+    }
+  }
 }
 
 }

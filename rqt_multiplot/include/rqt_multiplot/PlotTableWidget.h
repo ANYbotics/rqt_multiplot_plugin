@@ -73,6 +73,7 @@ namespace rqt_multiplot {
     void plotCursorActiveChanged(bool active);
     void plotCursorCurrentPositionChanged(const QPointF& position);
     void plotPausedChanged(bool paused);    
+    void plotStateChanged(int state);    
   };
 };
 

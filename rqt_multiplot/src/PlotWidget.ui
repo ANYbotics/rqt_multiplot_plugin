@@ -30,23 +30,7 @@
      </property>
     </spacer>
    </item>
-   <item row="0" column="1">
-    <spacer name="horizontalSpacer_4">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>88</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="6">
+   <item row="0" column="7">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>0</number>
@@ -116,6 +100,38 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="pushButtonExport">
+       <property name="minimumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Export plot</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../resource/16x16/export.png</normaloff>../resource/16x16/export.png</iconset>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="pushButtonSetup">
        <property name="minimumSize">
         <size>
@@ -148,7 +164,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonExport">
+      <widget class="QPushButton" name="pushButtonState">
        <property name="minimumSize">
         <size>
          <width>22</width>
@@ -165,14 +181,14 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="toolTip">
-        <string>Export plot</string>
+        <string>Maximize/restore plot</string>
        </property>
        <property name="text">
         <string/>
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../resource/16x16/export.png</normaloff>../resource/16x16/export.png</iconset>
+         <normaloff>../resource/16x16/zoom_in.png</normaloff>../resource/16x16/zoom_in.png</iconset>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -181,7 +197,7 @@
      </item>
     </layout>
    </item>
-   <item row="0" column="5">
+   <item row="0" column="6">
     <spacer name="horizontalSpacerRight">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -197,7 +213,7 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="0" colspan="7">
+   <item row="1" column="0" colspan="8">
     <widget class="QwtPlot" name="plot">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
@@ -250,11 +266,11 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
+      <enum>QSizePolicy::MinimumExpanding</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>166</width>
+       <width>0</width>
        <height>20</height>
       </size>
      </property>
@@ -266,11 +282,27 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
+      <enum>QSizePolicy::MinimumExpanding</enum>
      </property>
      <property name="sizeHint" stdset="0">
       <size>
-       <width>166</width>
+       <width>0</width>
+       <height>20</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="0" column="1">
+    <spacer name="horizontalSpacer_4">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="sizeType">
+      <enum>QSizePolicy::Fixed</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>110</width>
        <height>20</height>
       </size>
      </property>

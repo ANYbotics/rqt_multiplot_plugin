@@ -54,7 +54,8 @@ PlotWidget::PlotWidget(QWidget* parent) :
   magnifier_(0),
   zoomer_(0),
   paused_(true),
-  replot_(false) {
+  replot_(false),
+  state_(Normal) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
   
   ui_->setupUi(this);
@@ -63,17 +64,22 @@ PlotWidget::PlotWidget(QWidget* parent) :
     "rqt_multiplot").append("/resource/16x16/run.png")));
   pauseIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
     "rqt_multiplot").append("/resource/16x16/pause.png")));
+  normalIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
+    "rqt_multiplot").append("/resource/16x16/zoom_in.png")));
+  maximizedIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
+    "rqt_multiplot").append("/resource/16x16/zoom_out.png")));
   
   ui_->pushButtonRunPause->setIcon(runIcon_);
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
-  ui_->pushButtonSetup->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/setup.png"))));
   ui_->pushButtonExport->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/export.png"))));
+  ui_->pushButtonSetup->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/setup.png"))));
+  ui_->pushButtonState->setIcon(normalIcon_);
   
   ui_->plot->setAutoReplot(false);
   ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
@@ -116,6 +122,8 @@ PlotWidget::PlotWidget(QWidget* parent) :
     SLOT(pushButtonSetupClicked()));
   connect(ui_->pushButtonExport, SIGNAL(clicked()), this,
     SLOT(pushButtonExportClicked()));
+  connect(ui_->pushButtonState, SIGNAL(clicked()), this,
+    SLOT(pushButtonStateClicked()));
   
   connect(ui_->plot->axisWidget(QwtPlot::xBottom), 
     SIGNAL(scaleDivChanged()), this, SLOT(plotXBottomScaleDivChanged()));
@@ -240,6 +248,23 @@ bool PlotWidget::isPaused() const {
 
 bool PlotWidget::isReplotRequested() const {
   return replot_;
+}
+
+void PlotWidget::setState(State state) {
+  if (state != state_) {
+    state_ = state;
+    
+    if (state == Maximized)
+      ui_->pushButtonState->setIcon(maximizedIcon_);
+    else
+      ui_->pushButtonState->setIcon(normalIcon_);
+    
+    emit stateChanged(state);
+  }
+}
+
+PlotWidget::State PlotWidget::getState() const {
+  return state_;
 }
 
 /*****************************************************************************/
@@ -488,6 +513,13 @@ void PlotWidget::pushButtonSetupClicked() {
 }
 
 void PlotWidget::pushButtonExportClicked() {
+}
+
+void PlotWidget::pushButtonStateClicked() {
+  if (state_ == Maximized)
+    setState(Normal);
+  else
+    setState(Maximized);
 }
 
 void PlotWidget::plotXBottomScaleDivChanged() {

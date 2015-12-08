@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-11) unstable; urgency=low
+
+  * Added feature to maximize/restore a plot
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 08 Dec 2015 12:14:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-10) unstable; urgency=low
 
   * Added axis titles and legend

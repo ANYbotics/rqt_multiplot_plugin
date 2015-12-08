@@ -43,6 +43,11 @@ namespace rqt_multiplot {
     public QWidget {
   Q_OBJECT
   public:
+    enum State {
+      Normal,
+      Maximized
+    };
+    
     PlotWidget(QWidget* parent = 0);
     virtual ~PlotWidget();
 
@@ -54,6 +59,8 @@ namespace rqt_multiplot {
     BoundingRectangle getCurrentScale() const;
     bool isPaused() const;
     bool isReplotRequested() const;
+    void setState(State state);
+    State getState() const;
 
     void run();
     void pause();
@@ -66,6 +73,7 @@ namespace rqt_multiplot {
     void preferredScaleChanged(const BoundingRectangle& bounds);
     void currentScaleChanged(const BoundingRectangle& bounds);
     void pausedChanged(bool paused);
+    void stateChanged(int state);
     void cleared();
     
   protected:
@@ -76,6 +84,8 @@ namespace rqt_multiplot {
     
     QIcon runIcon_;
     QIcon pauseIcon_;
+    QIcon normalIcon_;
+    QIcon maximizedIcon_;
     QTimer* timer_;
         
     PlotConfig* config_;
@@ -90,6 +100,7 @@ namespace rqt_multiplot {
     
     bool paused_;
     bool replot_;
+    State state_;
     
   private slots:
     void timerTimeout();
@@ -113,6 +124,7 @@ namespace rqt_multiplot {
     void pushButtonClearClicked();
     void pushButtonSetupClicked();
     void pushButtonExportClicked();
+    void pushButtonStateClicked();
     
     void plotXBottomScaleDivChanged();
     void plotYLeftScaleDivChanged();
