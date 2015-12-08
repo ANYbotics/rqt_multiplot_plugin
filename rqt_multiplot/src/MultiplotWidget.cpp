@@ -98,6 +98,10 @@ void MultiplotWidget::loadConfig(const QString& url) {
   ui_->configWidget->loadConfig(url);
 }
 
+bool MultiplotWidget::confirmClose() {
+  return ui_->configWidget->confirmSave(false);
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/

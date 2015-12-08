@@ -96,4 +96,17 @@ void CurveData::appendPoint(double x, double y) {
   appendPoint(QPointF(x, y));
 }
 
+void CurveData::writeFormatted(QStringList& formattedX, QStringList&
+    formattedY) const {
+  formattedX.clear();
+  formattedY.clear();
+  
+  for (size_t index = 0; index < getNumPoints(); ++index) {
+    QPointF point = getPoint(index);
+    
+    formattedX.append(QString::number(point.x(), 'g', 20));
+    formattedY.append(QString::number(point.y(), 'g', 20));
+  }
+}
+
 }

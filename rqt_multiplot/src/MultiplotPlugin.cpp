@@ -20,6 +20,7 @@
 #include <vector>
 
 #include <QByteArray>
+#include <QCloseEvent>
 
 #include <boost/program_options.hpp>
 
@@ -51,6 +52,9 @@ MultiplotPlugin::~MultiplotPlugin() {
 
 void MultiplotPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
   widget_ = new MultiplotWidget();
+  
+  connect(widget_, SIGNAL(destroyed(QObject*)), this,
+    SLOT(widgetDestroyed(QObject*)));
   
   context.addWidget(widget_);
   
@@ -122,6 +126,14 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
   catch (const std::exception& exception) {
     ROS_ERROR("Error parsing command line: %s", exception.what());
   }
+}
+
+/*****************************************************************************/
+/* Slots                                                                     */
+/*****************************************************************************/
+
+void MultiplotPlugin::widgetDestroyed(QObject* object) {
+  widget_->confirmClose();
 }
 
 }

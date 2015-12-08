@@ -16,6 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QFile>
+#include <QTextStream>
+
 #include <rqt_multiplot/PlotCursor.h>
 #include <rqt_multiplot/PlotWidget.h>
 
@@ -134,6 +137,107 @@ void PlotTableWidget::forceReplot() {
   for (size_t row = 0; row < plotWidgets_.count(); ++row)
     for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
       plotWidgets_[row][column]->forceReplot();
+}
+
+void PlotTableWidget::renderToPixmap(QPixmap& pixmap) {
+  size_t numRows = getNumRows();
+  size_t numColumns = getNumColumns();
+  
+  if (numRows && numColumns) {
+    double plotWidth = (pixmap.width()-20.0*(numColumns-1.0))/numColumns;
+    double plotHeight = (pixmap.height()-20.0*(numRows-1.0))/numRows;
+    
+    double y = 0.0;
+    for (size_t row = 0; row < plotWidgets_.count();
+        ++row, y += plotHeight+20.0) {
+      double x = 0.0;
+      
+      for (size_t column = 0; column < plotWidgets_[row].count();
+          ++column, x += plotWidth+20.0)
+        plotWidgets_[row][column]->renderToPixmap(pixmap,
+          QRectF(x, y, plotWidth, plotHeight));
+    }
+  }
+}
+
+void PlotTableWidget::writeFormattedCurveAxisTitles(QStringList&
+    formattedAxisTitles) {
+  formattedAxisTitles.clear();
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row) {
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column) {
+      QStringList formattedCurveAxisTitles;
+      
+      plotWidgets_[row][column]->writeFormattedCurveAxisTitles(
+        formattedCurveAxisTitles);
+      
+      formattedAxisTitles.append(formattedCurveAxisTitles);
+    }
+  }
+}
+
+void PlotTableWidget::writeFormattedCurveData(QList<QStringList>&
+    formattedData) {
+  formattedData.clear();
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row) {
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column) {
+      QList<QStringList> formattedCurveData;
+      
+      plotWidgets_[row][column]->writeFormattedCurveData(
+        formattedCurveData);
+      
+      formattedData.append(formattedCurveData);
+    }
+  }
+}
+
+void PlotTableWidget::saveToImageFile(const QString& fileName) {
+  QPixmap pixmap(1280, 1024);
+
+  pixmap.fill(Qt::transparent);  
+  renderToPixmap(pixmap);
+  
+  pixmap.save(fileName, "PNG");
+}
+
+void PlotTableWidget::saveToTextFile(const QString& fileName) {
+  QFile file(fileName);
+  
+  if (file.open(QIODevice::WriteOnly)) {
+    QStringList formattedAxisTitles;
+    QList<QStringList> formattedData;
+    
+    writeFormattedCurveAxisTitles(formattedAxisTitles);
+    writeFormattedCurveData(formattedData);
+  
+    QTextStream stream(&file);
+
+    stream << "# " << formattedAxisTitles.join(", ") << "\n";
+    
+    size_t row = 0;
+    
+    while (true) {
+      QStringList dataLineParts;
+      bool finished = true;
+      
+      for (size_t column = 0; column < formattedData.count(); ++column) {
+        if (row < formattedData[column].count()) {
+          dataLineParts.append(formattedData[column][row]);
+          finished &= false;
+        }
+        else
+          dataLineParts.append(QString());
+      }
+
+      if (!finished) {
+        stream << dataLineParts.join(", ") << "\n";
+        row++;
+      }
+      else
+        break;
+    }
+  }
 }
 
 void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds,

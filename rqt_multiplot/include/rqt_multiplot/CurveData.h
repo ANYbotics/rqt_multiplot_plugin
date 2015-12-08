@@ -52,6 +52,9 @@ namespace rqt_multiplot {
     virtual void appendPoint(const QPointF& point) = 0;
     void appendPoint(double x, double y);
     virtual void clearPoints() = 0;
+    
+    void writeFormatted(QStringList& formattedX, QStringList&
+      formattedY) const;
   };
 };
 

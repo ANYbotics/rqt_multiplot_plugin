@@ -47,6 +47,8 @@ namespace rqt_multiplot {
     
     void loadConfig(const QString& url);
     
+    bool confirmClose();
+    
   private:
     Ui::MultiplotWidget* ui_;
     

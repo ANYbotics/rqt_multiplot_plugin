@@ -19,6 +19,7 @@
 #ifndef RQT_MULTIPLOT_PLOT_TABLE_CONFIG_WIDGET_H
 #define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_WIDGET_H
 
+#include <QMenu>
 #include <QWidget>
 
 #include <rqt_multiplot/PlotTableConfig.h>
@@ -48,6 +49,8 @@ namespace rqt_multiplot {
   private:
     Ui::PlotTableConfigWidget* ui_;
 
+    QMenu* menuExport_;
+    
     PlotTableConfig* config_;
     PlotTableWidget* plotTable_;
     
@@ -70,6 +73,8 @@ namespace rqt_multiplot {
     void pushButtonPauseClicked();
     void pushButtonClearClicked();
     void pushButtonExportClicked();
+    void menuExportImageFileTriggered();
+    void menuExportTextFileTriggered();
     
     void plotTablePlotPausedChanged();
   };

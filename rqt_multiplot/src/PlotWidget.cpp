@@ -16,9 +16,16 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QFile>
+#include <QFileDialog>
+#include <QFontMetrics>
+#include <QPainter>
+#include <QTextStream>
+
 #include <qwt/qwt_plot_canvas.h>
 #include <qwt/qwt_plot_curve.h>
 #include <qwt/qwt_plot_picker.h>
+#include <qwt/qwt_plot_renderer.h>
 #include <qwt/qwt_scale_widget.h>
 
 #include <ros/package.h>
@@ -47,6 +54,7 @@ PlotWidget::PlotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotWidget()),
   timer_(new QTimer(this)),
+  menuExport_(new QMenu(this)),
   config_(0),
   legend_(0),
   cursor_(0),
@@ -103,6 +111,11 @@ PlotWidget::PlotWidget(QWidget* parent) :
   timer_->setInterval(1e3/30.0);
   timer_->start();
   
+  menuExport_->addAction("Export to image file...", this,
+    SLOT(menuExportImageFileTriggered()));
+  menuExport_->addAction("Export to text file...", this,
+    SLOT(menuExportTextFileTriggered()));    
+
   cursor_ = new PlotCursor(ui_->plot->canvas());
   magnifier_ = new PlotMagnifier(ui_->plot->canvas());
   panner_ = new PlotPanner(ui_->plot->canvas());
@@ -322,6 +335,123 @@ void PlotWidget::forceReplot() {
   replot_ = false;
 }
 
+void PlotWidget::renderToPixmap(QPixmap& pixmap, const QRectF& bounds) {
+  QRectF plotBounds = bounds;
+  
+  if (plotBounds.isEmpty())
+    plotBounds = QRectF(0, 0, pixmap.width(), pixmap.height());
+  
+  QwtPlotRenderer renderer;
+  
+  renderer.setDiscardFlag(QwtPlotRenderer::DiscardBackground, true);
+  renderer.setDiscardFlag(QwtPlotRenderer::DiscardCanvasBackground, true);
+  
+  QPainter painter(&pixmap);
+  size_t textHeight = 0;
+  
+  if (config_) {
+    textHeight = painter.fontMetrics().boundingRect(config_->
+      getTitle()).height();
+    
+    painter.drawText(QRectF(plotBounds.x(), plotBounds.y(),
+      plotBounds.width(), textHeight), Qt::AlignHCenter |
+      Qt::AlignVCenter, config_->getTitle());
+  }
+  
+  renderer.render(ui_->plot, &painter, QRectF(plotBounds.x(),
+    plotBounds.y()+textHeight+10, plotBounds.width(), plotBounds.
+    height()-textHeight-10));
+}
+
+void PlotWidget::writeFormattedCurveData(QList<QStringList>& formattedData) {
+  formattedData.clear();
+  
+  for (size_t index = 0; index < curves_.count(); ++index) {
+    QStringList formattedX, formattedY;
+    
+    curves_[index]->getData()->writeFormatted(formattedX, formattedY);
+    
+    formattedData.append(formattedX);
+    formattedData.append(formattedY);
+  }
+}
+
+void PlotWidget::writeFormattedCurveAxisTitles(QStringList&
+    formattedAxisTitles) {
+  formattedAxisTitles.clear();
+  
+  for (size_t index = 0; index < curves_.count(); ++index) {
+    CurveAxisConfig* xAxisConfig = curves_[index]->getConfig()->
+      getAxisConfig(CurveConfig::X);
+    CurveAxisConfig* yAxisConfig = curves_[index]->getConfig()->
+      getAxisConfig(CurveConfig::Y);
+    
+    QString xAxisTitle = xAxisConfig->getTopic();
+    QString yAxisTitle = yAxisConfig->getTopic();
+      
+    if (xAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
+      xAxisTitle += "/"+xAxisConfig->getField();
+    else
+      xAxisTitle += "/recceipt_time";
+    
+    if (yAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
+      yAxisTitle += "/"+yAxisConfig->getField();
+    else
+      yAxisTitle += "/recceipt_time";
+    
+    formattedAxisTitles.append(xAxisTitle);
+    formattedAxisTitles.append(yAxisTitle);
+  }
+}
+
+void PlotWidget::saveToImageFile(const QString& fileName) {
+  QPixmap pixmap(1280, 1024);
+
+  pixmap.fill(Qt::transparent);  
+  renderToPixmap(pixmap);
+  
+  pixmap.save(fileName, "PNG");
+}
+
+void PlotWidget::saveToTextFile(const QString& fileName) {
+  QFile file(fileName);
+  
+  if (file.open(QIODevice::WriteOnly)) {
+    QStringList formattedAxisTitles;
+    QList<QStringList> formattedData;
+    
+    writeFormattedCurveAxisTitles(formattedAxisTitles);
+    writeFormattedCurveData(formattedData);
+  
+    QTextStream stream(&file);
+
+    stream << "# " << formattedAxisTitles.join(", ") << "\n";
+    
+    size_t row = 0;
+    
+    while (true) {
+      QStringList dataLineParts;
+      bool finished = true;
+      
+      for (size_t column = 0; column < formattedData.count(); ++column) {
+        if (row < formattedData[column].count()) {
+          dataLineParts.append(formattedData[column][row]);
+          finished &= false;
+        }
+        else
+          dataLineParts.append(QString());
+      }
+
+      if (!finished) {
+        stream << dataLineParts.join(", ") << "\n";
+        row++;
+      }
+      else
+        break;
+    }
+  }
+}
+
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
   if ((object == ui_->plot->axisWidget(QwtPlot::yLeft)) &&
       (event->type() == QEvent::Resize)) {
@@ -513,6 +643,7 @@ void PlotWidget::pushButtonSetupClicked() {
 }
 
 void PlotWidget::pushButtonExportClicked() {
+  menuExport_->popup(QCursor::pos());
 }
 
 void PlotWidget::pushButtonStateClicked() {
@@ -520,6 +651,30 @@ void PlotWidget::pushButtonStateClicked() {
     setState(Normal);
   else
     setState(Maximized);
+}
+
+void PlotWidget::menuExportImageFileTriggered() {
+  QFileDialog dialog(this, "Save Image File", QDir::homePath(),
+    "Portable Network Graphics (*.png)");
+  
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  dialog.selectFile("rqt_multiplot.png");
+  
+  if (dialog.exec() == QDialog::Accepted)
+    saveToImageFile(dialog.selectedFiles().first());
+}
+
+void PlotWidget::menuExportTextFileTriggered() {
+  QFileDialog dialog(this, "Save Text File", QDir::homePath(),
+    "Text file (*.txt)");
+  
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  dialog.selectFile("rqt_multiplot.txt");
+  
+  if (dialog.exec() == QDialog::Accepted)
+    saveToTextFile(dialog.selectedFiles().first());
 }
 
 void PlotWidget::plotXBottomScaleDivChanged() {

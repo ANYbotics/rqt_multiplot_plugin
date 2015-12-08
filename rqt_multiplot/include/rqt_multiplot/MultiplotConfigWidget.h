@@ -52,7 +52,7 @@ namespace rqt_multiplot {
     bool saveConfig(const QString& url);
     void resetConfig();
     
-    bool confirmSave();
+    bool confirmSave(bool canCancel = true);
     
     void addConfigUrlToHistory(const QString& url);
     

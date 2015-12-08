@@ -49,6 +49,13 @@ namespace rqt_multiplot {
     void requestReplot();
     void forceReplot();
   
+    void renderToPixmap(QPixmap& pixmap);
+    void writeFormattedCurveAxisTitles(QStringList& formattedAxisTitles);
+    void writeFormattedCurveData(QList<QStringList>& formattedData);
+    
+    void saveToImageFile(const QString& fileName);
+    void saveToTextFile(const QString& fileName);
+    
   signals:
     void plotPausedChanged();
     
@@ -73,7 +80,7 @@ namespace rqt_multiplot {
     void plotCursorActiveChanged(bool active);
     void plotCursorCurrentPositionChanged(const QPointF& position);
     void plotPausedChanged(bool paused);    
-    void plotStateChanged(int state);    
+    void plotStateChanged(int state);
   };
 };
 

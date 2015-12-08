@@ -17,6 +17,7 @@
  ******************************************************************************/
 
 #include <QColorDialog>
+#include <QFileDialog>
 
 #include <ros/package.h>
 
@@ -36,6 +37,7 @@ namespace rqt_multiplot {
 PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotTableConfigWidget()),
+  menuExport_(new QMenu(this)),
   config_(0),
   plotTable_(0) {
   ui_->setupUi(this);
@@ -57,6 +59,11 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     append("/resource/16x16/export.png"))));
   
   ui_->pushButtonPause->setEnabled(false);
+  
+  menuExport_->addAction("Export to image file...", this,
+    SLOT(menuExportImageFileTriggered()));
+  menuExport_->addAction("Export to text file...", this,
+    SLOT(menuExportTextFileTriggered()));
   
   connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
     SLOT(spinBoxRowsValueChanged(int)));
@@ -266,6 +273,7 @@ void PlotTableConfigWidget::pushButtonClearClicked() {
 }
 
 void PlotTableConfigWidget::pushButtonExportClicked() {
+  menuExport_->popup(QCursor::pos());
 }
 
 void PlotTableConfigWidget::plotTablePlotPausedChanged() {
@@ -284,6 +292,30 @@ void PlotTableConfigWidget::plotTablePlotPausedChanged() {
     ui_->pushButtonRun->setEnabled(anyPlotPaused);
     ui_->pushButtonPause->setEnabled(!allPlotsPaused);
   }
+}
+
+void PlotTableConfigWidget::menuExportImageFileTriggered() {
+  QFileDialog dialog(this, "Save Image File", QDir::homePath(),
+    "Portable Network Graphics (*.png)");
+  
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  dialog.selectFile("rqt_multiplot.png");
+  
+  if (dialog.exec() == QDialog::Accepted)
+    plotTable_->saveToImageFile(dialog.selectedFiles().first());
+}
+
+void PlotTableConfigWidget::menuExportTextFileTriggered() {
+  QFileDialog dialog(this, "Save Text File", QDir::homePath(),
+    "Text file (*.txt)");
+  
+  dialog.setAcceptMode(QFileDialog::AcceptSave);
+  dialog.setFileMode(QFileDialog::AnyFile);
+  dialog.selectFile("rqt_multiplot.txt");
+  
+  if (dialog.exec() == QDialog::Accepted)
+    plotTable_->saveToTextFile(dialog.selectedFiles().first());
 }
 
 }

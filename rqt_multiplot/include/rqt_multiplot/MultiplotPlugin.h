@@ -44,6 +44,9 @@ namespace rqt_multiplot {
     MultiplotWidget* widget_;
     
     void parseArguments(const QStringList& arguments);
+    
+  private slots:
+    void widgetDestroyed(QObject* object);
   };
 };
 

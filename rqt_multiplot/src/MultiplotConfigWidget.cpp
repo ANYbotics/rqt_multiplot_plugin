@@ -238,14 +238,18 @@ void MultiplotConfigWidget::resetConfig() {
   }
 }
 
-bool MultiplotConfigWidget::confirmSave() {
+bool MultiplotConfigWidget::confirmSave(bool canCancel) {
   if (currentConfigModified_) {
     QMessageBox messageBox;
+    QMessageBox::StandardButtons buttons = QMessageBox::Save |
+      QMessageBox::Discard;
+      
+    if (canCancel)
+      buttons |= QMessageBox::Cancel;
     
     messageBox.setText("The configuration has been modified.");
     messageBox.setInformativeText("Do you want to save your changes?");
-    messageBox.setStandardButtons(QMessageBox::Save | QMessageBox::Discard |
-      QMessageBox::Cancel);
+    messageBox.setStandardButtons(buttons);
     messageBox.setDefaultButton(QMessageBox::Save);
     
     switch (messageBox.exec()) {

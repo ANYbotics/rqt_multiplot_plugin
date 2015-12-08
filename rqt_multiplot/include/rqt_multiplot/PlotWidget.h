@@ -20,6 +20,10 @@
 #define RQT_MULTIPLOT_PLOT_WIDGET_H
 
 #include <QIcon>
+#include <QList>
+#include <QMenu>
+#include <QRect>
+#include <QStringList>
 #include <QTimer>
 #include <QVector>
 #include <QWidget>
@@ -68,6 +72,13 @@ namespace rqt_multiplot {
     
     void requestReplot();
     void forceReplot();
+    
+    void renderToPixmap(QPixmap& pixmap, const QRectF& bounds = QRectF());
+    void writeFormattedCurveAxisTitles(QStringList& formattedAxisTitles);
+    void writeFormattedCurveData(QList<QStringList>& formattedData);
+    
+    void saveToImageFile(const QString& fileName);
+    void saveToTextFile(const QString& fileName);
   
   signals:
     void preferredScaleChanged(const BoundingRectangle& bounds);
@@ -87,6 +98,7 @@ namespace rqt_multiplot {
     QIcon normalIcon_;
     QIcon maximizedIcon_;
     QTimer* timer_;
+    QMenu* menuExport_;
         
     PlotConfig* config_;
     
@@ -125,6 +137,8 @@ namespace rqt_multiplot {
     void pushButtonSetupClicked();
     void pushButtonExportClicked();
     void pushButtonStateClicked();
+    void menuExportImageFileTriggered();
+    void menuExportTextFileTriggered();
     
     void plotXBottomScaleDivChanged();
     void plotYLeftScaleDivChanged();
