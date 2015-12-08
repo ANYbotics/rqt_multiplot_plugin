@@ -46,7 +46,8 @@ namespace rqt_multiplot {
     void pausePlots();
     void clearPlots();
 
-    void replot();
+    void requestReplot();
+    void forceReplot();
   
   signals:
     void plotPausedChanged();

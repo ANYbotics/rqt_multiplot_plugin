@@ -23,10 +23,12 @@
 
 #include <ros/package.h>
 
+#include <rqt_multiplot/CurveData.h>
 #include <rqt_multiplot/PlotConfigDialog.h>
 #include <rqt_multiplot/PlotConfigWidget.h>
 #include <rqt_multiplot/PlotCursor.h>
 #include <rqt_multiplot/PlotCurve.h>
+#include <rqt_multiplot/PlotLegend.h>
 #include <rqt_multiplot/PlotMagnifier.h>
 #include <rqt_multiplot/PlotPanner.h>
 #include <rqt_multiplot/PlotZoomer.h>
@@ -44,9 +46,15 @@ namespace rqt_multiplot {
 PlotWidget::PlotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotWidget()),
+  timer_(new QTimer(this)),
   config_(0),
+  legend_(0),
+  cursor_(0),
+  panner_(0),
   magnifier_(0),
-  paused_(true) {
+  zoomer_(0),
+  paused_(true),
+  replot_(false) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
   
   ui_->setupUi(this);
@@ -67,7 +75,7 @@ PlotWidget::PlotWidget(QWidget* parent) :
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/export.png"))));
   
-  ui_->plot->setAutoFillBackground(true);
+  ui_->plot->setAutoReplot(false);
   ui_->plot->canvas()->setFrameStyle(QFrame::NoFrame);
 
   ui_->plot->enableAxis(QwtPlot::xTop);
@@ -86,12 +94,15 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->horizontalSpacerRight->changeSize(
     ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
   
+  timer_->setInterval(1e3/30.0);
+  timer_->start();
+  
   cursor_ = new PlotCursor(ui_->plot->canvas());
   magnifier_ = new PlotMagnifier(ui_->plot->canvas());
   panner_ = new PlotPanner(ui_->plot->canvas());
   zoomer_ = new PlotZoomer(ui_->plot->canvas());
   zoomer_->setTrackerMode(QwtPicker::AlwaysOff);  
-  
+
   connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
     SLOT(lineEditTitleTextChanged(const QString&)));
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
@@ -110,6 +121,8 @@ PlotWidget::PlotWidget(QWidget* parent) :
     SIGNAL(scaleDivChanged()), this, SLOT(plotXBottomScaleDivChanged()));
   connect(ui_->plot->axisWidget(QwtPlot::yLeft), 
     SIGNAL(scaleDivChanged()), this, SLOT(plotYLeftScaleDivChanged()));
+  
+  connect(timer_, SIGNAL(timeout()), this, SLOT(timerTimeout()));
   
   ui_->plot->axisWidget(QwtPlot::yLeft)->installEventFilter(this);
   ui_->plot->axisWidget(QwtPlot::yRight)->installEventFilter(this);  
@@ -134,8 +147,18 @@ void PlotWidget::setConfig(PlotConfig* config) {
         SLOT(configCurveRemoved(size_t)));
       disconnect(config_, SIGNAL(curvesCleared()), this,
         SLOT(configCurvesCleared()));
+      disconnect(config_, SIGNAL(curveConfigChanged(size_t)), this,
+        SLOT(configCurveConfigChanged(size_t)));
+      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::X),
+        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y),
+        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      disconnect(config_->getLegendConfig(), SIGNAL(changed()), this,
+        SLOT(configLegendConfigChanged()));
+      disconnect(config_, SIGNAL(plotRateChanged(double)), this,
+        SLOT(configPlotRateChanged(double)));
       
-      configCurvesCleared();
+      configCurvesCleared();      
     }
     
     config_ = config;
@@ -149,8 +172,22 @@ void PlotWidget::setConfig(PlotConfig* config) {
         SLOT(configCurveRemoved(size_t)));
       connect(config, SIGNAL(curvesCleared()), this,
         SLOT(configCurvesCleared()));
+      connect(config, SIGNAL(curveConfigChanged(size_t)), this,
+        SLOT(configCurveConfigChanged(size_t)));
+      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::X),
+        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y),
+        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      connect(config->getLegendConfig(), SIGNAL(changed()), this,
+        SLOT(configLegendConfigChanged()));
+      connect(config, SIGNAL(plotRateChanged(double)), this,
+        SLOT(configPlotRateChanged(double)));
       
       configTitleChanged(config->getTitle());
+      configPlotRateChanged(config->getPlotRate());
+      configXAxisConfigChanged();
+      configYAxisConfigChanged();
+      configLegendConfigChanged();
       
       for (size_t index = 0; index < config->getNumCurves(); ++index)
         configCurveAdded(index);
@@ -184,7 +221,7 @@ void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
       ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(),
         bounds.getMaximum().y());
   
-    replot();
+    requestReplot();
   }
 }
 
@@ -199,6 +236,10 @@ BoundingRectangle PlotWidget::getCurrentScale() const {
 
 bool PlotWidget::isPaused() const {
   return paused_;
+}
+
+bool PlotWidget::isReplotRequested() const {
+  return replot_;
 }
 
 /*****************************************************************************/
@@ -235,11 +276,25 @@ void PlotWidget::clear() {
   for (size_t index = 0; index < curves_.count(); ++index)
     curves_[index]->clear();
   
+  forceReplot();
+  
   emit cleared();
 }
 
-void PlotWidget::replot() {
+void PlotWidget::requestReplot() {
+  replot_ = true;
+}
+
+void PlotWidget::forceReplot() {
+  BoundingRectangle preferredBounds = getPreferredScale();
+  
+  zoomer_->setZoomBase(preferredBounds.getRectangle());
+  
+  emit preferredScaleChanged(preferredBounds);
+  
   ui_->plot->replot();
+  
+  replot_ = false;
 }
 
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
@@ -247,11 +302,13 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
       (event->type() == QEvent::Resize)) {
     ui_->horizontalSpacerLeft->changeSize(
       ui_->plot->axisWidget(QwtPlot::yLeft)->width(), 20);
+    layout()->update();
   }
   else if ((object == ui_->plot->axisWidget(QwtPlot::yRight)) &&
       (event->type() == QEvent::Resize)) {
     ui_->horizontalSpacerRight->changeSize(
       ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
+    layout()->update();
   }
   
   return false;
@@ -260,6 +317,11 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
+
+void PlotWidget::timerTimeout() {
+  if (replot_)
+    forceReplot();
+}
 
 void PlotWidget::configTitleChanged(const QString& title) {
   ui_->lineEditTitle->setText(config_->getTitle());
@@ -271,12 +333,15 @@ void PlotWidget::configCurveAdded(size_t index) {
   curve->attach(ui_->plot);
   curve->setConfig(config_->getCurveConfig(index));
   
-  connect(curve, SIGNAL(preferredScaleChanged(const BoundingRectangle&)),
-    this, SLOT(curvePreferredScaleChanged(const BoundingRectangle&)));
+  connect(curve, SIGNAL(replotRequested()), this,
+    SLOT(curveReplotRequested()));
   
   curves_.insert(index, curve);
   
-  replot();
+  configXAxisConfigChanged();
+  configYAxisConfigChanged();
+  
+  forceReplot();
 }
 
 void PlotWidget::configCurveRemoved(size_t index) {
@@ -286,7 +351,10 @@ void PlotWidget::configCurveRemoved(size_t index) {
   
   curves_.remove(index);
   
-  replot();
+  configXAxisConfigChanged();
+  configYAxisConfigChanged();
+  
+  forceReplot();
 }
 
 void PlotWidget::configCurvesCleared() {
@@ -298,15 +366,88 @@ void PlotWidget::configCurvesCleared() {
   
   curves_.clear();
 
-  replot();
+  configXAxisConfigChanged();
+  configYAxisConfigChanged();
+  
+  forceReplot();
 }
 
-void PlotWidget::curvePreferredScaleChanged(const BoundingRectangle& bounds) {
-  BoundingRectangle preferredBounds = getPreferredScale();
-  
-  zoomer_->setZoomBase(preferredBounds.getRectangle());
-  
-  emit preferredScaleChanged(preferredBounds);
+void PlotWidget::configCurveConfigChanged(size_t index) {
+  configXAxisConfigChanged();
+  configYAxisConfigChanged();
+}
+
+void PlotWidget::configXAxisConfigChanged() {
+  if (config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::X)->
+      isTitleVisible()) {
+
+    QStringList titleParts;
+    
+    for (size_t index = 0; index < curves_.count(); ++index) {
+      CurveAxisConfig* axisConfig = curves_[index]->getConfig()->
+        getAxisConfig(CurveConfig::X);
+      
+      QString titlePart = axisConfig->getTopic();
+      if (axisConfig->getFieldType() == CurveAxisConfig::MessageData)
+        titlePart += "/"+axisConfig->getField();
+      else
+        titlePart += "/receipt_time";
+      
+      if (!titleParts.contains(titlePart))
+        titleParts.append(titlePart);
+    }
+    
+    ui_->plot->setAxisTitle(QwtPlot::xBottom, QwtText(
+      titleParts.join(", ")));
+  }
+  else
+    ui_->plot->setAxisTitle(QwtPlot::xBottom, QwtText());
+}
+
+void PlotWidget::configYAxisConfigChanged() {
+  if (config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y)->
+      isTitleVisible()) {
+
+    QStringList titleParts;
+    
+    for (size_t index = 0; index < curves_.count(); ++index) {
+      CurveAxisConfig* axisConfig = curves_[index]->getConfig()->
+        getAxisConfig(CurveConfig::Y);
+      
+      QString titlePart = axisConfig->getTopic();
+      if (axisConfig->getFieldType() == CurveAxisConfig::MessageData)
+        titlePart += "/"+axisConfig->getField();
+      else
+        titlePart += "/receipt_time";
+        
+      if (!titleParts.contains(titlePart))
+        titleParts.append(titlePart);
+    }
+    
+    ui_->plot->setAxisTitle(QwtPlot::yLeft, QwtText(
+      titleParts.join(", ")));
+  }
+  else
+    ui_->plot->setAxisTitle(QwtPlot::yLeft, QwtText());
+}
+
+void PlotWidget::configLegendConfigChanged() {
+  if (!legend_ && config_->getLegendConfig()->isVisible()) {
+    legend_ = new PlotLegend(this);
+    ui_->plot->insertLegend(legend_, QwtPlot::TopLegend);
+  }
+  else if (legend_ && !config_->getLegendConfig()->isVisible()) {
+    ui_->plot->insertLegend(0);
+    legend_ = 0;
+  }
+}
+
+void PlotWidget::configPlotRateChanged(double rate) {
+  timer_->setInterval(1e3/rate);
+}
+
+void PlotWidget::curveReplotRequested() {
+  requestReplot();
 }
 
 void PlotWidget::lineEditTitleTextChanged(const QString& text) {

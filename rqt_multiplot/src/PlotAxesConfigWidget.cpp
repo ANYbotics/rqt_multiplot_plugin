@@ -16,49 +16,50 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#include <ui_PlotAxesConfigWidget.h>
 
-#include <QListWidgetItem>
-#include <QWidget>
-
-#include <rqt_multiplot/PlotConfig.h>
-
-namespace Ui {
-  class PlotConfigWidget;
-};
+#include "rqt_multiplot/PlotAxesConfigWidget.h"
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
-  Q_OBJECT
-  public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
 
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
-    
-  private:
-    Ui::PlotConfigWidget* ui_;
-    
-    PlotConfig* config_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
 
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
-  };
-};
+PlotAxesConfigWidget::PlotAxesConfigWidget(QWidget* parent) :
+  QWidget(parent),
+  ui_(new Ui::PlotAxesConfigWidget()),
+  config_(0) {
+  ui_->setupUi(this);
+}
 
-#endif
+PlotAxesConfigWidget::~PlotAxesConfigWidget() {
+  delete ui_;
+}
+
+/*****************************************************************************/
+/* Accessors                                                                 */
+/*****************************************************************************/
+
+void PlotAxesConfigWidget::setConfig(PlotAxesConfig* config) {
+  if (config != config_) {
+    config_ = config;
+    
+    if (config) {
+      ui_->plotAxisConfigWidgetX->setConfig(config_->
+        getAxisConfig(PlotAxesConfig::X));
+      ui_->plotAxisConfigWidgetY->setConfig(config_->
+        getAxisConfig(PlotAxesConfig::Y));
+    }
+    else {
+      ui_->plotAxisConfigWidgetX->setConfig(0);
+      ui_->plotAxisConfigWidgetY->setConfig(0);
+    }
+  }
+}
+
+PlotAxesConfig* PlotAxesConfigWidget::getConfig() const {
+  return config_;
+}
+
+}

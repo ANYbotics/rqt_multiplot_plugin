@@ -118,13 +118,27 @@ void CurveItemWidget::configTitleChanged(const QString& title) {
 void CurveItemWidget::configXAxisConfigChanged() {
   CurveAxisConfig* config = config_->getAxisConfig(CurveConfig::X);
   
-  ui_->labelXAxis->setText(config->getTopic()+"/"+config->getField());
+  QString text = config->getTopic();
+  
+  if (config->getFieldType() == CurveAxisConfig::MessageData)
+    text += "/"+config->getField();
+  else
+    text += "/receipt_time";
+
+  ui_->labelXAxis->setText(text);
 }
 
 void CurveItemWidget::configYAxisConfigChanged() {
   CurveAxisConfig* config = config_->getAxisConfig(CurveConfig::Y);
   
-  ui_->labelYAxis->setText(config->getTopic()+"/"+config->getField());
+  QString text = config->getTopic();
+  
+  if (config->getFieldType() == CurveAxisConfig::MessageData)
+    text += "/"+config->getField();
+  else
+    text += "/receipt_time";
+
+  ui_->labelYAxis->setText(text);
 }
 
 void CurveItemWidget::configColorCurrentColorChanged(const QColor& color) {

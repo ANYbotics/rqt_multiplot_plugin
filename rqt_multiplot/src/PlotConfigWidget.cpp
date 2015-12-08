@@ -38,38 +38,47 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   config_(new PlotConfig(this)) {
   ui_->setupUi(this);  
   
-  ui_->pushButtonAdd->setIcon(
+  ui_->pushButtonAddCurve->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/add.png"))));
-  ui_->pushButtonEdit->setIcon(
+  ui_->pushButtonEditCurve->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/edit.png"))));
-  ui_->pushButtonRemove->setIcon(
+  ui_->pushButtonRemoveCurve->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/remove.png"))));
   
-  ui_->pushButtonEdit->setEnabled(false);
-  ui_->pushButtonRemove->setEnabled(false);
+  ui_->pushButtonEditCurve->setEnabled(false);
+  ui_->pushButtonRemoveCurve->setEnabled(false);
+  
+  ui_->axesConfigWidget->setConfig(config_->getAxesConfig());
+  ui_->legendConfigWidget->setConfig(config_->getLegendConfig());
   
   connect(config_, SIGNAL(titleChanged(const QString&)),
     this, SLOT(configTitleChanged(const QString&)));
+  connect(config_, SIGNAL(plotRateChanged(double)),
+    this, SLOT(configPlotRateChanged(double)));
     
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
     SLOT(lineEditTitleEditingFinished()));
   
-  connect(ui_->pushButtonAdd, SIGNAL(clicked()), this,
-    SLOT(pushButtonAddClicked()));
-  connect(ui_->pushButtonEdit, SIGNAL(clicked()), this,
-    SLOT(pushButtonEditClicked()));
-  connect(ui_->pushButtonRemove, SIGNAL(clicked()), this,
-    SLOT(pushButtonRemoveClicked()));
+  connect(ui_->pushButtonAddCurve, SIGNAL(clicked()), this,
+    SLOT(pushButtonAddCurveClicked()));
+  connect(ui_->pushButtonEditCurve, SIGNAL(clicked()), this,
+    SLOT(pushButtonEditCurveClicked()));
+  connect(ui_->pushButtonRemoveCurve, SIGNAL(clicked()), this,
+    SLOT(pushButtonRemoveCurveClicked()));
   
-  connect(ui_->listWidgetCurves, SIGNAL(itemSelectionChanged()),
-    this, SLOT(listWidgetCurvesItemSelectionChanged()));
-  connect(ui_->listWidgetCurves, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
-    this, SLOT(listWidgetCurvesItemDoubleClicked(QListWidgetItem*)));
+  connect(ui_->curveListWidget, SIGNAL(itemSelectionChanged()),
+    this, SLOT(curveListWidgetItemSelectionChanged()));
+  connect(ui_->curveListWidget, SIGNAL(itemDoubleClicked(QListWidgetItem*)),
+    this, SLOT(curveListWidgetItemDoubleClicked(QListWidgetItem*)));
+  
+  connect(ui_->doubleSpinBoxPlotRate, SIGNAL(valueChanged(double)),
+    this, SLOT(doubleSpinBoxPlotRateValueChanged(double)));
   
   configTitleChanged(config_->getTitle());
+  configPlotRateChanged(config_->getPlotRate());
 }
 
 PlotConfigWidget::~PlotConfigWidget() {
@@ -81,19 +90,19 @@ PlotConfigWidget::~PlotConfigWidget() {
 /*****************************************************************************/
 
 void PlotConfigWidget::setConfig(const PlotConfig& config) {
-  ui_->listWidgetCurves->clear();
+  ui_->curveListWidget->clear();
   
   *config_ = config;
   
   for (size_t index = 0; index < config_->getNumCurves(); ++index) {
-    CurveItemWidget* widget = new CurveItemWidget(ui_->listWidgetCurves);
+    CurveItemWidget* widget = new CurveItemWidget(ui_->curveListWidget);
     widget->setConfig(config_->getCurveConfig(index));
     
-    QListWidgetItem* item = new QListWidgetItem(ui_->listWidgetCurves);
+    QListWidgetItem* item = new QListWidgetItem(ui_->curveListWidget);
     item->setSizeHint(widget->sizeHint());
     
-    ui_->listWidgetCurves->addItem(item);
-    ui_->listWidgetCurves->setItemWidget(item, widget);
+    ui_->curveListWidget->addItem(item);
+    ui_->curveListWidget->setItemWidget(item, widget);
   }
 }
 
@@ -109,12 +118,15 @@ void PlotConfigWidget::configTitleChanged(const QString& title) {
   ui_->lineEditTitle->setText(title);
 }
 
-void PlotConfigWidget::lineEditTitleEditingFinished() {
-  if (config_)
-    config_->setTitle(ui_->lineEditTitle->text());
+void PlotConfigWidget::configPlotRateChanged(double rate) {
+  ui_->doubleSpinBoxPlotRate->setValue(rate);
 }
 
-void PlotConfigWidget::pushButtonAddClicked() {
+void PlotConfigWidget::lineEditTitleEditingFinished() {
+  config_->setTitle(ui_->lineEditTitle->text());
+}
+
+void PlotConfigWidget::pushButtonAddCurveClicked() {
   CurveConfigDialog dialog(this);
   
   dialog.setWindowTitle(config_->getTitle().isEmpty() ?
@@ -127,23 +139,23 @@ void PlotConfigWidget::pushButtonAddClicked() {
     CurveConfig* curveConfig = config_->addCurve();
     *curveConfig = dialog.getWidget()->getConfig();
     
-    CurveItemWidget* widget = new CurveItemWidget(ui_->listWidgetCurves);
+    CurveItemWidget* widget = new CurveItemWidget(ui_->curveListWidget);
     widget->setConfig(curveConfig);
     
-    QListWidgetItem* item = new QListWidgetItem(ui_->listWidgetCurves);
+    QListWidgetItem* item = new QListWidgetItem(ui_->curveListWidget);
     item->setSizeHint(widget->sizeHint());
     
-    ui_->listWidgetCurves->addItem(item);
-    ui_->listWidgetCurves->setItemWidget(item, widget);
+    ui_->curveListWidget->addItem(item);
+    ui_->curveListWidget->setItemWidget(item, widget);
   }
 }
 
-void PlotConfigWidget::pushButtonEditClicked() {
-  QListWidgetItem* item = ui_->listWidgetCurves->currentItem();
+void PlotConfigWidget::pushButtonEditCurveClicked() {
+  QListWidgetItem* item = ui_->curveListWidget->currentItem();
   
   if (item) {
     CurveItemWidget* widget = static_cast<CurveItemWidget*>(
-      ui_->listWidgetCurves->itemWidget(item));
+      ui_->curveListWidget->itemWidget(item));
     CurveConfig* curveConfig = widget->getConfig();
     
     CurveConfigDialog dialog(this);
@@ -159,12 +171,12 @@ void PlotConfigWidget::pushButtonEditClicked() {
   }
 }
 
-void PlotConfigWidget::pushButtonRemoveClicked() {
-  QListWidgetItem* item = ui_->listWidgetCurves->currentItem();
+void PlotConfigWidget::pushButtonRemoveCurveClicked() {
+  QListWidgetItem* item = ui_->curveListWidget->currentItem();
   
   if (item) {
     CurveItemWidget* widget = static_cast<CurveItemWidget*>(
-      ui_->listWidgetCurves->itemWidget(item));
+      ui_->curveListWidget->itemWidget(item));
     CurveConfig* curveConfig = widget->getConfig();
     
     delete item;
@@ -173,16 +185,20 @@ void PlotConfigWidget::pushButtonRemoveClicked() {
   }
 }
 
-void PlotConfigWidget::listWidgetCurvesItemSelectionChanged() {
-  QListWidgetItem* currentItem = ui_->listWidgetCurves->currentItem();
+void PlotConfigWidget::curveListWidgetItemSelectionChanged() {
+  QListWidgetItem* currentItem = ui_->curveListWidget->currentItem();
   
-  ui_->pushButtonEdit->setEnabled(currentItem);
-  ui_->pushButtonRemove->setEnabled(currentItem);
+  ui_->pushButtonEditCurve->setEnabled(currentItem);
+  ui_->pushButtonRemoveCurve->setEnabled(currentItem);
 }
 
-void PlotConfigWidget::listWidgetCurvesItemDoubleClicked(QListWidgetItem*
+void PlotConfigWidget::curveListWidgetItemDoubleClicked(QListWidgetItem*
     item) {
-  pushButtonEditClicked();
+  pushButtonEditCurveClicked();
+}
+
+void PlotConfigWidget::doubleSpinBoxPlotRateValueChanged(double value) {
+  config_->setPlotRate(value);
 }
 
 }

@@ -124,10 +124,16 @@ void PlotTableWidget::clearPlots() {
       plotWidgets_[row][column]->clear();
 }
 
-void PlotTableWidget::replot() {
+void PlotTableWidget::requestReplot() {
   for (size_t row = 0; row < plotWidgets_.count(); ++row)
     for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
-      plotWidgets_[row][column]->replot();
+      plotWidgets_[row][column]->requestReplot();
+}
+
+void PlotTableWidget::forceReplot() {
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
+      plotWidgets_[row][column]->forceReplot();
 }
 
 void PlotTableWidget::updatePlotScale(const BoundingRectangle& bounds,
@@ -170,7 +176,7 @@ void PlotTableWidget::configBackgroundColorChanged(const QColor& color) {
   
   setPalette(currentPalette);
 
-  replot();
+  forceReplot();
 }
 
 void PlotTableWidget::configForegroundColorChanged(const QColor& color) {

@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-10) unstable; urgency=low
+
+  * Added axis titles and legend
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 08 Dec 2015 10:54:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-9) unstable; urgency=low
 
   * Added curve styles

@@ -30,23 +30,23 @@
 #include <rqt_multiplot/MessageFieldSubscriber.h>
 #include <rqt_multiplot/MessageFieldSubscriberRegistry.h>
 
-class QwtPlotCurve;
-
 namespace rqt_multiplot {
   class CurveData;
-  class PlotWidget;
-  
+  class CurveDataSequencer;
+
   class PlotCurve :
     public QObject,
     private QwtPlotCurve {
   Q_OBJECT
   friend class PlotWidget;
   public:
-    PlotCurve(PlotWidget* parent = 0);
+    PlotCurve(QObject* parent = 0);
     virtual ~PlotCurve();
     
     void setConfig(CurveConfig* config);
     CurveConfig* getConfig() const;
+    CurveData* getData() const;
+    CurveDataSequencer* getDataSequencer() const;
     QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
       axis) const;
     BoundingRectangle getPreferredScale() const;
@@ -58,41 +58,26 @@ namespace rqt_multiplot {
     void pause();
     void clear();
   
-    void appendPoint(const QPointF& point);
-    
-    void replot();
-    
   signals:
     void preferredScaleChanged(const BoundingRectangle& bounds);
+    void replotRequested();
     
   private:
     CurveConfig* config_;
     
-    MessageFieldSubscriberRegistry* registry_;
-    MessageFieldSubscriber* subscriberX_;
-    MessageFieldSubscriber* subscriberY_;
-    
     CurveData* data_;
-    
-    QPointF nextPoint_;
+    CurveDataSequencer* dataSequencer_;
+
     bool paused_;
-    
-    MessageFieldSubscriber* resubscribe(CurveAxisConfig* axisConfig,
-      MessageFieldSubscriber* subscriber, const char* method);
     
   private slots:
     void configTitleChanged(const QString& title);
-    void configXAxisConfigChanged();
-    void configYAxisConfigChanged();
+    void configAxisConfigChanged();
     void configColorCurrentColorChanged(const QColor& color);
     void configStyleChanged();
     void configDataConfigChanged();
-    void configSubscriberQueueSizeChanged(size_t queueSize);
     
-    void xValueReceived(const QString& topic, const QString& field,
-      double value);
-    void yValueReceived(const QString& topic, const QString& field,
-      double value);
+    void dataSequencerPointReceived(const QPointF& point);
   };
 };
 

@@ -25,19 +25,26 @@
 #include <QVector>
 
 #include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/PlotAxesConfig.h>
+#include <rqt_multiplot/PlotLegendConfig.h>
 
 namespace rqt_multiplot {
   class PlotConfig :
     public QObject {
   Q_OBJECT
   public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot");
+    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot",
+      double plotRate = 30.0);
     ~PlotConfig();
 
     void setTitle(const QString& title);
     const QString& getTitle() const;
     size_t getNumCurves() const;
     CurveConfig* getCurveConfig(size_t index) const;
+    PlotAxesConfig* getAxesConfig() const;
+    PlotLegendConfig* getLegendConfig() const;
+    void setPlotRate(double rate);
+    double getPlotRate() const;
     
     CurveConfig* addCurve();
     void removeCurve(CurveConfig* curveConfig);
@@ -56,14 +63,20 @@ namespace rqt_multiplot {
     void curveRemoved(size_t index);
     void curvesCleared();
     void curveConfigChanged(size_t index);
+    void plotRateChanged(double rate);
     void changed();
     
   private:
     QString title_;
     QVector<CurveConfig*> curveConfig_;
+    PlotAxesConfig* axesConfig_;
+    PlotLegendConfig* legendConfig_;
+    double plotRate_;
     
   private slots:
     void curveConfigChanged();
+    void axesConfigChanged();
+    void legendConfigChanged();
   };
 };
 

@@ -16,48 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_AXES_CONFIG_H
+#define RQT_MULTIPLOT_PLOT_AXES_CONFIG_H
 
-#include <QListWidgetItem>
-#include <QWidget>
+#include <QObject>
+#include <QSettings>
 
-#include <rqt_multiplot/PlotConfig.h>
-
-namespace Ui {
-  class PlotConfigWidget;
-};
+#include <rqt_multiplot/PlotAxisConfig.h>
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
+  class PlotAxesConfig :
+    public QObject {
   Q_OBJECT
   public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
-
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
+    enum Axis {
+      X,
+      Y
+    };
+    
+    PlotAxesConfig(QObject* parent = 0);
+    ~PlotAxesConfig();
+    
+    PlotAxisConfig* getAxisConfig(Axis axis) const;
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    void reset();
+    
+    PlotAxesConfig& operator=(const PlotAxesConfig& src);
+    
+  signals:
+    void changed();
     
   private:
-    Ui::PlotConfigWidget* ui_;
+    QMap<Axis, PlotAxisConfig*> axisConfig_;
     
-    PlotConfig* config_;
-  
   private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
-
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
+    void axisConfigChanged();
   };
 };
 

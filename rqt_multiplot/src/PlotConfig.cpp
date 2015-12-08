@@ -24,9 +24,17 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotConfig::PlotConfig(QObject* parent, const QString& title) :
+PlotConfig::PlotConfig(QObject* parent, const QString& title, double
+    plotRate) :
   QObject(parent),
-  title_(title) {
+  title_(title),
+  axesConfig_(new PlotAxesConfig(this)),
+  legendConfig_(new PlotLegendConfig(this)),
+  plotRate_(plotRate) {
+  connect(axesConfig_, SIGNAL(changed()), this,
+    SLOT(axesConfigChanged()));
+  connect(legendConfig_, SIGNAL(changed()), this,
+    SLOT(legendConfigChanged()));
 }
 
 PlotConfig::~PlotConfig() {
@@ -58,6 +66,27 @@ CurveConfig* PlotConfig::getCurveConfig(size_t index) const {
     return curveConfig_[index];
   else
     return 0;
+}
+
+PlotAxesConfig* PlotConfig::getAxesConfig() const {
+  return axesConfig_;
+}
+
+PlotLegendConfig* PlotConfig::getLegendConfig() const {
+  return legendConfig_;
+}
+
+void PlotConfig::setPlotRate(double rate) {
+  if (rate != plotRate_) {
+    plotRate_ = rate;
+    
+    emit plotRateChanged(rate);
+    emit changed();
+  }
+}
+
+double PlotConfig::getPlotRate() const {
+  return plotRate_;
 }
 
 /*****************************************************************************/
@@ -122,6 +151,16 @@ void PlotConfig::save(QSettings& settings) const {
   }
   
   settings.endGroup();
+
+  settings.beginGroup("axes");
+  axesConfig_->save(settings);
+  settings.endGroup();
+  
+  settings.beginGroup("legend");
+  legendConfig_->save(settings);
+  settings.endGroup();
+  
+  settings.setValue("plot_rate", plotRate_);  
 }
 
 void PlotConfig::load(QSettings& settings) {
@@ -150,12 +189,25 @@ void PlotConfig::load(QSettings& settings) {
   settings.endGroup();
   
   while (index < curveConfig_.count())
-    removeCurve(index);  
+    removeCurve(index);
+  
+  settings.beginGroup("axes");
+  axesConfig_->load(settings);
+  settings.endGroup();
+  
+  settings.beginGroup("legend");
+  legendConfig_->load(settings);
+  settings.endGroup();
+  
+  setPlotRate(settings.value("plot_rate", 30.0).toDouble());
 }
 
 void PlotConfig::reset() {
   setTitle("Untitled Plot");
   clearCurves();
+  axesConfig_->reset();
+  legendConfig_->reset();
+  setPlotRate(30.0);
 }
 
 /*****************************************************************************/
@@ -173,6 +225,11 @@ PlotConfig& PlotConfig::operator=(const PlotConfig& src) {
   for (size_t index = 0; index < curveConfig_.count(); ++index)
     *curveConfig_[index] = *src.curveConfig_[index];
   
+  *axesConfig_ = *src.axesConfig_;
+  *legendConfig_ = *src.legendConfig_;
+  
+  setPlotRate(src.plotRate_);
+  
   return *this;
 }
 
@@ -189,6 +246,14 @@ void PlotConfig::curveConfigChanged() {
     }
   }
   
+  emit changed();
+}
+
+void PlotConfig::axesConfigChanged() {
+  emit changed();
+}
+
+void PlotConfig::legendConfigChanged() {
   emit changed();
 }
 

@@ -16,12 +16,9 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <limits>
-
-#include <qwt/qwt_plot.h>
-
 #include <rqt_multiplot/CurveDataCircularBuffer.h>
 #include <rqt_multiplot/CurveDataList.h>
+#include <rqt_multiplot/CurveDataSequencer.h>
 #include <rqt_multiplot/CurveDataVector.h>
 #include <rqt_multiplot/PlotWidget.h>
 
@@ -33,17 +30,16 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotCurve::PlotCurve(PlotWidget* parent) :
+PlotCurve::PlotCurve(QObject* parent) :
   QObject(parent),
   config_(0),
-  registry_(new MessageFieldSubscriberRegistry(this)),
-  subscriberX_(0),
-  subscriberY_(0),
   data_(new CurveDataVector()),
-  nextPoint_(std::numeric_limits<double>::quiet_NaN(),
-    std::numeric_limits<double>::quiet_NaN()),
+  dataSequencer_(new CurveDataSequencer(this)),
   paused_(true) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
+  
+  connect(dataSequencer_, SIGNAL(pointReceived(const QPointF&)), 
+    this, SLOT(dataSequencerPointReceived(const QPointF&)));
   
   setData(data_);
 }
@@ -54,6 +50,66 @@ PlotCurve::~PlotCurve() {
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
+
+void PlotCurve::setConfig(CurveConfig* config) {
+  if (config != config_) {
+    if (config_) {
+      disconnect(config_, SIGNAL(changed(const QString&)), this,
+        SLOT(configTitleChanged(const QString&)));
+      disconnect(config_->getAxisConfig(CurveConfig::X),
+        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      disconnect(config_->getAxisConfig(CurveConfig::Y),
+        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      disconnect(config_->getColor(), SIGNAL(currentColorChanged(
+        const QColor&)), this, SLOT(configColorCurrentColorChanged(
+        const QColor&)));
+      disconnect(config_->getStyle(), SIGNAL(changed()), this,
+        SLOT(configStyleChanged()));
+      disconnect(config_->getDataConfig(), SIGNAL(changed()), this,
+        SLOT(configDataConfigChanged()));
+      
+      dataSequencer_->setConfig(0);
+    }
+    
+    config_ = config;
+    
+    if (config) {
+      connect(config, SIGNAL(titleChanged(const QString&)), this,
+        SLOT(configTitleChanged(const QString&)));
+      connect(config->getAxisConfig(CurveConfig::X),
+        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      connect(config->getAxisConfig(CurveConfig::Y),
+        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      connect(config->getColor(), SIGNAL(currentColorChanged(
+        const QColor&)), this, SLOT(configColorCurrentColorChanged(
+        const QColor&)));
+      connect(config->getStyle(), SIGNAL(changed()), this,
+        SLOT(configStyleChanged()));
+      connect(config->getDataConfig(), SIGNAL(changed()), this,
+        SLOT(configDataConfigChanged()));
+      
+      configTitleChanged(config->getTitle());
+      configAxisConfigChanged();
+      configColorCurrentColorChanged(config->getColor()->getCurrentColor());
+      configStyleChanged();
+      configDataConfigChanged();
+      
+      dataSequencer_->setConfig(config);
+    }
+  }
+}
+
+CurveConfig* PlotCurve::getConfig() const {
+  return config_;
+}
+
+CurveData* PlotCurve::getData() const {
+  return data_;
+}
+
+CurveDataSequencer* PlotCurve::getDataSequencer() const {
+  return dataSequencer_;
+}
 
 QPair<double, double> PlotCurve::getPreferredAxisScale(CurveConfig::Axis axis)
     const {
@@ -104,120 +160,25 @@ void PlotCurve::detach() {
 }
 
 void PlotCurve::run() {
-  paused_ = false;
+  if (paused_) {
+    dataSequencer_->subscribe();
+    
+    paused_ = false;
+  }
 }
 
 void PlotCurve::pause() {
-  paused_ = true;
+  if (!paused_) {
+    dataSequencer_->unsubscribe();
+    
+    paused_ = true;
+  }
 }
 
 void PlotCurve::clear() {
   data_->clearPoints();
   
-  replot();
-}
-
-void PlotCurve::appendPoint(const QPointF& point) {
-  BoundingRectangle oldBounds = getPreferredScale();
-  
-  data_->appendPoint(nextPoint_);
-  
-  BoundingRectangle bounds = getPreferredScale();
-  
-  if (bounds != oldBounds)
-    emit preferredScaleChanged(bounds);
-  else
-    replot();
-}
-
-void PlotCurve::replot() {
-  plot()->replot();
-}
-
-/*****************************************************************************/
-/* Accessors                                                                 */
-/*****************************************************************************/
-
-void PlotCurve::setConfig(CurveConfig* config) {
-  if (config != config_) {
-    if (config_) {
-      disconnect(config_, SIGNAL(changed(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      disconnect(config_->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      disconnect(config_->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      disconnect(config_->getColor(), SIGNAL(currentColorChanged(
-        const QColor&)), this, SLOT(configColorCurrentColorChanged(
-        const QColor&)));
-      disconnect(config_->getStyle(), SIGNAL(changed()), this,
-        SLOT(configStyleChanged()));
-      disconnect(config_->getDataConfig(), SIGNAL(changed()), this,
-        SLOT(configDataConfigChanged()));
-      disconnect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)),
-        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
-    }
-    
-    config_ = config;
-    
-    if (config) {
-      connect(config, SIGNAL(titleChanged(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      connect(config->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      connect(config->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      connect(config->getColor(), SIGNAL(currentColorChanged(
-        const QColor&)), this, SLOT(configColorCurrentColorChanged(
-        const QColor&)));
-      connect(config->getStyle(), SIGNAL(changed()), this,
-        SLOT(configStyleChanged()));
-      connect(config->getDataConfig(), SIGNAL(changed()), this,
-        SLOT(configDataConfigChanged()));
-      connect(config, SIGNAL(subscriberQueueSizeChanged(size_t)),
-        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
-      
-      configTitleChanged(config->getTitle());
-      configXAxisConfigChanged();
-      configYAxisConfigChanged();
-      configColorCurrentColorChanged(config->getColor()->getCurrentColor());
-      configStyleChanged();
-      configDataConfigChanged();
-      configSubscriberQueueSizeChanged(config->getSubscriberQueueSize());
-    }
-  }
-}
-
-CurveConfig* PlotCurve::getConfig() const {
-  return config_;
-}
-
-/*****************************************************************************/
-/* Methods                                                                   */
-/*****************************************************************************/
-
-MessageFieldSubscriber* PlotCurve::resubscribe(CurveAxisConfig* axisConfig,
-    MessageFieldSubscriber* subscriber, const char* method) {
-  if (!subscriber || (axisConfig->getTopic() != subscriber->getTopic()) ||
-      (axisConfig->getField() != subscriber->getField())) {
-    if (subscriber) {
-      registry_->unsubscribe(subscriber->getTopic(), subscriber->getField(),
-        this, method);
-      
-      subscriber = 0;
-    }
-
-    if (!axisConfig->getTopic().isEmpty() && !axisConfig->getField().
-        isEmpty()) {
-      if (registry_->subscribe(axisConfig->getTopic(), axisConfig->getField(),
-          this, method, config_->getSubscriberQueueSize())) {
-        subscriber = registry_->getSubscriber(axisConfig->getTopic(),
-          axisConfig->getField());
-      }
-    }
-  }
-  
-  return subscriber;
+  emit replotRequested();
 }
 
 /*****************************************************************************/
@@ -228,26 +189,14 @@ void PlotCurve::configTitleChanged(const QString& title) {
   setTitle(title);
 }
 
-void PlotCurve::configXAxisConfigChanged() {
-  subscriberX_ = resubscribe(config_->getAxisConfig(CurveConfig::X),
-    subscriberX_, SLOT(xValueReceived(const QString&, const QString&,
-    double)));
-  
-  emit preferredScaleChanged(getPreferredScale());
-}
-
-void PlotCurve::configYAxisConfigChanged() {
-  subscriberY_ = resubscribe(config_->getAxisConfig(CurveConfig::Y),
-    subscriberY_, SLOT(yValueReceived(const QString&, const QString&,
-    double)));
-  
+void PlotCurve::configAxisConfigChanged() {
   emit preferredScaleChanged(getPreferredScale());
 }
 
 void PlotCurve::configColorCurrentColorChanged(const QColor& color) {
   setPen(color);
   
-  replot();
+  emit replotRequested();
 }
 
 void PlotCurve::configStyleChanged() {
@@ -283,7 +232,7 @@ void PlotCurve::configStyleChanged() {
   setRenderHint(QwtPlotItem::RenderAntialiased, style->
     isRenderAntialiased());
   
-  replot();
+  emit replotRequested();
 }
 
 void PlotCurve::configDataConfigChanged() {
@@ -298,43 +247,21 @@ void PlotCurve::configDataConfigChanged() {
   
   setData(data_);
   
-  replot();
+  emit replotRequested();
 }
 
-void PlotCurve::configSubscriberQueueSizeChanged(size_t queueSize) {
-  if (subscriberX_)
-    subscriberX_->setQueueSize(queueSize);
-  
-  if (subscriberY_)
-    subscriberY_->setQueueSize(queueSize);
-}
-
-void PlotCurve::xValueReceived(const QString& topic, const QString&
-    field, double value) {
+void PlotCurve::dataSequencerPointReceived(const QPointF& point) {
   if (!paused_) {
-    nextPoint_.setX(value);
+    BoundingRectangle oldBounds = getPreferredScale();
     
-    if (nextPoint_.y() == nextPoint_.y()) {
-      appendPoint(nextPoint_);
-      
-      nextPoint_.setX(std::numeric_limits<double>::quiet_NaN());
-      nextPoint_.setY(std::numeric_limits<double>::quiet_NaN());
-    }
-  }
-}
-
-void PlotCurve::yValueReceived(const QString& topic, const QString&
-    field, double value) {
-  if (!paused_) {
-    nextPoint_.setY(value);
+    data_->appendPoint(point);
     
-    if (nextPoint_.x() == nextPoint_.x()) {
-      appendPoint(nextPoint_);
-      
-      nextPoint_.setX(std::numeric_limits<double>::quiet_NaN());
-      nextPoint_.setY(std::numeric_limits<double>::quiet_NaN());
+    BoundingRectangle bounds = getPreferredScale();
+    
+    if (bounds != oldBounds)
+      emit preferredScaleChanged(bounds);
 
-    }
+    emit replotRequested();
   }
 }
 

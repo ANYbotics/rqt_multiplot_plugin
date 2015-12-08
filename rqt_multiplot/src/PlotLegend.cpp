@@ -16,49 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#include <qwt/qwt_dyngrid_layout.h>
 
-#include <QListWidgetItem>
-#include <QWidget>
-
-#include <rqt_multiplot/PlotConfig.h>
-
-namespace Ui {
-  class PlotConfigWidget;
-};
+#include "rqt_multiplot/PlotLegend.h"
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
-  Q_OBJECT
-  public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
 
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
-    
-  private:
-    Ui::PlotConfigWidget* ui_;
-    
-    PlotConfig* config_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
 
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
-  };
-};
+PlotLegend::PlotLegend(QWidget* parent) :
+  QwtLegend(parent) {
+  QwtDynGridLayout* layout = static_cast<QwtDynGridLayout*>(
+    contentsWidget()->layout());
+  layout->setSpacing(10);
+}
 
-#endif
+PlotLegend::~PlotLegend() {
+}
+
+}

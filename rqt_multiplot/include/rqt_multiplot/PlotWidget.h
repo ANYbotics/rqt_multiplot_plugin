@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_PLOT_WIDGET_H
 
 #include <QIcon>
+#include <QTimer>
 #include <QVector>
 #include <QWidget>
 
@@ -33,6 +34,7 @@ namespace Ui {
 namespace rqt_multiplot {
   class PlotCursor;
   class PlotCurve;
+  class PlotLegend;
   class PlotMagnifier;
   class PlotPanner;
   class PlotZoomer;
@@ -51,12 +53,14 @@ namespace rqt_multiplot {
     void setCurrentScale(const BoundingRectangle& bounds);
     BoundingRectangle getCurrentScale() const;
     bool isPaused() const;
+    bool isReplotRequested() const;
 
     void run();
     void pause();
     void clear();
     
-    void replot();
+    void requestReplot();
+    void forceReplot();
   
   signals:
     void preferredScaleChanged(const BoundingRectangle& bounds);
@@ -72,25 +76,35 @@ namespace rqt_multiplot {
     
     QIcon runIcon_;
     QIcon pauseIcon_;
+    QTimer* timer_;
         
     PlotConfig* config_;
     
     QVector<PlotCurve*> curves_;
     
+    PlotLegend* legend_;
     PlotCursor* cursor_;
     PlotPanner* panner_;
     PlotMagnifier* magnifier_;
     PlotZoomer* zoomer_;
     
     bool paused_;
+    bool replot_;
     
   private slots:
+    void timerTimeout();
+    
     void configTitleChanged(const QString& title);
     void configCurveAdded(size_t index);
     void configCurveRemoved(size_t index);
     void configCurvesCleared();
+    void configCurveConfigChanged(size_t index);
+    void configXAxisConfigChanged();
+    void configYAxisConfigChanged();
+    void configLegendConfigChanged();
+    void configPlotRateChanged(double rate);
     
-    void curvePreferredScaleChanged(const BoundingRectangle& bounds);
+    void curveReplotRequested();
     
     void lineEditTitleTextChanged(const QString& text);
     void lineEditTitleEditingFinished();

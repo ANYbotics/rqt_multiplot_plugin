@@ -52,6 +52,7 @@ set(rqt_multiplot_SRCS
   src/CurveDataConfig.cpp
   src/CurveDataConfigWidget.cpp
   src/CurveDataList.cpp
+  src/CurveDataSequencer.cpp
   src/CurveDataVector.cpp
   src/CurveItemWidget.cpp
   src/CurveListWidget.cpp
@@ -82,12 +83,19 @@ set(rqt_multiplot_SRCS
   src/PackageScheme.cpp
   src/PenStyleComboBox.cpp
   src/PenStyleItemDelegate.cpp
+  src/PlotAxesConfig.cpp
+  src/PlotAxesConfigWidget.cpp
+  src/PlotAxisConfig.cpp
+  src/PlotAxisConfigWidget.cpp
   src/PlotConfig.cpp
   src/PlotConfigDialog.cpp
   src/PlotConfigWidget.cpp
   src/PlotCursor.cpp
   src/PlotCursorMachine.cpp
   src/PlotCurve.cpp
+  src/PlotLegend.cpp
+  src/PlotLegendConfig.cpp
+  src/PlotLegendConfigWidget.cpp
   src/PlotMagnifier.cpp
   src/PlotPanner.cpp
   src/PlotTableConfig.cpp
@@ -124,6 +132,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveDataConfig.h
   include/rqt_multiplot/CurveDataConfigWidget.h
   include/rqt_multiplot/CurveDataList.h
+  include/rqt_multiplot/CurveDataSequencer.h
   include/rqt_multiplot/CurveDataVector.h
   include/rqt_multiplot/CurveItemWidget.h
   include/rqt_multiplot/CurveListWidget.h
@@ -154,12 +163,19 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/PackageScheme.h
   include/rqt_multiplot/PenStyleComboBox.h
   include/rqt_multiplot/PenStyleItemDelegate.h
+  include/rqt_multiplot/PlotAxesConfig.h
+  include/rqt_multiplot/PlotAxesConfigWidget.h
+  include/rqt_multiplot/PlotAxisConfig.h
+  include/rqt_multiplot/PlotAxisConfigWidget.h
   include/rqt_multiplot/PlotConfig.h
   include/rqt_multiplot/PlotConfigDialog.h
   include/rqt_multiplot/PlotConfigWidget.h
   include/rqt_multiplot/PlotCursor.h
   include/rqt_multiplot/PlotCursorMachine.h
   include/rqt_multiplot/PlotCurve.h
+  include/rqt_multiplot/PlotLegend.h
+  include/rqt_multiplot/PlotLegendConfig.h
+  include/rqt_multiplot/PlotLegendConfigWidget.h
   include/rqt_multiplot/PlotMagnifier.h
   include/rqt_multiplot/PlotPanner.h
   include/rqt_multiplot/PlotTableConfig.h
@@ -189,8 +205,11 @@ set(rqt_multiplot_UIS
   src/MessageFieldWidget.ui
   src/MultiplotConfigWidget.ui
   src/MultiplotWidget.ui
+  src/PlotAxesConfigWidget.ui
+  src/PlotAxisConfigWidget.ui
   src/PlotConfigDialog.ui
   src/PlotConfigWidget.ui
+  src/PlotLegendConfigWidget.ui
   src/PlotTableConfigWidget.ui
   src/PlotWidget.ui
 )

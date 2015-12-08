@@ -16,48 +16,48 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_SEQUENCER_H
+#define RQT_MULTIPLOT_CURVE_DATA_SEQUENCER_H
 
-#include <QListWidgetItem>
-#include <QWidget>
+#include <QObject>
+#include <QPointF>
+#include <QVector>
 
-#include <rqt_multiplot/PlotConfig.h>
-
-namespace Ui {
-  class PlotConfigWidget;
-};
+#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/MessageSubscriberRegistry.h>
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
+  class CurveDataSequencer :
+    public QObject {
   Q_OBJECT
   public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
-
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
+    CurveDataSequencer(QObject* parent = 0);
+    virtual ~CurveDataSequencer();
+    
+    void setConfig(CurveConfig* config);
+    CurveConfig* getConfig() const;
+    bool isSubscribed() const;
+    
+    void subscribe();
+    void unsubscribe();
+    
+  signals:
+    void subscribed();
+    void pointReceived(const QPointF& point);
+    void unsubscribed();
     
   private:
-    Ui::PlotConfigWidget* ui_;
+    CurveConfig* config_;
     
-    PlotConfig* config_;
-  
+    MessageSubscriberRegistry* registry_;
+    QVector<MessageSubscriber*> subscribers_;
+    
   private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
-
-    void lineEditTitleEditingFinished();
+    void configAxisConfigChanged();
+    void configSubscriberQueueSizeChanged(size_t queueSize);
     
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
+    void subscriberMessageReceived(const QString& topic, const Message&
+      message);
   };
 };
 

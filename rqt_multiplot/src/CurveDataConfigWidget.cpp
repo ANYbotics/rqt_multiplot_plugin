@@ -19,7 +19,6 @@
 #include <ui_CurveDataConfigWidget.h>
 
 #include "rqt_multiplot/CurveDataConfigWidget.h"
-#include <stddef.h>
 
 namespace rqt_multiplot {
 

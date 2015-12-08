@@ -16,48 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_LEGEND_CONFIG_H
+#define RQT_MULTIPLOT_PLOT_LEGEND_CONFIG_H
 
-#include <QListWidgetItem>
-#include <QWidget>
-
-#include <rqt_multiplot/PlotConfig.h>
-
-namespace Ui {
-  class PlotConfigWidget;
-};
+#include <QObject>
+#include <QSettings>
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
+  class PlotLegendConfig :
+    public QObject {
   Q_OBJECT
   public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
-
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
+    PlotLegendConfig(QObject* parent = 0, bool visible = true);
+    ~PlotLegendConfig();
+    
+    void setVisible(bool visible);
+    bool isVisible() const;
+    
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    void reset();
+    
+    PlotLegendConfig& operator=(const PlotLegendConfig& src);
+    
+  signals:
+    void visibleChanged(bool visible);
+    void changed();
     
   private:
-    Ui::PlotConfigWidget* ui_;
-    
-    PlotConfig* config_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
-
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
+    bool visible_;
   };
 };
 

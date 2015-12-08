@@ -16,48 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_PLOT_CONFIG_WIDGET_H
+#ifndef RQT_MULTIPLOT_PLOT_AXES_CONFIG_WIDGET_H
+#define RQT_MULTIPLOT_PLOT_AXES_CONFIG_WIDGET_H
 
-#include <QListWidgetItem>
 #include <QWidget>
 
-#include <rqt_multiplot/PlotConfig.h>
+#include <rqt_multiplot/PlotAxesConfig.h>
 
 namespace Ui {
-  class PlotConfigWidget;
+  class PlotAxesConfigWidget;
 };
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
+  class PlotAxesConfigWidget :
     public QWidget {
   Q_OBJECT
   public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
-
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
+    PlotAxesConfigWidget(QWidget* parent = 0);
+    virtual ~PlotAxesConfigWidget();
+    
+    void setConfig(PlotAxesConfig* range);
+    PlotAxesConfig* getConfig() const;
     
   private:
-    Ui::PlotConfigWidget* ui_;
+    Ui::PlotAxesConfigWidget* ui_;
     
-    PlotConfig* config_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
-
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
+    PlotAxesConfig* config_;
   };
 };
 
