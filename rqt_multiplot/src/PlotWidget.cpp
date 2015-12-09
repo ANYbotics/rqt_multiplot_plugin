@@ -62,6 +62,7 @@ PlotWidget::PlotWidget(QWidget* parent) :
   magnifier_(0),
   zoomer_(0),
   paused_(true),
+  rescale_(false),
   replot_(false),
   state_(Normal) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
@@ -122,6 +123,15 @@ PlotWidget::PlotWidget(QWidget* parent) :
   zoomer_ = new PlotZoomer(ui_->plot->canvas());
   zoomer_->setTrackerMode(QwtPicker::AlwaysOff);  
 
+  currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(
+    QwtPlot::xBottom)->lowerBound());
+  currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(
+    QwtPlot::yLeft)->lowerBound());
+  currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(
+    QwtPlot::xBottom)->upperBound());
+  currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(
+    QwtPlot::yLeft)->upperBound());
+  
   connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
     SLOT(lineEditTitleTextChanged(const QString&)));
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
@@ -234,25 +244,22 @@ BoundingRectangle PlotWidget::getPreferredScale() const {
 }
 
 void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
-  if (bounds != getCurrentScale())
-    if (bounds.getMaximum().x() >= bounds.getMinimum().x()) {
+  if (bounds != currentBounds_) {
+    if (bounds.getMaximum().x() >= bounds.getMinimum().x())
       ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(),
         bounds.getMaximum().x());
     if (bounds.getMaximum().y() >= bounds.getMinimum().y())
       ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(),
         bounds.getMaximum().y());
   
-    requestReplot();
+    rescale_ = false;
+      
+    forceReplot();
   }
 }
 
-BoundingRectangle PlotWidget::getCurrentScale() const {
-  QPointF minimum(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound(),
-    ui_->plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound());
-  QPointF maximum(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->upperBound(),
-    ui_->plot->axisScaleDiv(QwtPlot::yLeft)->upperBound());
-  
-  return BoundingRectangle(minimum, maximum);
+const BoundingRectangle& PlotWidget::getCurrentScale() const {
+  return currentBounds_;
 }
 
 bool PlotWidget::isPaused() const {
@@ -325,11 +332,15 @@ void PlotWidget::requestReplot() {
 
 void PlotWidget::forceReplot() {
   BoundingRectangle preferredBounds = getPreferredScale();
+    
+  if (rescale_) {
+    emit preferredScaleChanged(preferredBounds);
+    
+    rescale_ = false;
+  }
   
   zoomer_->setZoomBase(preferredBounds.getRectangle());
-  
-  emit preferredScaleChanged(preferredBounds);
-  
+    
   ui_->plot->replot();
   
   replot_ = false;
@@ -602,6 +613,8 @@ void PlotWidget::configPlotRateChanged(double rate) {
 }
 
 void PlotWidget::curveReplotRequested() {
+  rescale_ = true;
+  
   requestReplot();
 }
 
@@ -681,18 +694,24 @@ void PlotWidget::plotXBottomScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::xTop, *ui_->plot->axisScaleDiv(
     QwtPlot::xBottom));
     
-  if (ui_->plot->axisScaleDiv(QwtPlot::yLeft)->isValid() &&
-      ui_->plot->axisScaleDiv(QwtPlot::xBottom)->isValid())
-    emit currentScaleChanged(getCurrentScale());
+  currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(
+    QwtPlot::xBottom)->lowerBound());
+  currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(
+    QwtPlot::xBottom)->upperBound());
+  
+  emit currentScaleChanged(currentBounds_);
 }
 
 void PlotWidget::plotYLeftScaleDivChanged() {
   ui_->plot->setAxisScaleDiv(QwtPlot::yRight, *ui_->plot->axisScaleDiv(
     QwtPlot::yLeft));
-    
-  if (ui_->plot->axisScaleDiv(QwtPlot::yLeft)->isValid() &&
-      ui_->plot->axisScaleDiv(QwtPlot::xBottom)->isValid())
-    emit currentScaleChanged(getCurrentScale());
+  
+  currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(
+    QwtPlot::yLeft)->lowerBound());
+  currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(
+    QwtPlot::yLeft)->upperBound());
+  
+  emit currentScaleChanged(currentBounds_);
 }
 
 }

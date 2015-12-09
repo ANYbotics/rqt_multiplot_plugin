@@ -48,6 +48,9 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
 }
 
 MultiplotWidget::~MultiplotWidget() {
+  confirmClose();
+  
+  delete ui_;
 }
 
 /*****************************************************************************/

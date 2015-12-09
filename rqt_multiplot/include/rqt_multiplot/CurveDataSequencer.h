@@ -19,9 +19,12 @@
 #ifndef RQT_MULTIPLOT_CURVE_DATA_SEQUENCER_H
 #define RQT_MULTIPLOT_CURVE_DATA_SEQUENCER_H
 
+#include <QLinkedList>
 #include <QObject>
 #include <QPointF>
 #include <QVector>
+
+#include <ros/time.h>
 
 #include <rqt_multiplot/CurveConfig.h>
 #include <rqt_multiplot/MessageSubscriberRegistry.h>
@@ -47,10 +50,46 @@ namespace rqt_multiplot {
     void unsubscribed();
     
   private:
+    class TimeValue {
+    public:
+      inline TimeValue(const ros::Time& time = ros::Time(),
+          double value = 0.0) :
+        time_(time),
+        value_(value) {
+      };
+
+      inline TimeValue(const TimeValue& src) :
+        time_(src.time_),
+        value_(src.value_) {
+      };
+      
+      inline bool operator==(const TimeValue& timeValue) const {
+        return (time_ == timeValue.time_);
+      };
+      
+      inline bool operator>(const TimeValue& timeValue) const {
+        return (time_ > timeValue.time_);
+      };
+      
+      inline bool operator<(const TimeValue& timeValue) const {
+        return (time_ < timeValue.time_);
+      };
+      
+      ros::Time time_;
+      double value_;
+    };
+    
+    typedef QLinkedList<TimeValue> TimeValueList;
+    
     CurveConfig* config_;
     
     MessageSubscriberRegistry* registry_;
     QVector<MessageSubscriber*> subscribers_;
+    
+    QVector<QString> timeFields_;
+    QVector<TimeValueList> timeValues_;
+    
+    void interpolate();
     
   private slots:
     void configAxisConfigChanged();

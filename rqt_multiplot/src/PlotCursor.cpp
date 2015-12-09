@@ -50,9 +50,9 @@ PlotCursor::PlotCursor(QwtPlotCanvas* canvas) :
   setRubberBandPen(Qt::DashLine);
   
   connect(plot()->axisWidget(xAxis()), SIGNAL(scaleDivChanged()),
-    this, SLOT(plotAxisScaleDivChanged()));
+    this, SLOT(plotXAxisScaleDivChanged()));
   connect(plot()->axisWidget(yAxis()), SIGNAL(scaleDivChanged()),
-    this, SLOT(plotAxisScaleDivChanged()));
+    this, SLOT(plotYAxisScaleDivChanged()));
 }
 
 PlotCursor::~PlotCursor() {
@@ -216,6 +216,8 @@ bool PlotCursor::eventFilter(QObject* object, QEvent* event) {
       mouseControl_ = true;
     else if (event->type() == QEvent::Leave)
       mouseControl_ = false;
+    else if (event->type() == QEvent::MouseButtonRelease)
+      updateDisplay();
   }
   
   bool result = QwtPlotPicker::eventFilter(object, event);
@@ -306,11 +308,13 @@ void PlotCursor::drawTrackedPoints(QPainter* painter) const {
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void PlotCursor::plotAxisScaleDivChanged() {
-  if (isActive() && plot()->axisScaleDiv(xAxis())->isValid() && 
-      plot()->axisScaleDiv(yAxis())->isValid()) {
+void PlotCursor::plotXAxisScaleDivChanged() {
+  if (isActive()) {
     if (mouseControl_) {
-      QPointF newPosition = invTransform(pickedPoints()[0]);
+      QPointF newPosition = currentPosition_;
+      
+      newPosition.setX(plot()->canvasMap(xAxis()).invTransform(
+        pickedPoints()[0].x()));
       
       if (newPosition != currentPosition_) {
         currentPosition_ = newPosition;
@@ -321,8 +325,42 @@ void PlotCursor::plotAxisScaleDivChanged() {
       }
     }
     else {
+      QPoint newPosition = pickedPoints()[0];
+      
+      newPosition.setX(plot()->canvasMap(xAxis()).transform(
+        currentPosition_.x()));
+      
       blockSignals(true);
-      move(transform(currentPosition_));
+      move(newPosition);
+      blockSignals(false);
+    }
+  }
+}
+
+void PlotCursor::plotYAxisScaleDivChanged() {
+  if (isActive()) {
+    if (mouseControl_) {
+      QPointF newPosition = currentPosition_;
+      
+      newPosition.setY(plot()->canvasMap(yAxis()).invTransform(
+        pickedPoints()[0].y()));
+      
+      if (newPosition != currentPosition_) {
+        currentPosition_ = newPosition;
+        
+        updateDisplay();
+
+        emit currentPositionChanged(newPosition);
+      }
+    }
+    else {
+      QPoint newPosition = pickedPoints()[0];
+      
+      newPosition.setY(plot()->canvasMap(yAxis()).transform(
+        currentPosition_.y()));
+      
+      blockSignals(true);
+      move(newPosition);
       blockSignals(false);
     }
   }

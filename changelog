@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-13) unstable; urgency=low
+
+  * About to get topic interpolation right
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 09 Dec 2015 14:49:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-12) unstable; urgency=low
 
   * Added feature to export plots

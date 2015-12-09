@@ -60,7 +60,7 @@ namespace rqt_multiplot {
     PlotCursor* getCursor() const;
     BoundingRectangle getPreferredScale() const;
     void setCurrentScale(const BoundingRectangle& bounds);
-    BoundingRectangle getCurrentScale() const;
+    const BoundingRectangle& getCurrentScale() const;
     bool isPaused() const;
     bool isReplotRequested() const;
     void setState(State state);
@@ -111,8 +111,11 @@ namespace rqt_multiplot {
     PlotZoomer* zoomer_;
     
     bool paused_;
+    bool rescale_;
     bool replot_;
     State state_;
+    
+    BoundingRectangle currentBounds_;
     
   private slots:
     void timerTimeout();

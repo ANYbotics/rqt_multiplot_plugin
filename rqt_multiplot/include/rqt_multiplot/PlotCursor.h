@@ -76,7 +76,8 @@ namespace rqt_multiplot {
     bool mouseControl_;
     
   private slots:
-    void plotAxisScaleDivChanged();
+    void plotXAxisScaleDivChanged();
+    void plotYAxisScaleDivChanged();
   };
 };
 
