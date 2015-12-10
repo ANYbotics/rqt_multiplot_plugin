@@ -1,3 +1,10 @@
+ros-rqt-multiplot-plugin (0.0.1-17) unstable; urgency=low
+
+  * Fixed configuration file loading/saving bug, now producing ROS console
+    output
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 06:20:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-16) unstable; urgency=low
 
   * Plot widgets cannot change state anymore if only one plot is available

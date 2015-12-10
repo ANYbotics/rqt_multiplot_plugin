@@ -46,6 +46,7 @@ namespace rqt_multiplot {
     size_t getMaxConfigUrlHistoryLength() const;
     void setConfigUrlHistory(const QStringList& history);
     QStringList getConfigUrlHistory() const;
+    bool isFile(const QString& url) const;
     
     bool loadConfig(const QString& url);
     bool saveCurrentConfig();

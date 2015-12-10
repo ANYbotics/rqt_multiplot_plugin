@@ -21,6 +21,7 @@
 #include <QMessageBox>
 #include <QSettings>
 
+#include <ros/console.h>
 #include <ros/package.h>
 
 #include <ui_MultiplotConfigWidget.h>
@@ -160,6 +161,21 @@ QStringList MultiplotConfigWidget::getConfigUrlHistory() const {
   return history;
 }
 
+bool MultiplotConfigWidget::isFile(const QString& url) const {
+  if (!url.isEmpty()) {
+    UrlItemModel* model = ui_->configComboBox->getCompleter()->getModel();
+    QString filePath = model->getFilePath(url);
+    
+    if (!filePath.isEmpty()) {
+      QFileInfo fileInfo(filePath);
+      
+      return fileInfo.isFile();
+    }
+  }
+  
+  return false;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -183,12 +199,18 @@ bool MultiplotConfigWidget::loadConfig(const QString& url) {
           setCurrentConfigUrl(url);
           setCurrentConfigModified(false);
           
+          ROS_INFO_STREAM("Loaded configuration from [" <<
+            url.toStdString() << "]");
+          
           return true;
         }
       }
     }
   }
 
+  ROS_ERROR_STREAM("Failed to load configuration from [" <<
+    url.toStdString() << "]");
+  
   return false;
 }
 
@@ -220,11 +242,17 @@ bool MultiplotConfigWidget::saveConfig(const QString& url) {
           setCurrentConfigUrl(url);
           setCurrentConfigModified(false);
           
+          ROS_INFO_STREAM("Saved configuration to [" <<
+            url.toStdString() << "]");
+          
           return true;
         }
       }
     }
   }
+  
+  ROS_ERROR_STREAM("Failed to save configuration to [" <<
+    url.toStdString() << "]");
   
   return false;
 }
@@ -310,17 +338,34 @@ void MultiplotConfigWidget::configChanged() {
 
 void MultiplotConfigWidget::configComboBoxEditTextChanged(const
     QString& text) {
-  ui_->pushButtonSave->setEnabled(!currentConfigUrl_.isEmpty() &&
-    (text == currentConfigUrl_) && currentConfigModified_);
+  if (!currentConfigUrl_.isEmpty()) {
+    if (text != currentConfigUrl_)
+      ui_->pushButtonSave->setEnabled(!isFile(text));
+    else
+      ui_->pushButtonSave->setEnabled(currentConfigModified_);
+  }
+  else
+    ui_->pushButtonSave->setEnabled(false);
 }
 
 void MultiplotConfigWidget::configComboBoxCurrentUrlChanged(const
     QString& url) {
-  if (url != currentConfigUrl_)
-    loadConfig(url);
-  
-  ui_->pushButtonSave->setEnabled(!currentConfigUrl_.isEmpty() &&
-    (url == currentConfigUrl_) && currentConfigModified_);
+  if (url != currentConfigUrl_) {
+    if (!isFile(url)) {
+      if (!currentConfigUrl_.isEmpty()) {
+        setCurrentConfigUrl(url);
+        setCurrentConfigModified(true);
+        
+        ui_->pushButtonSave->setEnabled(true);
+      }
+      else
+        ui_->pushButtonSave->setEnabled(false);
+    }
+    else {
+      loadConfig(url);
+      ui_->pushButtonSave->setEnabled(false);
+    }
+  }  
 }
 
 void MultiplotConfigWidget::pushButtonNewClicked() {
@@ -342,7 +387,10 @@ void MultiplotConfigWidget::pushButtonOpenClicked() {
 }
 
 void MultiplotConfigWidget::pushButtonSaveClicked() {
-  saveCurrentConfig();
+  if (currentConfigUrl_ == ui_->configComboBox->getCurrentUrl())
+    saveCurrentConfig();
+  else
+    saveConfig(ui_->configComboBox->getCurrentUrl());
 }
 
 void MultiplotConfigWidget::pushButtonSaveAsClicked() {

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>706</width>
-    <height>23</height>
+    <height>24</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,9 @@
      </property>
      <property name="editable">
       <bool>true</bool>
+     </property>
+     <property name="insertPolicy">
+      <enum>QComboBox::NoInsert</enum>
      </property>
     </widget>
    </item>
