@@ -65,6 +65,8 @@ namespace rqt_multiplot {
     bool isReplotRequested() const;
     void setState(State state);
     State getState() const;
+    void setCanChangeState(bool can);
+    bool canChangeState() const;
 
     void run();
     void pause();

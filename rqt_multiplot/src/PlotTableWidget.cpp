@@ -347,11 +347,16 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
     }
   }
   
+  if ((numRows == 1) && (numColumns == 1))
+    plotWidgets[0][0]->setCanChangeState(false);
+  else 
+    plotWidgets[0][0]->setCanChangeState(true);
+  
   for (size_t row = 0; row < oldNumRows; ++row)
     for (size_t column = 0; column < oldNumColumns; ++column)
       if ((row >= numRows) || (column >= numColumns))
         delete plotWidgets_[row][column];
-    
+  
   plotWidgets_ = plotWidgets;
   
   delete layout_;

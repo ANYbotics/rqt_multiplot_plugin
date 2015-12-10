@@ -271,7 +271,7 @@ bool PlotWidget::isReplotRequested() const {
 }
 
 void PlotWidget::setState(State state) {
-  if (state != state_) {
+  if ((state != state_) && canChangeState()) {
     state_ = state;
     
     if (state == Maximized)
@@ -285,6 +285,14 @@ void PlotWidget::setState(State state) {
 
 PlotWidget::State PlotWidget::getState() const {
   return state_;
+}
+
+void PlotWidget::setCanChangeState(bool can) {
+  ui_->pushButtonState->setEnabled(can);
+}
+
+bool PlotWidget::canChangeState() const {
+  return ui_->pushButtonState->isEnabled();
 }
 
 /*****************************************************************************/
