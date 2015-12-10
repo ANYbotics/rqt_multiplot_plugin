@@ -49,6 +49,9 @@
    </item>
    <item row="2" column="1">
     <layout class="QHBoxLayout" name="horizontalLayout_7">
+     <property name="spacing">
+      <number>5</number>
+     </property>
      <item>
       <widget class="rqt_multiplot::MessageTypeComboBox" name="comboBoxType">
        <property name="inputMethodHints">
@@ -165,6 +168,9 @@
    </item>
    <item row="4" column="1" rowspan="2">
     <layout class="QGridLayout" name="gridLayout_2">
+     <property name="horizontalSpacing">
+      <number>5</number>
+     </property>
      <item row="0" column="1">
       <widget class="rqt_multiplot::StatusWidget" name="statusWidgetField" native="true">
        <property name="minimumSize">
@@ -202,6 +208,9 @@
    </item>
    <item row="10" column="1" rowspan="2">
     <layout class="QGridLayout" name="gridLayout_3">
+     <property name="horizontalSpacing">
+      <number>5</number>
+     </property>
      <item row="0" column="1">
       <widget class="rqt_multiplot::StatusWidget" name="statusWidgetScale" native="true">
        <property name="minimumSize">

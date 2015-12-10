@@ -143,43 +143,50 @@ void CurveDataSequencer::unsubscribe() {
   emit unsubscribed();
 }
 
-// void CurveDataSequencer::interpolate() {
-//   while ((timeValues_[0].count() > 1) && (timeValues_[1].count() > 1)) {
-//     while ((timeValues_[0].count() > 1) &&
-//         ((++timeValues_[0].begin())->time_ < timeValues_[1].front().time_))
-//       timeValues_[0].removeFirst();
-//     
-//     while ((timeValues_[1].count() > 1) &&
-//         ((++timeValues_[1].begin())->time_ < timeValues_[0].front().time_))
-//       timeValues_[1].removeFirst();
-//       
-//     size_t i = 0;
-//     
-//     if (timeValues_[0].front().time_ > timeValues_[1].front().time_)
-//       i = 1;
-//       
-//     QPointF point;
-//     const TimeValue& first = timeValues_[i].first();
-//     const TimeValue& second = *(++timeValues_[i].begin());
-//     
-//     if (i == 1) {
-//       point.setX(timeValues_[!i].front().value_);
-//       point.setY(first.value_+(second.value_-first.value_)*
-//         (timeValues_[!i].front().time_-first.time_).toSec()/
-//         (second.time_-first.time_).toSec());
-//     }
-//     else {
-//       point.setX(first.value_+(second.value_-first.value_)*
-//         (timeValues_[!i].front().time_-first.time_).toSec()/
-//         (second.time_-first.time_).toSec());
-//       point.setY(timeValues_[!i].front().value_);
-//     }
-//     
-//     timeValues_[i].removeFirst();
-//     
-//     emit pointReceived(point); 
-//   }
-// }
+void CurveDataSequencer::interpolate() {
+  while ((timeValues_[0].count() > 1) && (timeValues_[1].count() > 1)) {
+    while ((timeValues_[0].count() > 1) &&
+        ((++timeValues_[0].begin())->time_ < timeValues_[1].front().time_))
+      timeValues_[0].removeFirst();
+    
+    while ((timeValues_[1].count() > 1) &&
+        ((++timeValues_[1].begin())->time_ < timeValues_[0].front().time_))
+      timeValues_[1].removeFirst();
+  
+    if ((timeValues_[0].front().time_ >= timeValues_[1].front().time_) &&
+        (timeValues_[1].count() > 1)) {
+      QPointF point;
+      
+      const TimeValue& first = timeValues_[1].first();
+      const TimeValue& second = *(++timeValues_[1].begin());
+      
+      point.setX(timeValues_[0].front().value_);
+      point.setY(first.value_+(second.value_-first.value_)*
+        (timeValues_[0].front().time_-first.time_).toSec()/
+        (second.time_-first.time_).toSec());
+      
+      timeValues_[0].removeFirst();
+      
+      emit pointReceived(point); 
+    }
+    else if ((timeValues_[1].front().time_ >= timeValues_[0].front().time_) &&
+        (timeValues_[0].count() > 1)) {
+      QPointF point;
+      
+      const TimeValue& first = timeValues_[0].first();
+      const TimeValue& second = *(++timeValues_[0].begin());
+      
+      point.setX(first.value_+(second.value_-first.value_)*
+        (timeValues_[1].front().time_-first.time_).toSec()/
+        (second.time_-first.time_).toSec());
+      point.setY(timeValues_[1].front().value_);
+      
+      timeValues_[1].removeFirst();
+      
+      emit pointReceived(point); 
+    }    
+  }
+}
 
 /*****************************************************************************/
 /* Slots                                                                     */
@@ -227,100 +234,73 @@ void CurveDataSequencer::subscriberMessageReceived(const QString& topic,
     
     emit pointReceived(point);
   }
-  else {
-//     CurveAxisConfig* axisConfig = 0;
-//     size_t axisIndex = 0;
-//     
-//     if (sender() == subscribers_[0]) {
-//       axisConfig = config_->getAxisConfig(CurveConfig::X);
-//       axisIndex = 0;
-//     }
-//     else if (sender() == subscribers_[1]) {
-//       axisConfig = config_->getAxisConfig(CurveConfig::Y);
-//       axisIndex = 1;
-//     }
-//     
-//     if (axisConfig) {
-//       TimeValue timeValue;
-//     
-//       if (timeValues_[axisIndex].empty() &&
-//           (axisConfig->getFieldType() == CurveAxisConfig::MessageData)) {
-//         QStringList fieldParts = axisConfig->getField().split("/");
-//         
-//         while (!fieldParts.isEmpty()) {
-//           fieldParts.removeLast();
-//           
-//           QString parentField = fieldParts.join("/");
-//           variant_topic_tools::MessageVariant variant;
-//           
-//           if (!parentField.isEmpty())
-//             variant = message.getVariant().getMember(fieldParts.join("/").
-//               toStdString());
-//           else
-//             variant = message.getVariant();
-//             
-//           variant_topic_tools::MessageDataType type = variant.getType();
-//             
-//           if (type.hasHeader()) {
-//             timeFields_[axisIndex] = parentField+"/header/stamp";
-//             break;
-//           }
-//         }
-//       }
-// 
-//       if (!timeFields_[axisIndex].isEmpty()) {
-//         variant_topic_tools::BuiltinVariant variant = message.getVariant().
-//           getMember(timeFields_[axisIndex].toStdString());
-//           
-//         timeValue.time_ = variant.getValue<ros::Time>();
-//       }
-//       else
-//         timeValue.time_ = message.getReceiptTime();
-//       
-//       if (axisConfig->getFieldType() == CurveAxisConfig::MessageData) {
-//         variant_topic_tools::BuiltinVariant variant = message.getVariant().
-//           getMember(axisConfig->getField().toStdString());
-//           
-//         timeValue.value_ = variant.getNumericValue();
-//       }
-//       else
-//         timeValue.value_ = message.getReceiptTime().toSec();
-//         
-//       if (!timeValues_[axisIndex].isEmpty() &&
-//           (timeValue.time_ <= timeValues_[axisIndex].last().time_))
-//         timeValues_[axisIndex].clear();
-//         
-//       timeValues_[axisIndex].append(timeValue);
-//     }
-//   
-//     interpolate();
-//       
-//       while ((timeValues_[!axisIndex].count() > 1) &&
-//           ((++timeValues_[!axisIndex].begin())->time_ < timeValue.time_))
-//         timeValues_[!axisIndex].removeFirst();
-//       
-//       if (timeValues_[!axisIndex].count() > 1) {
-//         QPointF point;
-//         
-//         const TimeValue& first = timeValues_[!axisIndex].first();
-//         const TimeValue& second = *(++timeValues_[!axisIndex].begin());
-//         
-//         if (axisIndex == 1) {
-//           point.setX(first.value_+(second.value_-first.value_)*
-//             (timeValue.time_-first.time_).toSec()/
-//             (second.time_-first.time_).toSec());
-//           point.setY(timeValue.value_);
-//         }
-//         else {
-//           point.setX(timeValue.value_);
-//           point.setY(first.value_+(second.value_-first.value_)*
-//             (timeValue.time_-first.time_).toSec()/
-//             (second.time_-first.time_).toSec());
-//         }
-//         
-//         emit pointReceived(point);
-//       }      
-//     }
+  else if (subscribers_.count() == 2) {
+    CurveAxisConfig* axisConfig = 0;
+    size_t axisIndex = 0;
+    
+    if (sender() == subscribers_[0]) {
+      axisConfig = config_->getAxisConfig(CurveConfig::X);
+      axisIndex = 0;
+    }
+    else if (sender() == subscribers_[1]) {
+      axisConfig = config_->getAxisConfig(CurveConfig::Y);
+      axisIndex = 1;
+    }
+    
+    if (axisConfig) {
+      TimeValue timeValue;
+    
+      if (timeValues_[axisIndex].empty() &&
+          (axisConfig->getFieldType() == CurveAxisConfig::MessageData)) {
+        QStringList fieldParts = axisConfig->getField().split("/");
+        
+        while (!fieldParts.isEmpty()) {
+          fieldParts.removeLast();
+          
+          QString parentField = fieldParts.join("/");
+          variant_topic_tools::MessageVariant variant;
+          
+          if (!parentField.isEmpty())
+            variant = message.getVariant().getMember(fieldParts.join("/").
+              toStdString());
+          else
+            variant = message.getVariant();
+            
+          variant_topic_tools::MessageDataType type = variant.getType();
+            
+          if (type.hasHeader()) {
+            timeFields_[axisIndex] = parentField+"/header/stamp";
+            break;
+          }
+        }
+      }
+
+      if (!timeFields_[axisIndex].isEmpty()) {
+        variant_topic_tools::BuiltinVariant variant = message.getVariant().
+          getMember(timeFields_[axisIndex].toStdString());
+          
+        timeValue.time_ = variant.getValue<ros::Time>();
+      }
+      else
+        timeValue.time_ = message.getReceiptTime();
+      
+      if (axisConfig->getFieldType() == CurveAxisConfig::MessageData) {
+        variant_topic_tools::BuiltinVariant variant = message.getVariant().
+          getMember(axisConfig->getField().toStdString());
+          
+        timeValue.value_ = variant.getNumericValue();
+      }
+      else
+        timeValue.value_ = message.getReceiptTime().toSec();
+        
+      if (!timeValues_[axisIndex].isEmpty() &&
+          (timeValue.time_ <= timeValues_[axisIndex].last().time_))
+        timeValues_[axisIndex].clear();
+        
+      timeValues_[axisIndex].append(timeValue);
+    }
+  
+    interpolate();
   }
 }
 
