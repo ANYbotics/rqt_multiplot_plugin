@@ -37,6 +37,7 @@ namespace rqt_multiplot {
     QString getType() const;
     variant_topic_tools::MessageDefinition getDefinition() const;
     QString getError() const;
+    bool isLoading() const;
     
     void load(const QString& type);
     void wait();
@@ -51,6 +52,7 @@ namespace rqt_multiplot {
       public QThread {
     public:
       Impl(QObject* parent = 0);
+      virtual ~Impl();
       
       void run();
       

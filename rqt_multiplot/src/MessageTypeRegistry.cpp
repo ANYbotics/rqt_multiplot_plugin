@@ -48,6 +48,11 @@ MessageTypeRegistry::Impl::Impl(QObject* parent) :
   QThread(parent) {
 }
 
+MessageTypeRegistry::Impl::~Impl() {
+  terminate();
+  wait();
+}
+
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
@@ -56,6 +61,16 @@ QList<QString> MessageTypeRegistry::getTypes() const {
   QMutexLocker lock(&impl_.mutex_);
   
   return impl_.types_;
+}
+
+bool MessageTypeRegistry::isUpdating() const {
+  return impl_.isRunning();
+}
+
+bool MessageTypeRegistry::isEmpty() const {
+  QMutexLocker lock(&impl_.mutex_);
+  
+  return impl_.types_.isEmpty();
 }
 
 /*****************************************************************************/

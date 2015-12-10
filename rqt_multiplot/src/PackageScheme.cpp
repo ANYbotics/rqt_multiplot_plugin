@@ -43,7 +43,10 @@ PackageScheme::PackageScheme(QObject* parent, const QString& prefix,
   connect(fileSystemModel_, SIGNAL(directoryLoaded(const QString&)),
     this, SLOT(modelDirectoryLoaded(const QString&)));
   
-  registry_->update();
+  if (registry_->isUpdating())
+    registryUpdateStarted();
+  else if (registry_->isEmpty())
+    registry_->update();
 }
 
 PackageScheme::~PackageScheme() {

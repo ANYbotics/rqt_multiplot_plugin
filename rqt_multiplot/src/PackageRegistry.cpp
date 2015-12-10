@@ -48,6 +48,11 @@ PackageRegistry::Impl::Impl(QObject* parent) :
   QThread(parent) {
 }
 
+PackageRegistry::Impl::~Impl() {
+  terminate();
+  wait();
+}
+
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
@@ -56,6 +61,16 @@ QMap<QString, QString> PackageRegistry::getPackages() const {
   QMutexLocker lock(&impl_.mutex_);
   
   return impl_.packages_;
+}
+
+bool PackageRegistry::isUpdating() const {
+  return impl_.isRunning();
+}
+
+bool PackageRegistry::isEmpty() const {
+  QMutexLocker lock(&impl_.mutex_);
+  
+  return impl_.packages_.isEmpty();
 }
 
 /*****************************************************************************/

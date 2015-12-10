@@ -34,10 +34,8 @@ PenStyleComboBox::PenStyleComboBox(QWidget* parent) :
   QComboBox(parent) {
   setItemDelegate(new PenStyleItemDelegate(this));
     
-  setInsertPolicy(QComboBox::InsertAtBottom);
   for (int style = Qt::SolidLine; style < Qt::CustomDashLine; ++style)
     addItem("", style);    
-  setInsertPolicy(QComboBox::NoInsert);
   
   connect(this, SIGNAL(currentIndexChanged(int)), this,
     SLOT(currentIndexChanged(int)));

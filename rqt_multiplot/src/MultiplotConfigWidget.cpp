@@ -44,6 +44,9 @@ MultiplotConfigWidget::MultiplotConfigWidget(QWidget* parent, size_t
   maxHistoryLength_(maxHistoryLength) {
   ui_->setupUi(this);
   
+  ui_->pushButtonClearHistory->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/clear_history.png"))));
   ui_->pushButtonNew->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/add.png"))));
@@ -57,6 +60,7 @@ MultiplotConfigWidget::MultiplotConfigWidget(QWidget* parent, size_t
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/save_as.png"))));
   
+  ui_->pushButtonClearHistory->setEnabled(false);
   ui_->pushButtonSave->setEnabled(false);
   
   connect(ui_->configComboBox, SIGNAL(editTextChanged(const QString&)),
@@ -64,6 +68,8 @@ MultiplotConfigWidget::MultiplotConfigWidget(QWidget* parent, size_t
   connect(ui_->configComboBox, SIGNAL(currentUrlChanged(const QString&)),
     this, SLOT(configComboBoxCurrentUrlChanged(const QString&)));
   
+  connect(ui_->pushButtonClearHistory, SIGNAL(clicked()), this,
+    SLOT(pushButtonClearHistoryClicked()));
   connect(ui_->pushButtonNew, SIGNAL(clicked()), this,
     SLOT(pushButtonNewClicked()));
   connect(ui_->pushButtonOpen, SIGNAL(clicked()), this,
@@ -261,7 +267,7 @@ void MultiplotConfigWidget::resetConfig() {
   if (config_) {
     config_->reset();
     
-    setCurrentConfigUrl(QString());
+    setCurrentConfigUrl(QString(), false);
     setCurrentConfigModified(false);
   }
 }
@@ -325,7 +331,25 @@ void MultiplotConfigWidget::addConfigUrlToHistory(const QString& url) {
     ui_->configComboBox->insertItem(0, url);
     
     ui_->configComboBox->blockSignals(false);
+    
+    ui_->pushButtonClearHistory->setEnabled(true);
   }
+}
+
+void MultiplotConfigWidget::clearConfigUrlHistory() {
+  ui_->configComboBox->blockSignals(true);
+
+  QString url = ui_->configComboBox->currentText();
+  
+  while (ui_->configComboBox->count())
+    ui_->configComboBox->removeItem(ui_->configComboBox->count()-1);      
+  
+  if (!url.isEmpty())
+    ui_->configComboBox->insertItem(0, url);
+  
+  ui_->configComboBox->blockSignals(false);
+  
+  ui_->pushButtonClearHistory->setEnabled(false);
 }
 
 /*****************************************************************************/
@@ -353,7 +377,7 @@ void MultiplotConfigWidget::configComboBoxCurrentUrlChanged(const
   if (url != currentConfigUrl_) {
     if (!isFile(url)) {
       if (!currentConfigUrl_.isEmpty()) {
-        setCurrentConfigUrl(url);
+        setCurrentConfigUrl(url, false);
         setCurrentConfigModified(true);
         
         ui_->pushButtonSave->setEnabled(true);
@@ -366,6 +390,18 @@ void MultiplotConfigWidget::configComboBoxCurrentUrlChanged(const
       ui_->pushButtonSave->setEnabled(false);
     }
   }  
+}
+
+void MultiplotConfigWidget::pushButtonClearHistoryClicked() {
+  QMessageBox messageBox;
+  
+  messageBox.setText("The configuration file history will be cleared.");
+  messageBox.setInformativeText("Do you want to proceed?");
+  messageBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+  messageBox.setDefaultButton(QMessageBox::No);
+  
+  if (messageBox.exec() == QMessageBox::Yes)
+    clearConfigUrlHistory();
 }
 
 void MultiplotConfigWidget::pushButtonNewClicked() {

@@ -23,7 +23,9 @@
 #include <QStringList>
 #include <QWidget>
 
+#include <rqt_multiplot/MessageTypeRegistry.h>
 #include <rqt_multiplot/MultiplotConfig.h>
+#include <rqt_multiplot/PackageRegistry.h>
 
 namespace Ui {
   class MultiplotWidget;
@@ -53,6 +55,9 @@ namespace rqt_multiplot {
     Ui::MultiplotWidget* ui_;
     
     MultiplotConfig* config_;
+    
+    MessageTypeRegistry* messageTypeRegistry_;
+    PackageRegistry* packageRegistry_;
     
   private slots:
     void configWidgetCurrentConfigModifiedChanged(bool modified);

@@ -34,6 +34,8 @@ namespace rqt_multiplot {
     ~MessageTopicRegistry();
     
     QMap<QString, QString> getTopics() const;
+    bool isUpdating() const;
+    bool isEmpty() const;
     
     void update();
     
@@ -46,6 +48,7 @@ namespace rqt_multiplot {
       public QThread {
     public:
       Impl(QObject* parent = 0);
+      virtual ~Impl();
       
       void run();
       

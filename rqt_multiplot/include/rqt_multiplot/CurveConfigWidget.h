@@ -23,7 +23,6 @@
 
 #include <rqt_multiplot/CurveConfig.h>
 #include <rqt_multiplot/MessageTopicRegistry.h>
-#include <rqt_multiplot/MessageTypeRegistry.h>
 
 namespace Ui {
   class CurveConfigWidget;
@@ -47,7 +46,6 @@ namespace rqt_multiplot {
     CurveConfig* config_;
     
     MessageTopicRegistry* messageTopicRegistry_;
-    MessageTypeRegistry* messageTypeRegistry_;
   
   private slots:
     void configTitleChanged(const QString& title);

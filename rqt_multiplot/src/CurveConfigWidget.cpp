@@ -30,8 +30,7 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::CurveConfigWidget()),
   config_(new CurveConfig(this)),
-  messageTopicRegistry_(new MessageTopicRegistry(this)),
-  messageTypeRegistry_(new MessageTypeRegistry(this)) {
+  messageTopicRegistry_(new MessageTopicRegistry(this)) {
   ui_->setupUi(this);
   
   ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
@@ -53,7 +52,6 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
     this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
   
   messageTopicRegistry_->update();
-  messageTypeRegistry_->update();
   
   configTitleChanged(config_->getTitle());
   configSubscriberQueueSizeChanged(config_->getSubscriberQueueSize());

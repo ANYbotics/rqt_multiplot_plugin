@@ -88,7 +88,17 @@ CurveAxisConfigWidget::CurveAxisConfigWidget(QWidget* parent) :
     this, SLOT(widgetFieldCurrentFieldChanged(const QString&)));
   
   connect(ui_->checkBoxFieldReceiptTime, SIGNAL(stateChanged(int)), this,
-    SLOT(checkBoxFieldReceiptTimeStateChanged(int)));  
+    SLOT(checkBoxFieldReceiptTimeStateChanged(int)));
+  
+  if (ui_->comboBoxTopic->isUpdating())
+    comboBoxTopicUpdateStarted();
+  else
+    comboBoxTopicUpdateFinished();
+  
+  if (ui_->comboBoxType->isUpdating())
+    comboBoxTypeUpdateStarted();
+  else
+    comboBoxTypeUpdateFinished();
 }
 
 CurveAxisConfigWidget::~CurveAxisConfigWidget() {

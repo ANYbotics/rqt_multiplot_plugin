@@ -1,3 +1,13 @@
+ros-rqt-multiplot-plugin (0.0.1-19) unstable; urgency=low
+
+  * Added feature for cleaning the configuration file history
+  * Fixed threads to terminate on destruction
+  * Added package and message type registry updates to main widget
+    constructor
+  * Fixed curve config widget components to initialize correctly
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 13:23:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-18) unstable; urgency=low
 
   * Added feature to specify custom axis titles

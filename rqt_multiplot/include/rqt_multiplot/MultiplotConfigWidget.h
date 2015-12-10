@@ -56,6 +56,7 @@ namespace rqt_multiplot {
     bool confirmSave(bool canCancel = true);
     
     void addConfigUrlToHistory(const QString& url);
+    void clearConfigUrlHistory();
     
   signals:
     void currentConfigModifiedChanged(bool modified);
@@ -76,6 +77,7 @@ namespace rqt_multiplot {
     void configComboBoxEditTextChanged(const QString& text);
     void configComboBoxCurrentUrlChanged(const QString& url);
     
+    void pushButtonClearHistoryClicked();
     void pushButtonNewClicked();
     void pushButtonOpenClicked();
     void pushButtonSaveClicked();

@@ -34,6 +34,8 @@ namespace rqt_multiplot {
     ~MessageTypeRegistry();
     
     QList<QString> getTypes() const;
+    bool isUpdating() const;
+    bool isEmpty() const;
     
     void update();
     void wait();
@@ -47,6 +49,7 @@ namespace rqt_multiplot {
       public QThread {
     public:
       Impl(QObject* parent = 0);
+      virtual ~Impl();
       
       void run();
       

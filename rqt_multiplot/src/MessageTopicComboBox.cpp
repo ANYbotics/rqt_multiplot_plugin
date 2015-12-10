@@ -37,6 +37,13 @@ MessageTopicComboBox::MessageTopicComboBox(QWidget* parent) :
   
   connect(this, SIGNAL(currentIndexChanged(const QString&)), this,
     SLOT(currentIndexChanged(const QString&)));
+  
+  if (registry_->isUpdating())
+    registryUpdateStarted();
+  else if (!registry_->isEmpty())
+    registryUpdateFinished();
+  else
+    registry_->update();
 }
 
 MessageTopicComboBox::~MessageTopicComboBox() {
@@ -57,14 +64,18 @@ void MessageTopicComboBox::setEditable(bool editable) {
 }
 
 void MessageTopicComboBox::setCurrentTopic(const QString& topic) {
-  int index = findText(topic);
-  
-  if (index < 0) {
-    setEditText(topic);
-    lineEditEditingFinished();
+  if (topic != currentTopic_) {
+    currentTopic_ = topic;
+    
+    int index = findText(topic);
+    
+    if (index < 0)
+      setEditText(topic);
+    else
+      setCurrentIndex(index);
+    
+    emit currentTopicChanged(topic);
   }
-  else
-    setCurrentIndex(index);
 }
 
 QString MessageTopicComboBox::getCurrentTopic() const {
@@ -107,22 +118,25 @@ void MessageTopicComboBox::registryUpdateStarted() {
   emit updateStarted();
   
   clear();
-  setEditText("Updating...");
 }
 
 void MessageTopicComboBox::registryUpdateFinished() {
   QMap<QString, QString> topics = registry_->getTopics();
   
   blockSignals(true);
+  
   for (QMap<QString, QString>::const_iterator it = topics.begin();
       it != topics.end(); ++it)
     addItem(it.key(), it.value());
-  blockSignals(false);
   
-  if (!currentTopic_.isEmpty())
-    setCurrentTopic(currentTopic_);
-  else if (count())
-    currentIndexChanged(currentText());
+  int index = findText(currentTopic_);
+  
+  if (index < 0)
+    setEditText(currentTopic_);
+  else
+    setCurrentIndex(index);
+  
+  blockSignals(false);
   
   isUpdating_ = false;
   emit updateFinished();
@@ -131,19 +145,12 @@ void MessageTopicComboBox::registryUpdateFinished() {
 }
 
 void MessageTopicComboBox::currentIndexChanged(const QString& text) {
-  if (currentTopic_ != text) {
-    currentTopic_ = text;
-    
-    emit currentTopicChanged(currentTopic_);
-  }
+  if (currentIndex() >= 0)
+    setCurrentTopic(text);
 }
 
 void MessageTopicComboBox::lineEditEditingFinished() {
-  if (currentTopic_ != currentText()) {
-    currentTopic_ = currentText();
-    
-    emit currentTopicChanged(currentTopic_);
-  }
+  setCurrentTopic(currentText());
 }
 
 }

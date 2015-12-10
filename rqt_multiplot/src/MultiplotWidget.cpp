@@ -31,7 +31,9 @@ namespace rqt_multiplot {
 MultiplotWidget::MultiplotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::MultiplotWidget()),
-  config_(new MultiplotConfig(this)) {
+  config_(new MultiplotConfig(this)),
+  messageTypeRegistry_(new MessageTypeRegistry(this)),
+  packageRegistry_(new PackageRegistry(this)) {
   ui_->setupUi(this);
   
   ui_->configWidget->setConfig(config_);
@@ -44,7 +46,10 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
   connect(ui_->configWidget, SIGNAL(currentConfigUrlChanged(const QString&)),
     this, SLOT(configWidgetCurrentConfigUrlChanged(const QString&)));
   
-  configWidgetCurrentConfigUrlChanged(QString());  
+  configWidgetCurrentConfigUrlChanged(QString());
+  
+  messageTypeRegistry_->update();
+  packageRegistry_->update();
 }
 
 MultiplotWidget::~MultiplotWidget() {

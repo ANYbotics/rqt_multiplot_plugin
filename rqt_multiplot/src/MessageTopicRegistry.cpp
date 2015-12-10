@@ -48,6 +48,11 @@ MessageTopicRegistry::Impl::Impl(QObject* parent) :
   QThread(parent) {
 }
 
+MessageTopicRegistry::Impl::~Impl() {
+  terminate();
+  wait();
+}
+
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
@@ -56,6 +61,16 @@ QMap<QString, QString> MessageTopicRegistry::getTopics() const {
   QMutexLocker lock(&impl_.mutex_);
   
   return impl_.topics_;
+}
+
+bool MessageTopicRegistry::isUpdating() const {
+  return impl_.isRunning();
+}
+
+bool MessageTopicRegistry::isEmpty() const {
+  QMutexLocker lock(&impl_.mutex_);
+  
+  return impl_.topics_.isEmpty();
 }
 
 /*****************************************************************************/

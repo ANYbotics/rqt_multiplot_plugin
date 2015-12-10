@@ -37,6 +37,13 @@ MessageTypeComboBox::MessageTypeComboBox(QWidget* parent) :
   
   connect(this, SIGNAL(currentIndexChanged(const QString&)), this,
     SLOT(currentIndexChanged(const QString&)));
+  
+  if (registry_->isUpdating())
+    registryUpdateStarted();
+  else if (!registry_->isEmpty())
+    registryUpdateFinished();
+  else
+    registry_->update();
 }
 
 MessageTypeComboBox::~MessageTypeComboBox() {
@@ -57,14 +64,18 @@ void MessageTypeComboBox::setEditable(bool editable) {
 }
 
 void MessageTypeComboBox::setCurrentType(const QString& type) {
-  int index = findText(type);
-  
-  if (index < 0) {
-    setEditText(type);
-    lineEditEditingFinished();
+  if (type != currentType_) {
+    currentType_ = type;
+    
+    int index = findText(type);
+    
+    if (index < 0)
+      setEditText(type);
+    else
+      setCurrentIndex(index);
+    
+    emit currentTypeChanged(type);
   }
-  else
-    setCurrentIndex(index);
 }
 
 QString MessageTypeComboBox::getCurrentType() const {
@@ -98,22 +109,25 @@ void MessageTypeComboBox::registryUpdateStarted() {
   emit updateStarted();
   
   clear();
-  setEditText("Updating...");
 }
 
 void MessageTypeComboBox::registryUpdateFinished() {
   QList<QString> types = registry_->getTypes();
   
   blockSignals(true);
+  
   for (QList<QString>::const_iterator it = types.begin();
       it != types.end(); ++it)
     addItem(*it);
-  blockSignals(false);
   
-  if (!currentType_.isEmpty())
-    setCurrentType(currentType_);
-  else if (count())
-    currentIndexChanged(currentText());
+  int index = findText(currentType_);
+  
+  if (index < 0)
+    setEditText(currentType_);
+  else
+    setCurrentIndex(index);
+
+  blockSignals(false);
   
   isUpdating_= false;
   emit updateFinished();
@@ -122,19 +136,12 @@ void MessageTypeComboBox::registryUpdateFinished() {
 }
 
 void MessageTypeComboBox::currentIndexChanged(const QString& text) {
-  if (currentType_ != text) {
-    currentType_ = text;
-    
-    emit currentTypeChanged(currentType_);
-  }
+  if (currentIndex() >= 0)
+    setCurrentType(text);
 }
 
 void MessageTypeComboBox::lineEditEditingFinished() {
-  if (currentType_ != currentText()) {
-    currentType_ = currentText();
-    
-    emit currentTypeChanged(currentType_);
-  }
+  setCurrentType(currentText());
 }
 
 }

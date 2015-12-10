@@ -34,6 +34,8 @@ namespace rqt_multiplot {
     ~PackageRegistry();
     
     QMap<QString, QString> getPackages() const;
+    bool isUpdating() const;
+    bool isEmpty() const;
     
     void update();
     void wait();
@@ -47,6 +49,7 @@ namespace rqt_multiplot {
       public QThread {
     public:
       Impl(QObject* parent = 0);
+      virtual ~Impl();
       
       void run();
       

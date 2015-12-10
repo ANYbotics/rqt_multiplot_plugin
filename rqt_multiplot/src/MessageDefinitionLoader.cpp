@@ -48,6 +48,11 @@ MessageDefinitionLoader::Impl::Impl(QObject* parent) :
   QThread(parent) {
 }
 
+MessageDefinitionLoader::Impl::~Impl() {
+  terminate();
+  wait();
+}
+
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
@@ -69,6 +74,10 @@ QString MessageDefinitionLoader::getError() const {
   QMutexLocker lock(&impl_.mutex_);
   
   return impl_.error_;
+}
+
+bool MessageDefinitionLoader::isLoading() const {
+  return impl_.isRunning();
 }
 
 /*****************************************************************************/

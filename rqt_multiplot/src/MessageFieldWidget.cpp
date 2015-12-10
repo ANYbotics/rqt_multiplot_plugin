@@ -140,10 +140,6 @@ void MessageFieldWidget::connectTopic(const QString& topic, double
       emit connecting(topic);
       
       ui_->treeWidget->clear();
-      
-      QTreeWidgetItem* item = new QTreeWidgetItem();
-      item->setText(0, "Connecting...");
-      ui_->treeWidget->addTopLevelItem(item);
     }
   }
 }
@@ -168,10 +164,6 @@ void MessageFieldWidget::loaderLoadingStarted() {
   emit loadingStarted();
   
   ui_->treeWidget->clear();
-  
-  QTreeWidgetItem* item = new QTreeWidgetItem();
-  item->setText(0, "Loading...");
-  ui_->treeWidget->addTopLevelItem(item);
 }
 
 void MessageFieldWidget::loaderLoadingFinished() {
@@ -180,8 +172,7 @@ void MessageFieldWidget::loaderLoadingFinished() {
   ui_->treeWidget->setMessageDataType(loader_->getDefinition().
     getMessageDataType());
   
-  if (!currentField_.isEmpty())
-    setCurrentField(currentField_);
+  setCurrentField(currentField_);
   
   isLoading_ = false;
   emit loadingFinished();
@@ -206,8 +197,7 @@ void MessageFieldWidget::subscriberMessageReceived(const QString& topic,
   ui_->lineEdit->setMessageDataType(message.getVariant().getType());
   ui_->treeWidget->setMessageDataType(message.getVariant().getType());
   
-  if (!currentField_.isEmpty())
-    setCurrentField(currentField_);
+  setCurrentField(currentField_);
   
   emit connected(topic);
   
