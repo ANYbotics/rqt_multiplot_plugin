@@ -296,10 +296,14 @@ void PlotCursor::drawTrackedPoints(QPainter* painter) const {
     QRect textRect = getTextRect(position, painter->font());
     
     if (!textRect.isEmpty()) {
-      QwtText label = trackerTextF(position);
-      
-      if (!label.isEmpty())
-        label.draw(painter, textRect);
+      if (dynamic_cast<QWidget*>(painter->device())) {
+        QwtText label = trackerTextF(position);
+        
+        if (!label.isEmpty())
+          label.draw(painter, textRect);
+      }
+      else
+        painter->fillRect(textRect, painter->pen().color());
     }
   }
 }
