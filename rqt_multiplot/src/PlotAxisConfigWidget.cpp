@@ -32,6 +32,10 @@ PlotAxisConfigWidget::PlotAxisConfigWidget(QWidget* parent) :
   config_(0) {
   ui_->setupUi(this);
   
+  connect(ui_->lineEditTitle, SIGNAL(editingFinished()),
+    this, SLOT(lineEditTitleEditingFinished()));
+  connect(ui_->checkBoxTitleAuto, SIGNAL(stateChanged(int)),
+    this, SLOT(checkBoxTitleAutoStateChanged(int)));
   connect(ui_->checkBoxTitleVisible, SIGNAL(stateChanged(int)),
     this, SLOT(checkBoxTitleVisibleStateChanged(int)));
 }
@@ -47,6 +51,10 @@ PlotAxisConfigWidget::~PlotAxisConfigWidget() {
 void PlotAxisConfigWidget::setConfig(PlotAxisConfig* config) {
   if (config != config_) {
     if (config_) {
+      disconnect(config_, SIGNAL(titleTypeChanged(int)),
+        this, SLOT(configTitleTypeChanged(int)));
+      disconnect(config_, SIGNAL(customTitleChanged(const QString&)),
+        this, SLOT(configCustomTitleChanged(const QString&)));
       disconnect(config_, SIGNAL(titleVisibleChanged(bool)),
         this, SLOT(configTitleVisibleChanged(bool)));
     }
@@ -54,9 +62,15 @@ void PlotAxisConfigWidget::setConfig(PlotAxisConfig* config) {
     config_ = config;
     
     if (config) {
+      connect(config, SIGNAL(titleTypeChanged(int)),
+        this, SLOT(configTitleTypeChanged(int)));
+      connect(config, SIGNAL(customTitleChanged(const QString&)),
+        this, SLOT(configCustomTitleChanged(const QString&)));
       connect(config, SIGNAL(titleVisibleChanged(bool)),
         this, SLOT(configTitleVisibleChanged(bool)));
       
+      configTitleTypeChanged(config->getTitleType());
+      configCustomTitleChanged(config->getCustomTitle());
       configTitleVisibleChanged(config->isTitleVisible());
     }
   }
@@ -70,9 +84,31 @@ PlotAxisConfig* PlotAxisConfigWidget::getConfig() const {
 /* Slots                                                                     */
 /*****************************************************************************/
 
+void PlotAxisConfigWidget::configTitleTypeChanged(int type) {
+  ui_->checkBoxTitleAuto->setCheckState((type == PlotAxisConfig::AutoTitle) ?
+    Qt::Checked : Qt::Unchecked);
+}
+
+void PlotAxisConfigWidget::configCustomTitleChanged(const QString& title) {
+  ui_->lineEditTitle->setText(title);
+}
+
 void PlotAxisConfigWidget::configTitleVisibleChanged(bool visible) {
   ui_->checkBoxTitleVisible->setCheckState(visible ? Qt::Checked :
     Qt::Unchecked);
+}
+
+void PlotAxisConfigWidget::checkBoxTitleAutoStateChanged(int state) {
+  ui_->lineEditTitle->setEnabled(state != Qt::Checked);
+  
+  if (config_)
+    config_->setTitleType((state == Qt::Checked) ? PlotAxisConfig::AutoTitle :
+       PlotAxisConfig::CustomTitle);
+}
+
+void PlotAxisConfigWidget::lineEditTitleEditingFinished() {
+  if (config_)
+    config_->setCustomTitle(ui_->lineEditTitle->text());
 }
 
 void PlotAxisConfigWidget::checkBoxTitleVisibleStateChanged(int state) {

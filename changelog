@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-18) unstable; urgency=low
+
+  * Added feature to specify custom axis titles
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 08:04:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-17) unstable; urgency=low
 
   * Fixed configuration file loading/saving bug, now producing ROS console

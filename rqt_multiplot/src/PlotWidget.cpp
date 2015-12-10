@@ -27,6 +27,7 @@
 #include <qwt/qwt_plot_picker.h>
 #include <qwt/qwt_plot_renderer.h>
 #include <qwt/qwt_scale_widget.h>
+#include <qwt/qwt_plot.h>
 
 #include <ros/package.h>
 
@@ -488,6 +489,43 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
   return false;
 }
 
+void PlotWidget::updateAxisTitle(PlotAxesConfig::Axis axis) {
+  QwtPlot::Axis plotAxis = (axis == PlotAxesConfig::Y) ?
+    QwtPlot::yLeft : QwtPlot::xBottom;
+  CurveConfig::Axis curveAxis = (axis == PlotAxesConfig::Y) ?
+    CurveConfig::Y : CurveConfig::X;
+  
+  PlotAxisConfig* plotAxisConfig = config_->getAxesConfig()->
+    getAxisConfig(axis);
+    
+  if (plotAxisConfig->isTitleVisible()) {
+    if (plotAxisConfig->getTitleType() == PlotAxisConfig::AutoTitle) {
+      QStringList titleParts;
+      
+      for (size_t index = 0; index < curves_.count(); ++index) {
+        CurveAxisConfig* curveAxisConfig = curves_[index]->getConfig()->
+          getAxisConfig(curveAxis);
+          
+        QString titlePart = curveAxisConfig->getTopic();
+        if (curveAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
+          titlePart += "/"+curveAxisConfig->getField();
+        else
+          titlePart += "/receipt_time";
+          
+        if (!titleParts.contains(titlePart))
+          titleParts.append(titlePart);
+      }
+      
+      ui_->plot->setAxisTitle(plotAxis, QwtText(titleParts.join(", ")));
+    }
+    else
+      ui_->plot->setAxisTitle(plotAxis, QwtText(plotAxisConfig->
+        getCustomTitle()));
+  }
+  else
+    ui_->plot->setAxisTitle(plotAxis, QwtText());
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
@@ -552,57 +590,11 @@ void PlotWidget::configCurveConfigChanged(size_t index) {
 }
 
 void PlotWidget::configXAxisConfigChanged() {
-  if (config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::X)->
-      isTitleVisible()) {
-
-    QStringList titleParts;
-    
-    for (size_t index = 0; index < curves_.count(); ++index) {
-      CurveAxisConfig* axisConfig = curves_[index]->getConfig()->
-        getAxisConfig(CurveConfig::X);
-      
-      QString titlePart = axisConfig->getTopic();
-      if (axisConfig->getFieldType() == CurveAxisConfig::MessageData)
-        titlePart += "/"+axisConfig->getField();
-      else
-        titlePart += "/receipt_time";
-      
-      if (!titleParts.contains(titlePart))
-        titleParts.append(titlePart);
-    }
-    
-    ui_->plot->setAxisTitle(QwtPlot::xBottom, QwtText(
-      titleParts.join(", ")));
-  }
-  else
-    ui_->plot->setAxisTitle(QwtPlot::xBottom, QwtText());
+  updateAxisTitle(PlotAxesConfig::X);
 }
 
 void PlotWidget::configYAxisConfigChanged() {
-  if (config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y)->
-      isTitleVisible()) {
-
-    QStringList titleParts;
-    
-    for (size_t index = 0; index < curves_.count(); ++index) {
-      CurveAxisConfig* axisConfig = curves_[index]->getConfig()->
-        getAxisConfig(CurveConfig::Y);
-      
-      QString titlePart = axisConfig->getTopic();
-      if (axisConfig->getFieldType() == CurveAxisConfig::MessageData)
-        titlePart += "/"+axisConfig->getField();
-      else
-        titlePart += "/receipt_time";
-        
-      if (!titleParts.contains(titlePart))
-        titleParts.append(titlePart);
-    }
-    
-    ui_->plot->setAxisTitle(QwtPlot::yLeft, QwtText(
-      titleParts.join(", ")));
-  }
-  else
-    ui_->plot->setAxisTitle(QwtPlot::yLeft, QwtText());
+  updateAxisTitle(PlotAxesConfig::Y);
 }
 
 void PlotWidget::configLegendConfigChanged() {

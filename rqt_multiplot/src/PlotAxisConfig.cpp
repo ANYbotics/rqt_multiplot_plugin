@@ -24,8 +24,11 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotAxisConfig::PlotAxisConfig(QObject* parent, bool titleVisible) :
+PlotAxisConfig::PlotAxisConfig(QObject* parent, TitleType titleType, const
+    QString& customTitle, bool titleVisible) :
   QObject(parent),
+  titleType_(titleType),
+  customTitle_(customTitle),
   titleVisible_(titleVisible) {
 }
 
@@ -35,6 +38,32 @@ PlotAxisConfig::~PlotAxisConfig() {
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
+
+void PlotAxisConfig::setTitleType(TitleType type) {
+  if (type != titleType_) {
+    titleType_ = type;
+    
+    emit titleTypeChanged(type);
+    emit changed();
+  }
+}
+
+PlotAxisConfig::TitleType PlotAxisConfig::getTitleType() const {
+  return titleType_;
+}
+
+void PlotAxisConfig::setCustomTitle(const QString& title) {
+  if (title != customTitle_) {
+    customTitle_ = title;
+    
+    emit customTitleChanged(title);
+    emit changed();
+  }
+}
+
+const QString& PlotAxisConfig::getCustomTitle() const {
+  return customTitle_;
+}
 
 void PlotAxisConfig::setTitleVisible(bool visible) {
   if (visible != titleVisible_) {
@@ -54,14 +83,21 @@ bool PlotAxisConfig::isTitleVisible() const {
 /*****************************************************************************/
 
 void PlotAxisConfig::save(QSettings& settings) const {
+  settings.setValue("title_type", titleType_);
+  settings.setValue("custom_title", customTitle_);
   settings.setValue("title_visible", titleVisible_);
 }
 
 void PlotAxisConfig::load(QSettings& settings) {
+  setTitleType(static_cast<TitleType>(settings.value("title_type",
+    AutoTitle).toInt()));
+  setCustomTitle(settings.value("custom_title", "Untitled Axis").toString());
   setTitleVisible(settings.value("title_visible", true).toBool());
 }
 
 void PlotAxisConfig::reset() {
+  setTitleType(AutoTitle);
+  setCustomTitle("Untitled Axis");
   setTitleVisible(true);
 }
 
@@ -70,6 +106,8 @@ void PlotAxisConfig::reset() {
 /*****************************************************************************/
 
 PlotAxisConfig& PlotAxisConfig::operator=(const PlotAxisConfig& src) {
+  setTitleType(src.titleType_);
+  setCustomTitle(src.customTitle_);
   setTitleVisible(src.titleVisible_);
   
   return *this;

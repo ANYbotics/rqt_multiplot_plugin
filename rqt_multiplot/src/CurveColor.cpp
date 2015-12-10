@@ -101,8 +101,9 @@ void CurveColor::save(QSettings& settings) const {
 }
 
 void CurveColor::load(QSettings& settings) {
-  setType(static_cast<Type>(settings.value("type").toInt()));
-  setCustomColor(settings.value("custom_color").value<QColor>());
+  setType(static_cast<Type>(settings.value("type", Auto).toInt()));
+  setCustomColor(settings.value("custom_color", QColor(Qt::black)).
+    value<QColor>());
 }
 
 /*****************************************************************************/

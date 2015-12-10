@@ -119,6 +119,8 @@ namespace rqt_multiplot {
     
     BoundingRectangle currentBounds_;
     
+    void updateAxisTitle(PlotAxesConfig::Axis axis);
+    
   private slots:
     void timerTimeout();
     

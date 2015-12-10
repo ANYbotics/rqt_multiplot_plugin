@@ -44,8 +44,12 @@ namespace rqt_multiplot {
     PlotAxisConfig* config_;
     
   private slots:
+    void configTitleTypeChanged(int type);
+    void configCustomTitleChanged(const QString& title);
     void configTitleVisibleChanged(bool visible);
     
+    void checkBoxTitleAutoStateChanged(int state);
+    void lineEditTitleEditingFinished();
     void checkBoxTitleVisibleStateChanged(int state);
   };
 };

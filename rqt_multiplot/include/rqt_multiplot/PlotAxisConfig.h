@@ -27,9 +27,19 @@ namespace rqt_multiplot {
     public QObject {
   Q_OBJECT
   public:
-    PlotAxisConfig(QObject* parent = 0, bool titleVisible = true);
+    enum TitleType {
+      AutoTitle,
+      CustomTitle
+    };
+    
+    PlotAxisConfig(QObject* parent = 0, TitleType titleType = AutoTitle,
+      const QString& customTitle = "Untitled Axis", bool titleVisible = true);
     ~PlotAxisConfig();
     
+    void setTitleType(TitleType type);
+    TitleType getTitleType() const;
+    void setCustomTitle(const QString& title);
+    const QString& getCustomTitle() const;
     void setTitleVisible(bool visible);
     bool isTitleVisible() const;
     
@@ -40,10 +50,14 @@ namespace rqt_multiplot {
     PlotAxisConfig& operator=(const PlotAxisConfig& src);
     
   signals:
+    void titleTypeChanged(int type);
+    void customTitleChanged(const QString& title);
     void titleVisibleChanged(bool visible);
     void changed();
     
   private:
+    TitleType titleType_;
+    QString customTitle_;
     bool titleVisible_;
   };
 };
