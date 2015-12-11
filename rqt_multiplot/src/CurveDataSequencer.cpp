@@ -75,7 +75,7 @@ CurveConfig* CurveDataSequencer::getConfig() const {
 bool CurveDataSequencer::isSubscribed() const {
   if (!subscribers_.isEmpty()) {
     for (size_t index = 0; index < subscribers_.count(); ++index)
-      if (!subscribers_[index]->isValid())
+      if (!subscribers_[index] || !subscribers_[index]->isValid())
         return false;
       
     return true;
@@ -133,8 +133,9 @@ void CurveDataSequencer::subscribe() {
 
 void CurveDataSequencer::unsubscribe() {
   for (size_t index = 0; index < subscribers_.count(); ++index)
-    registry_->unsubscribe(subscribers_[index]->getTopic(), this,
-      SLOT(subscriberMessageReceived(const QString&, const Message&)));
+    if (subscribers_[index])
+      registry_->unsubscribe(subscribers_[index]->getTopic(), this,
+        SLOT(subscriberMessageReceived(const QString&, const Message&)));
     
   subscribers_.clear();
   timeFields_.clear();

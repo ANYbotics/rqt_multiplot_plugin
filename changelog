@@ -1,3 +1,10 @@
+ros-rqt-multiplot-plugin (0.0.1-20) unstable; urgency=low
+
+  * Bug fixing and stability improvements on the configuration and subscriber
+    backend
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 11 Dec 2015 07:17:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-19) unstable; urgency=low
 
   * Added feature for cleaning the configuration file history

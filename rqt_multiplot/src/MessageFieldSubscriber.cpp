@@ -123,6 +123,8 @@ void MessageFieldSubscriber::disconnectNotify(const char* signal) {
     if (subscriber_)
       unsubscribe();
     
+    emit aboutToBeDestroyed();
+  
     deleteLater();
   }
 }

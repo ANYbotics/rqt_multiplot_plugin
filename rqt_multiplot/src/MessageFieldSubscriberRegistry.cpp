@@ -50,15 +50,14 @@ MessageFieldSubscriber* MessageFieldSubscriberRegistry::getSubscriber(const
     
   if (it == subscribers_.end()) {
     it = subscribers_.insert(topic+":"+field, new
-      MessageFieldSubscriber(this));
+      MessageFieldSubscriber());
     
     it.value()->setTopic(topic);
     it.value()->setField(field);
-    it.value()->setQueueSize(100);
-    
-    connect(it.value(), SIGNAL(destroyed(QObject*)), this,
-      SLOT(subscriberDestroyed(QObject*)));
   }
+  
+  connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
+    SLOT(subscriberAboutToBeDestroyed()));
   
   return it.value();
 }
@@ -95,11 +94,12 @@ bool MessageFieldSubscriberRegistry::unsubscribe(const QString& topic, const
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageFieldSubscriberRegistry::subscriberDestroyed(QObject* object) {
+void MessageFieldSubscriberRegistry::subscriberAboutToBeDestroyed() {
   for (QMap<QString, MessageFieldSubscriber*>::iterator it = subscribers_.
       begin(); it != subscribers_.end(); ++it) {
-    if (it.value() == object) {
+    if (it.value() == static_cast<MessageFieldSubscriber*>(sender())) {
       subscribers_.erase(it);
+      
       break;
     }
   }

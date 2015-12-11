@@ -48,6 +48,7 @@ namespace rqt_multiplot {
     void valueReceived(const QString& topic, const QString& field,
       double value);
     void unsubscribed(const QString& topic, const QString& field);
+    void aboutToBeDestroyed();
     
   private:
     QString topic_;

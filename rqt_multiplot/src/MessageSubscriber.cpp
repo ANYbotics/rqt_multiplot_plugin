@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QApplication>
+
 #include <variant_topic_tools/MessageType.h>
 
 #include "rqt_multiplot/MessageSubscriber.h"
@@ -86,6 +88,19 @@ bool MessageSubscriber::isValid() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
+bool MessageSubscriber::event(QEvent* event) {
+  if (event->type() == MessageEvent::Type) {
+    MessageEvent* messageEvent = static_cast<MessageEvent*>(event);
+
+    emit messageReceived(messageEvent->getTopic(), messageEvent->
+      getMessage());
+    
+    return true;
+  }
+  
+  return QObject::event(event);
+}
+
 void MessageSubscriber::subscribe() {
   variant_topic_tools::MessageType type;
   
@@ -99,6 +114,9 @@ void MessageSubscriber::subscribe() {
 void MessageSubscriber::unsubscribe() {
   if (subscriber_) {
     subscriber_.shutdown();
+    
+    QApplication::removePostedEvents(this, MessageEvent::Type);
+    
     emit unsubscribed(topic_);
   }
 }
@@ -109,8 +127,10 @@ void MessageSubscriber::callback(const variant_topic_tools::MessageVariant&
   
   message.setReceiptTime(receiptTime);
   message.setVariant(variant);
+
+  MessageEvent* messageEvent = new MessageEvent(topic_, message);
   
-  emit messageReceived(topic_, message);
+  QApplication::postEvent(this, messageEvent);
 }
 
 void MessageSubscriber::connectNotify(const char* signal) {
@@ -122,10 +142,12 @@ void MessageSubscriber::connectNotify(const char* signal) {
 
 void MessageSubscriber::disconnectNotify(const char* signal) {
   if (!receivers(QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(QString, Message))))) {
+      SIGNAL(messageReceived(const QString&, const Message&))))) {
     if (subscriber_)
       unsubscribe();
     
+    emit aboutToBeDestroyed();
+  
     deleteLater();
   }
 }

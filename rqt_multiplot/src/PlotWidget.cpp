@@ -502,8 +502,8 @@ void PlotWidget::updateAxisTitle(PlotAxesConfig::Axis axis) {
     if (plotAxisConfig->getTitleType() == PlotAxisConfig::AutoTitle) {
       QStringList titleParts;
       
-      for (size_t index = 0; index < curves_.count(); ++index) {
-        CurveAxisConfig* curveAxisConfig = curves_[index]->getConfig()->
+      for (size_t index = 0; index < config_->getNumCurves(); ++index) {
+        CurveAxisConfig* curveAxisConfig = config_->getCurveConfig(index)->
           getAxisConfig(curveAxis);
           
         QString titlePart = curveAxisConfig->getTopic();

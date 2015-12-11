@@ -16,38 +16,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_REGISTRY_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_REGISTRY_H
-
-#include <QMap>
-#include <QObject>
-#include <QString>
-
-#include <rqt_multiplot/MessageFieldSubscriber.h>
+#include "rqt_multiplot/MessageEvent.h"
 
 namespace rqt_multiplot {
-  class MessageFieldSubscriberRegistry :
-    public QObject {
-  Q_OBJECT
-  public:
-    MessageFieldSubscriberRegistry(QObject* parent = 0);
-    ~MessageFieldSubscriberRegistry();
-    
-    MessageFieldSubscriber* getSubscriber(const QString& topic, const
-      QString& field);
-    
-    bool subscribe(const QString& topic, const QString& field, QObject*
-      receiver, const char* method, size_t queueSize = 100, Qt::ConnectionType
-      type = Qt::AutoConnection);
-    bool unsubscribe(const QString& topic, const QString& field, QObject*
-      receiver, const char* method = 0);
-    
-  private:
-    static QMap<QString, MessageFieldSubscriber*> subscribers_;
-    
-  private slots:
-    void subscriberAboutToBeDestroyed();
-  };
-};
 
-#endif
+/*****************************************************************************/
+/* Static initializations                                                    */
+/*****************************************************************************/
+
+const QEvent::Type MessageEvent::Type = static_cast<QEvent::Type>(
+  QEvent::registerEventType());
+
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
+
+MessageEvent::MessageEvent(const QString& topic, const Message& message) :
+  QEvent(Type),
+  topic_(topic),
+  message_(message) {
+}
+
+MessageEvent::~MessageEvent() {
+}
+
+/*****************************************************************************/
+/* Accessors                                                                 */
+/*****************************************************************************/
+
+const QString& MessageEvent::getTopic() const {
+  return topic_;
+}
+
+const Message& MessageEvent::getMessage() const {
+  return message_;
+}
+
+}

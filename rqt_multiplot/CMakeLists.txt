@@ -61,6 +61,7 @@ set(rqt_multiplot_SRCS
   src/FileScheme.cpp
   src/Message.cpp
   src/MessageDefinitionLoader.cpp
+  src/MessageEvent.cpp
   src/MessageFieldCompleter.cpp
   src/MessageFieldItem.cpp
   src/MessageFieldItemModel.cpp
@@ -141,6 +142,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/Message.h
   include/rqt_multiplot/MessageDefinitionLoader.h
+  include/rqt_multiplot/MessageEvent.h
   include/rqt_multiplot/MessageFieldCompleter.h
   include/rqt_multiplot/MessageFieldItem.h
   include/rqt_multiplot/MessageFieldItemModel.h

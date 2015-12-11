@@ -46,7 +46,7 @@ namespace rqt_multiplot {
     static QMap<QString, MessageSubscriber*> subscribers_;
     
   private slots:
-    void subscriberDestroyed(QObject* object);
+    void subscriberAboutToBeDestroyed();
   };
 };
 

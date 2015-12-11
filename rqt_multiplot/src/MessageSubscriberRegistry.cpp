@@ -54,15 +54,14 @@ MessageSubscriber* MessageSubscriberRegistry::getSubscriber(const QString&
   QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
     
   if (it == subscribers_.end()) {
-    it = subscribers_.insert(topic, new MessageSubscriber(this,
+    it = subscribers_.insert(topic, new MessageSubscriber(0,
       getNodeHandle()));
     
-    it.value()->setTopic(topic);
-    it.value()->setQueueSize(100);
-    
-    connect(it.value(), SIGNAL(destroyed(QObject*)), this,
-      SLOT(subscriberDestroyed(QObject*)));
+    it.value()->setTopic(topic);    
   }
+  
+  connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
+    SLOT(subscriberAboutToBeDestroyed()));
   
   return it.value();
 }
@@ -87,9 +86,10 @@ bool MessageSubscriberRegistry::unsubscribe(const QString& topic, QObject*
     receiver, const char* method) {
   QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
     
-  if (it != subscribers_.end())
+  if (it != subscribers_.end()) {
     return it.value()->disconnect(SIGNAL(messageReceived(const QString&,
       const Message&)), receiver, method);
+  }
   else
     return false;
 }
@@ -98,11 +98,11 @@ bool MessageSubscriberRegistry::unsubscribe(const QString& topic, QObject*
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageSubscriberRegistry::subscriberDestroyed(QObject* object) {
+void MessageSubscriberRegistry::subscriberAboutToBeDestroyed() {
   for (QMap<QString, MessageSubscriber*>::iterator it = subscribers_.begin();
       it != subscribers_.end(); ++it) {
-    if (it.value() == object) {
-      subscribers_.erase(it);
+    if (it.value() == static_cast<MessageSubscriber*>(sender())) {
+      subscribers_.erase(it);      
       break;
     }
   }

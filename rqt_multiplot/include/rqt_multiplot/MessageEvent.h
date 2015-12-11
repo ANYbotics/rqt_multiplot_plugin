@@ -16,61 +16,29 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_H
-#define RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_H
+#ifndef RQT_MULTIPLOT_MESSAGE_EVENT_H
+#define RQT_MULTIPLOT_MESSAGE_EVENT_H
 
-#include <QMap>
-#include <QObject>
+#include <QEvent>
 #include <QString>
 
-#include <ros/node_handle.h>
-
-#include <variant_topic_tools/Subscriber.h>
-
 #include <rqt_multiplot/Message.h>
-#include <rqt_multiplot/MessageEvent.h>
 
 namespace rqt_multiplot {
-  class MessageSubscriber :
-    public QObject {
-  Q_OBJECT
+  class MessageEvent :
+    public QEvent {
   public:
-    MessageSubscriber(QObject* parent = 0, const ros::NodeHandle&
-      nodeHandle = ros::NodeHandle("~"));
-    ~MessageSubscriber();
+    static const QEvent::Type Type;
     
-    const ros::NodeHandle& getNodeHandle() const;
-    void setTopic(const QString& topic);
+    MessageEvent(const QString& topic, const Message& message);
+    virtual ~MessageEvent();
+    
     const QString& getTopic() const;
-    void setQueueSize(size_t queueSize);
-    size_t getQueueSize() const;
-    size_t getNumPublishers() const;  
-    bool isValid() const;
-
-    bool event(QEvent* event);
+    const Message& getMessage() const;
     
-  signals:
-    void subscribed(const QString& topic);
-    void messageReceived(const QString& topic, const Message& message);
-    void unsubscribed(const QString& topic);
-    void aboutToBeDestroyed();
-  
   private:
-    ros::NodeHandle nodeHandle_;
-    
     QString topic_;
-    size_t queueSize_;
-    
-    variant_topic_tools::Subscriber subscriber_;  
-      
-    void subscribe();
-    void unsubscribe();
-
-    void callback(const variant_topic_tools::MessageVariant& variant,
-      const ros::Time& receiptTime);
-    
-    void connectNotify(const char* signal);
-    void disconnectNotify(const char* signal);
+    Message message_;
   };
 };
 
