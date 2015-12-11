@@ -42,6 +42,8 @@ namespace rqt_multiplot {
     const variant_topic_tools::DataType& getDataType() const;
     
     void appendChild(MessageFieldItem* child);
+    
+    void update(const QString& path);
 
   private:
     MessageFieldItem* parent_;

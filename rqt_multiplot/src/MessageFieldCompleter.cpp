@@ -43,6 +43,12 @@ MessageFieldCompleter::~MessageFieldCompleter() {
 /*****************************************************************************/
 
 QStringList MessageFieldCompleter::splitPath(const QString& path) const {
+  MessageFieldItemModel* messageFieldItemModel = qobject_cast<
+    MessageFieldItemModel*>(model());
+    
+  if (messageFieldItemModel)
+    messageFieldItemModel->update(path);
+  
   return path.split("/");
 }
 

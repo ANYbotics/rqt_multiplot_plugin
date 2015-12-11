@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-21) unstable; urgency=low
+
+  * Fixed message field completer to correctly handle dynamic arrays
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 11 Dec 2015 09:33:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-20) unstable; urgency=low
 
   * Bug fixing and stability improvements on the configuration and subscriber

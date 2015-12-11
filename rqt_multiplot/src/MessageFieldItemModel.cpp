@@ -160,4 +160,9 @@ QModelIndex MessageFieldItemModel::parent(const QModelIndex& index) const {
   return QModelIndex();
 }
 
+void MessageFieldItemModel::update(const QString& path) {
+  if (rootItem_)
+    rootItem_->update(path);    
+}
+
 }

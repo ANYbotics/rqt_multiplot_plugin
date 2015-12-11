@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <limits>
+
 #include <QHeaderView>
 #include <QSpinBox>
 
@@ -80,6 +82,8 @@ void MessageFieldTreeWidget::setCurrentField(const QString& field) {
     currentField_ = field;
     
     setCurrentItem(field);
+    
+    emit currentFieldChanged(field);
   }
 }
 
@@ -129,7 +133,10 @@ void MessageFieldTreeWidget::setCurrentItem(const QString& field) {
           itemWidget(item->child(0), 0));
         
         if (indexOkay && (index < spinBoxIndex->maximum())) {
+          spinBoxIndex->blockSignals(true);
           spinBoxIndex->setValue(index);
+          spinBoxIndex->blockSignals(false);
+          
           item = item->child(0);
           fields.removeFirst();
           
@@ -183,6 +190,8 @@ void MessageFieldTreeWidget::addField(const variant_topic_tools::
     spinBoxIndex->setMinimum(0);
     if (!arrayType.isDynamic())
       spinBoxIndex->setMaximum(arrayType.getNumMembers()-1);
+    else
+      spinBoxIndex->setMaximum(std::numeric_limits<int>::max());
     spinBoxIndex->setFrame(false);
     
     connect(spinBoxIndex, SIGNAL(valueChanged(int)), this,
@@ -260,12 +269,8 @@ void MessageFieldTreeWidget::currentItemChanged(QTreeWidgetItem* current,
       
     current = current->parent();
   }
-  
-  if (field != currentField_) {
-    currentField_ = field;
-    
-    emit currentFieldChanged(currentField_);
-  }
+
+  setCurrentField(field);
 }
 
 void MessageFieldTreeWidget::spinBoxIndexValueChanged(int value) {

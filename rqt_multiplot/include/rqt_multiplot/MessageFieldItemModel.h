@@ -45,6 +45,8 @@ namespace rqt_multiplot {
     QModelIndex index(int row, int column, const QModelIndex& parent) const;
     QModelIndex parent(const QModelIndex& index) const;
     
+    void update(const QString& path);
+    
   private:
     MessageFieldItem* rootItem_;
   };

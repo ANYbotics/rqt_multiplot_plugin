@@ -172,7 +172,8 @@ void MessageFieldWidget::loaderLoadingFinished() {
   ui_->treeWidget->setMessageDataType(loader_->getDefinition().
     getMessageDataType());
   
-  setCurrentField(currentField_);
+  ui_->lineEdit->setCurrentField(currentField_);
+  ui_->treeWidget->setCurrentField(currentField_);
   
   isLoading_ = false;
   emit loadingFinished();
@@ -197,7 +198,8 @@ void MessageFieldWidget::subscriberMessageReceived(const QString& topic,
   ui_->lineEdit->setMessageDataType(message.getVariant().getType());
   ui_->treeWidget->setMessageDataType(message.getVariant().getType());
   
-  setCurrentField(currentField_);
+  ui_->lineEdit->setCurrentField(currentField_);
+  ui_->treeWidget->setCurrentField(currentField_);
   
   emit connected(topic);
   

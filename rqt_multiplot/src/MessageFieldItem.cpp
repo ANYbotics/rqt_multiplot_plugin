@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QRegExp>
 #include <QStringList>
 
 #include <variant_topic_tools/ArrayDataType.h>
@@ -131,6 +132,53 @@ const variant_topic_tools::DataType& MessageFieldItem::getDataType() const {
 
 void MessageFieldItem::appendChild(MessageFieldItem* child) {
   children_.append(child);
+}
+
+void MessageFieldItem::update(const QString& path) {
+  QStringList names = path.split("/");
+
+  if (dataType_.isArray() && QRegExp("[1-9][0-9]*").exactMatch(
+      names.first())) {
+    variant_topic_tools::ArrayDataType arrayType = dataType_;
+    
+    if (arrayType.isDynamic()) {        
+      if (children_.count() < 11)
+        appendChild(new MessageFieldItem(arrayType.getMemberType(), this));          
+      
+      children_[0]->name_ = names.first();
+      
+      for (size_t i = 0; i <= 9; ++i)
+        children_[i+1]->name_ = names.first()+QString::number(i);
+    }
+  }
+  
+  for (size_t row = 0; row < children_.count(); ++row) {
+    MessageFieldItem* child = children_[row];
+    
+    if (child->dataType_.isArray()) {
+      variant_topic_tools::ArrayDataType arrayType = child->dataType_;
+      
+      if (arrayType.isDynamic()) {
+        if (child->children_.count() > 10) {
+          for (size_t i = 0; i <= 9; ++i)
+            child->children_[i]->name_ = QString::number(i);
+          
+          delete child->children_.last();        
+          child->children_.removeLast();
+        }
+        
+      }
+    }
+  }
+  
+  if (!names.isEmpty()) {
+    MessageFieldItem* child = getChild(names.first());
+    
+    if (child) {
+      names.removeFirst();
+      child->update(names.join("/"));
+    }
+  }
 }
 
 }

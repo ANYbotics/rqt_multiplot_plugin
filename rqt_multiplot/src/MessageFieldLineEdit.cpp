@@ -83,11 +83,7 @@ bool MessageFieldLineEdit::isCurrentFieldDefined() const {
 /*****************************************************************************/
 
 void MessageFieldLineEdit::editingFinished() {
-  if (text() != currentField_) {
-    currentField_ = text();
-    
-    emit currentFieldChanged(currentField_);
-  }
+  setCurrentField(text());
 }
 
 }

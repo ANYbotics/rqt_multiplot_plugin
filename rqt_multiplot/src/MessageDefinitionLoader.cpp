@@ -85,6 +85,8 @@ bool MessageDefinitionLoader::isLoading() const {
 /*****************************************************************************/
 
 void MessageDefinitionLoader::load(const QString& type) {
+  impl_.wait();
+  
   impl_.type_ = type;
   impl_.start();
 }
