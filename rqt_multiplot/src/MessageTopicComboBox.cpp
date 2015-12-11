@@ -57,9 +57,23 @@ void MessageTopicComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
     QComboBox::setEditable(editable);
     
-    if (lineEdit())
+    if (lineEdit()) {
+      blockSignals(true);
+  
+      int index = findText(currentTopic_);
+      
+      if (index < 0) {
+        setEditText(currentTopic_);
+        setCurrentIndex(-1);
+      }
+      else
+        setCurrentIndex(index);
+      
+      blockSignals(false);
+      
       connect(lineEdit(), SIGNAL(editingFinished()), this,
         SLOT(lineEditEditingFinished()));
+    }
   }
 }
 
@@ -69,8 +83,10 @@ void MessageTopicComboBox::setCurrentTopic(const QString& topic) {
     
     int index = findText(topic);
     
-    if (index < 0)
+    if (index < 0) {
       setEditText(topic);
+      setCurrentIndex(-1);
+    }
     else
       setCurrentIndex(index);
     
@@ -131,8 +147,10 @@ void MessageTopicComboBox::registryUpdateFinished() {
   
   int index = findText(currentTopic_);
   
-  if (index < 0)
+  if (index < 0) {
     setEditText(currentTopic_);
+    setCurrentIndex(-1);
+  }
   else
     setCurrentIndex(index);
   

@@ -158,12 +158,12 @@ void MessageFieldWidget::disconnect() {
 /*****************************************************************************/
 
 void MessageFieldWidget::loaderLoadingStarted() {
-  setEnabled(false);
+  setEnabled(false);  
+  ui_->treeWidget->clear();
   
   isLoading_ = true;
-  emit loadingStarted();
   
-  ui_->treeWidget->clear();
+  emit loadingStarted();
 }
 
 void MessageFieldWidget::loaderLoadingFinished() {
@@ -175,10 +175,11 @@ void MessageFieldWidget::loaderLoadingFinished() {
   ui_->lineEdit->setCurrentField(currentField_);
   ui_->treeWidget->setCurrentField(currentField_);
   
-  isLoading_ = false;
-  emit loadingFinished();
-  
   setEnabled(true);
+  
+  isLoading_ = false;
+  
+  emit loadingFinished();  
 }
 
 void MessageFieldWidget::loaderLoadingFailed(const QString& error) {
@@ -201,9 +202,9 @@ void MessageFieldWidget::subscriberMessageReceived(const QString& topic,
   ui_->lineEdit->setCurrentField(currentField_);
   ui_->treeWidget->setCurrentField(currentField_);
   
-  emit connected(topic);
-  
   setEnabled(true);
+  
+  emit connected(topic);
 }
 
 void MessageFieldWidget::connectionTimerTimeout() {

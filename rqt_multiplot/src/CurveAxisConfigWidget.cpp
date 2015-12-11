@@ -177,6 +177,13 @@ bool CurveAxisConfigWidget::validateTopic() {
   if (!config_ || ui_->comboBoxTopic->isUpdating())
     return false;
   
+  if (config_->getTopic().isEmpty()) {
+    ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Error,
+      "No topic selected");
+    
+    return false;
+  }
+  
   if (ui_->comboBoxTopic->isCurrentTopicRegistered()) {
     ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Okay,
       "Topic okay");
@@ -187,8 +194,6 @@ bool CurveAxisConfigWidget::validateTopic() {
     ui_->statusWidgetTopic->setCurrentRole(StatusWidget::Error,
       "Topic ["+config_->getTopic()+"] not advertised");
     
-    validateType();
-    
     return false;
   }
 }
@@ -196,6 +201,13 @@ bool CurveAxisConfigWidget::validateTopic() {
 bool CurveAxisConfigWidget::validateType() {
   if (!config_ || ui_->comboBoxType->isUpdating())
     return false;
+
+  if (config_->getType().isEmpty()) {
+    ui_->statusWidgetType->setCurrentRole(StatusWidget::Error,
+      "No message type selected");
+    
+    return false;
+  }
   
   if (!ui_->comboBoxTopic->isCurrentTopicRegistered()) {
     if (ui_->comboBoxType->isCurrentTypeRegistered()) {
@@ -234,60 +246,61 @@ bool CurveAxisConfigWidget::validateField() {
   if (!config_ || ui_->widgetField->isLoading())
     return false;
   
-  if (ui_->checkBoxFieldReceiptTime->checkState() == Qt::Unchecked) {
-    QString field = config_->getField();
-
-    if (!field.isEmpty()) {
-      variant_topic_tools::DataType fieldType = ui_->widgetField->
-        getCurrentFieldDataType();  
-      
-      if (fieldType.isValid()) {
-        if (fieldType.isBuiltin() && variant_topic_tools::
-            BuiltinDataType(fieldType).isNumeric()) {
-          ui_->statusWidgetField->setCurrentRole(StatusWidget::Okay,
-            "Message field okay");
-        
-          return true;
-        }
-        else {
-          ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
-            "Message field ["+field+"] is not numeric");
-        }
-      }
-      else {
-        ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
-          "No such message field ["+field+"]");
-      }
-    }
-    else {
-      ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
-        "No message field selected");
-    }      
-  }
-  else {
+  if (config_->getFieldType() == CurveAxisConfig::MessageReceiptTime) {
     ui_->statusWidgetField->setCurrentRole(StatusWidget::Okay,
       "Message field okay");
     
     return true;
   }
   
-  return false;
-}
-
-bool CurveAxisConfigWidget::validateScale() {
-  if (config_) {
-    if (!config_->getScale()->isValid()) {
-      ui_->statusWidgetScale->setCurrentRole(StatusWidget::Error,
-        "Axis scale invalid");
+  if (config_->getField().isEmpty()) {
+    ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
+      "No message field selected");
+    
+    return false;
+  }
+  
+  variant_topic_tools::DataType fieldType = ui_->widgetField->
+    getCurrentFieldDataType();  
+  
+  if (fieldType.isValid()) {
+    if (fieldType.isBuiltin() && variant_topic_tools::
+        BuiltinDataType(fieldType).isNumeric()) {
+      ui_->statusWidgetField->setCurrentRole(StatusWidget::Okay,
+        "Message field okay");
+    
+      return true;
+    }
+    else {
+      ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
+        "Message field ["+config_->getField()+"] is not numeric");
       
       return false;
     }
-    else {
-      ui_->statusWidgetScale->setCurrentRole(StatusWidget::Okay,
-        "Axis scale okay");
-      
-      return true;
-    }
+  }
+  else {
+    ui_->statusWidgetField->setCurrentRole(StatusWidget::Error,
+      "No such message field ["+config_->getField()+"]");
+    
+    return false;
+  }
+}
+
+bool CurveAxisConfigWidget::validateScale() {
+  if (!config_)
+    return false;
+  
+  if (!config_->getScale()->isValid()) {
+    ui_->statusWidgetScale->setCurrentRole(StatusWidget::Error,
+      "Axis scale invalid");
+    
+    return false;
+  }
+  else {
+    ui_->statusWidgetScale->setCurrentRole(StatusWidget::Okay,
+      "Axis scale okay");
+    
+    return true;
   }
 }
 
@@ -297,20 +310,28 @@ bool CurveAxisConfigWidget::validateScale() {
 
 void CurveAxisConfigWidget::configTopicChanged(const QString& topic) {
   ui_->comboBoxTopic->setCurrentTopic(topic);
+  
+  validateTopic();
 }
 
 void CurveAxisConfigWidget::configTypeChanged(const QString& type) {
   ui_->comboBoxType->setCurrentType(type);
+  
+  validateType();
 }
 
 void CurveAxisConfigWidget::configFieldTypeChanged(int fieldType) {
   ui_->checkBoxFieldReceiptTime->setCheckState(
     (fieldType == CurveAxisConfig::MessageReceiptTime) ?
     Qt::Checked : Qt::Unchecked);
+  
+  validateType();
 }
 
 void CurveAxisConfigWidget::configFieldChanged(const QString& field) {
   ui_->widgetField->setCurrentField(field);
+  
+  validateField();
 }
 
 void CurveAxisConfigWidget::configScaleChanged() {
@@ -363,6 +384,8 @@ void CurveAxisConfigWidget::comboBoxTypeCurrentTypeChanged(const QString&
 }
 
 void CurveAxisConfigWidget::widgetFieldLoadingStarted() {
+  ui_->widgetField->setEnabled(false);
+  
   ui_->statusWidgetField->pushCurrentRole();
   ui_->statusWidgetField->setCurrentRole(StatusWidget::Busy,
     "Loading message definition...");
@@ -370,7 +393,7 @@ void CurveAxisConfigWidget::widgetFieldLoadingStarted() {
 
 void CurveAxisConfigWidget::widgetFieldLoadingFinished() {
   ui_->widgetField->setEnabled(ui_->checkBoxFieldReceiptTime->
-    checkState() == Qt::Unchecked);
+    checkState() != Qt::Checked);
   ui_->statusWidgetField->popCurrentRole();
   
   validateField();
@@ -388,6 +411,8 @@ void CurveAxisConfigWidget::widgetFieldLoadingFailed(const QString&
 }
 
 void CurveAxisConfigWidget::widgetFieldConnecting(const QString& topic) {
+  ui_->widgetField->setEnabled(false);
+  
   ui_->statusWidgetField->pushCurrentRole();
   ui_->statusWidgetField->setCurrentRole(StatusWidget::Busy,
     "Waiting for connnection on topic ["+topic+"]...");
@@ -395,7 +420,7 @@ void CurveAxisConfigWidget::widgetFieldConnecting(const QString& topic) {
 
 void CurveAxisConfigWidget::widgetFieldConnected(const QString& topic) {
   ui_->widgetField->setEnabled(ui_->checkBoxFieldReceiptTime->
-    checkState() == Qt::Unchecked);
+    checkState() != Qt::Checked);
   ui_->statusWidgetField->popCurrentRole();  
   
   validateField();
@@ -417,7 +442,7 @@ void CurveAxisConfigWidget::widgetFieldCurrentFieldChanged(const QString&
 }
 
 void CurveAxisConfigWidget::checkBoxFieldReceiptTimeStateChanged(int state) {
-  ui_->widgetField->setEnabled(state == Qt::Unchecked);
+  ui_->widgetField->setEnabled(state != Qt::Checked);
   
   if (config_)
     config_->setFieldType((state == Qt::Checked) ?

@@ -57,9 +57,21 @@ void MessageTypeComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
     QComboBox::setEditable(editable);
     
-    if (lineEdit())
+    if (lineEdit()) {
+      blockSignals(true);
+  
+      int index = findText(currentType_);
+      
+      if (index < 0)
+        setEditText(currentType_);
+      else
+        setCurrentIndex(index);
+      
+      blockSignals(false);
+      
       connect(lineEdit(), SIGNAL(editingFinished()), this,
         SLOT(lineEditEditingFinished()));
+    }
   }
 }
 
