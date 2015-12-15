@@ -140,7 +140,14 @@ void BagReader::Impl::run() {
     
     bag.open(fileName_.toStdString(), rosbag::bagmode::Read);
     
-    rosbag::View view(bag);
+    std::vector<std::string> queriedTopics;
+    queriedTopics.reserve(queries_.count());
+    
+    for (QMap<QString, BagQuery*>::const_iterator jt = queries_.begin();
+        jt != queries_.end(); ++jt)
+      queriedTopics.push_back(jt.key().toStdString());
+    
+    rosbag::View view(bag, rosbag::TopicQuery(queriedTopics));
     
     for (rosbag::View::iterator it = view.begin(); it != view.end();
         ++it) {

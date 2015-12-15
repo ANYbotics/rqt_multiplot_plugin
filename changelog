@@ -1,3 +1,10 @@
+ros-rqt-multiplot-plugin (0.0.1-26) unstable; urgency=low
+
+  * Bag reader is now using topic queries to reduce the number of processed
+    messages
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 17:02:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-25) unstable; urgency=low
 
   * Added adaptive-precision output format to tracker coordinate labels

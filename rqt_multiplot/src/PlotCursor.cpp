@@ -169,12 +169,12 @@ QwtText PlotCursor::trackerTextF(const QPointF& point) const {
   QString x, y;
   
   if ((xPrecision < 0.0) && (fabs(point.x()) >= 1.0))
-    x.sprintf("%.*f", point.x(), (int)ceil(fabs(xPrecision)));
+    x.sprintf("%.*f", (int)ceil(fabs(xPrecision)), point.x());
   else
     x.sprintf("%g", point.x());
   
   if ((yPrecision < 0.0) && (fabs(point.y()) >= 1.0))
-    y.sprintf("%.*f", point.y(), (int)ceil(fabs(yPrecision)));
+    y.sprintf("%.*f", (int)ceil(fabs(yPrecision)), point.y());
   else
     y.sprintf("%g", point.y());
   
