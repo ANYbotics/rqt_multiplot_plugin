@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QApplication>
 #include <QFile>
 #include <QTextStream>
 
@@ -33,12 +34,23 @@ namespace rqt_multiplot {
 PlotTableWidget::PlotTableWidget(QWidget* parent) :
   QWidget(parent),
   layout_(new QGridLayout(this)),
-  config_(0) {
+  config_(0),
+  registry_(new MessageSubscriberRegistry(this)),
+  bagReader_(new BagReader(this)) {
   setLayout(layout_);
   setAutoFillBackground(true);
   
   layout_->setHorizontalSpacing(20);
   layout_->setVerticalSpacing(20);
+  
+  connect(bagReader_, SIGNAL(readingStarted()), this,
+    SLOT(bagReaderReadingStarted()));
+  connect(bagReader_, SIGNAL(readingProgressChanged(double)), this,
+    SLOT(bagReaderReadingProgressChanged(double)));
+  connect(bagReader_, SIGNAL(readingFinished()), this,
+    SLOT(bagReaderReadingFinished()));
+  connect(bagReader_, SIGNAL(readingFailed(const QString&)), this,
+    SLOT(bagReaderReadingFailed(const QString&)));
 }
 
 PlotTableWidget::~PlotTableWidget() {
@@ -103,6 +115,14 @@ size_t PlotTableWidget::getNumColumns() const {
 
 PlotWidget* PlotTableWidget::getPlotWidget(size_t row, size_t column) const {
   return plotWidgets_[row][column];
+}
+
+MessageSubscriberRegistry* PlotTableWidget::getRegistry() const {
+  return registry_;
+}
+
+BagReader* PlotTableWidget::getBagReader() const {
+  return bagReader_;
 }
 
 /*****************************************************************************/
@@ -190,6 +210,18 @@ void PlotTableWidget::writeFormattedCurveData(QList<QStringList>&
       formattedData.append(formattedCurveData);
     }
   }
+}
+
+void PlotTableWidget::loadFromBagFile(const QString& fileName) {
+  clearPlots();
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
+      plotWidgets_[row][column]->setBroker(bagReader_);
+  
+  runPlots();
+    
+  bagReader_->read(fileName);
 }
 
 void PlotTableWidget::saveToImageFile(const QString& fileName) {
@@ -338,6 +370,7 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
       
       plotWidgets[row][column]->setConfig(config_->getPlotConfig(
         row, column));
+      plotWidgets[row][column]->setBroker(registry_);
       
       if (config_->isScaleLinked())
         plotWidgets[row][column]->setCurrentScale(plotWidgets[0][0]->
@@ -382,6 +415,39 @@ void PlotTableWidget::configTrackPointsChanged(bool track) {
   for (size_t row = 0; row < plotWidgets_.count(); ++row)
     for (size_t column = 0; column < plotWidgets_[row].count(); ++ column)
       plotWidgets_[row][column]->getCursor()->setTrackPoints(track);
+}
+
+void PlotTableWidget::bagReaderReadingStarted() {
+  emit jobStarted("Reading bag from [file://"+
+    bagReader_->getFileName()+"]...");
+}
+
+void PlotTableWidget::bagReaderReadingProgressChanged(double progress) {
+  QApplication::processEvents();
+  
+  emit jobProgressChanged(progress);
+}
+
+void PlotTableWidget::bagReaderReadingFinished() {
+  pausePlots();
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
+      plotWidgets_[row][column]->setBroker(registry_);
+    
+  emit jobFinished("Read bag from [file://"+
+    bagReader_->getFileName()+"]");
+}
+
+void PlotTableWidget::bagReaderReadingFailed(const QString& error) {
+  pausePlots();
+  
+  for (size_t row = 0; row < plotWidgets_.count(); ++row)
+    for (size_t column = 0; column < plotWidgets_[row].count(); ++column)
+      plotWidgets_[row][column]->setBroker(registry_);
+    
+  emit jobFailed("Failed to read bag from [file://"+
+    bagReader_->getFileName()+"]");
 }
 
 void PlotTableWidget::plotPreferredScaleChanged(const BoundingRectangle&

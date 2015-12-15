@@ -23,18 +23,13 @@
 namespace rqt_multiplot {
 
 /*****************************************************************************/
-/* Static Initializations                                                    */
-/*****************************************************************************/
-
-QMap<QString, MessageSubscriber*> MessageSubscriberRegistry::subscribers_;
-
-/*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageSubscriberRegistry::MessageSubscriberRegistry(QObject* parent) :
-  QObject(parent) {
-  qRegisterMetaType<Message>("Message");
+MessageSubscriberRegistry::MessageSubscriberRegistry(QObject* parent, const
+    ros::NodeHandle& nodeHandle) :
+  MessageBroker(parent),
+  nodeHandle_(nodeHandle) {
 }
 
 MessageSubscriberRegistry::~MessageSubscriberRegistry() {
@@ -44,41 +39,37 @@ MessageSubscriberRegistry::~MessageSubscriberRegistry() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-const ros::NodeHandle& MessageSubscriberRegistry::getNodeHandle() {
-  static ros::NodeHandlePtr nodeHandle(new ros::NodeHandle("~"));
-  return *nodeHandle;
-}
-
-MessageSubscriber* MessageSubscriberRegistry::getSubscriber(const QString&
-    topic) {
-  QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
-    
-  if (it == subscribers_.end()) {
-    it = subscribers_.insert(topic, new MessageSubscriber(0,
-      getNodeHandle()));
-    
-    it.value()->setTopic(topic);    
-  }
-  
-  connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
-    SLOT(subscriberAboutToBeDestroyed()));
-  
-  return it.value();
+const ros::NodeHandle& MessageSubscriberRegistry::getNodeHandle() const {
+  return nodeHandle_;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-bool MessageSubscriberRegistry::subscribe(const QString& topic, QObject*
-    receiver, const char* method, size_t queueSize, Qt::ConnectionType
-    type) {
-  MessageSubscriber* subscriber = getSubscriber(topic);
+bool MessageSubscriberRegistry::subscribe(const QString& topic,
+    QObject* receiver, const char* method, const PropertyMap& properties,
+    Qt::ConnectionType type) {
+  QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
   
-  if (subscriber->getQueueSize() < queueSize)
-    subscriber->setQueueSize(queueSize);
+  size_t queueSize = 100;
+  if (properties.contains(MessageSubscriber::QueueSize))
+    queueSize = properties[MessageSubscriber::QueueSize].toULongLong();
   
-  return receiver->connect(subscriber, SIGNAL(messageReceived(const
+  if (it == subscribers_.end()) {
+    it = subscribers_.insert(topic, new MessageSubscriber(this,
+      getNodeHandle()));
+    
+    it.value()->setQueueSize(queueSize);    
+    it.value()->setTopic(topic);    
+    
+    connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
+      SLOT(subscriberAboutToBeDestroyed()));
+  }
+  else if (it.value()->getQueueSize() < queueSize)
+    it.value()->setQueueSize(queueSize);
+  
+  return receiver->connect(it.value(), SIGNAL(messageReceived(const
     QString&, const Message&)), method, type);
 }
 

@@ -33,6 +33,7 @@ namespace rqt_multiplot {
 PlotCurve::PlotCurve(QObject* parent) :
   QObject(parent),
   config_(0),
+  broker_(0),
   data_(new CurveDataVector()),
   dataSequencer_(new CurveDataSequencer(this)),
   paused_(true) {
@@ -101,6 +102,18 @@ void PlotCurve::setConfig(CurveConfig* config) {
 
 CurveConfig* PlotCurve::getConfig() const {
   return config_;
+}
+
+void PlotCurve::setBroker(MessageBroker* broker) {
+  if (broker != broker_) {
+    broker_ = broker;
+    
+    dataSequencer_->setBroker(broker);
+  }
+}
+
+MessageBroker* PlotCurve::getBroker() const {
+  return broker_;
 }
 
 CurveData* PlotCurve::getData() const {

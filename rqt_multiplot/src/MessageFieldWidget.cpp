@@ -145,8 +145,7 @@ void MessageFieldWidget::connectTopic(const QString& topic, double
 }
 
 void MessageFieldWidget::disconnect() {
-  registry_->unsubscribe(subscribedTopic_, this,
-    SLOT(subscriberMessageReceived(const QString&, const Message&)));
+  registry_->unsubscribe(subscribedTopic_, this);
   
   isConnecting_ = false;
   subscribedTopic_.clear();

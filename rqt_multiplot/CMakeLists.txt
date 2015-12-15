@@ -6,6 +6,7 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 find_package(catkin REQUIRED
   COMPONENTS
+    rosbag
     roscpp
     rqt_gui
     rqt_gui_cpp
@@ -34,6 +35,8 @@ include(${QT_USE_FILE})
 catkin_python_setup()
 
 set(rqt_multiplot_SRCS
+  src/BagQuery.cpp
+  src/BagReader.cpp
   src/BitOperations.cpp
   src/BoundingRectangle.cpp
   src/ColorOperations.cpp
@@ -58,16 +61,16 @@ set(rqt_multiplot_SRCS
   src/CurveListWidget.cpp
   src/CurveStyle.cpp
   src/CurveStyleWidget.cpp
+  src/DataTypeRegistry.cpp
   src/FileScheme.cpp
   src/Message.cpp
+  src/MessageBroker.cpp
   src/MessageDefinitionLoader.cpp
   src/MessageEvent.cpp
   src/MessageFieldCompleter.cpp
   src/MessageFieldItem.cpp
   src/MessageFieldItemModel.cpp
   src/MessageFieldLineEdit.cpp
-  src/MessageFieldSubscriber.cpp
-  src/MessageFieldSubscriberRegistry.cpp
   src/MessageFieldTreeWidget.cpp
   src/MessageFieldWidget.cpp
   src/MessageSubscriber.cpp
@@ -105,7 +108,10 @@ set(rqt_multiplot_SRCS
   src/PlotWidget.cpp
   src/PlotZoomer.cpp
   src/PlotZoomerMachine.cpp
+  src/ProgressChangeEvent.cpp
+  src/ProgressWidget.cpp
   src/StatusWidget.cpp
+  src/ThreadedTimer.cpp
   src/UrlComboBox.cpp
   src/UrlCompleter.cpp
   src/UrlItem.cpp
@@ -115,6 +121,8 @@ set(rqt_multiplot_SRCS
 )
 
 set(rqt_multiplot_HDRS
+  include/rqt_multiplot/BagQuery.h
+  include/rqt_multiplot/BagReader.h
   include/rqt_multiplot/BitOperations.h
   include/rqt_multiplot/BoundingRectangle.h
   include/rqt_multiplot/ColorOperations.h
@@ -139,16 +147,16 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveListWidget.h
   include/rqt_multiplot/CurveStyle.h
   include/rqt_multiplot/CurveStyleWidget.h
+  include/rqt_multiplot/DataTypeRegistry.h
   include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/Message.h
+  include/rqt_multiplot/MessageBroker.h
   include/rqt_multiplot/MessageDefinitionLoader.h
   include/rqt_multiplot/MessageEvent.h
   include/rqt_multiplot/MessageFieldCompleter.h
   include/rqt_multiplot/MessageFieldItem.h
   include/rqt_multiplot/MessageFieldItemModel.h
   include/rqt_multiplot/MessageFieldLineEdit.h
-  include/rqt_multiplot/MessageFieldSubscriber.h
-  include/rqt_multiplot/MessageFieldSubscriberRegistry.h
   include/rqt_multiplot/MessageFieldTreeWidget.h
   include/rqt_multiplot/MessageFieldWidget.h
   include/rqt_multiplot/MessageSubscriber.h
@@ -186,7 +194,10 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/PlotWidget.h
   include/rqt_multiplot/PlotZoomer.h
   include/rqt_multiplot/PlotZoomerMachine.h
+  include/rqt_multiplot/ProgressChangeEvent.h
+  include/rqt_multiplot/ProgressWidget.h
   include/rqt_multiplot/StatusWidget.h
+  include/rqt_multiplot/ThreadedTimer.h
   include/rqt_multiplot/UrlComboBox.h
   include/rqt_multiplot/UrlCompleter.h
   include/rqt_multiplot/UrlItem.h
@@ -214,6 +225,7 @@ set(rqt_multiplot_UIS
   src/PlotLegendConfigWidget.ui
   src/PlotTableConfigWidget.ui
   src/PlotWidget.ui
+  src/ProgressWidget.ui
 )
 
 set(rqt_multiplot_INCLUDE_DIRECTORIES
@@ -224,7 +236,8 @@ set(rqt_multiplot_INCLUDE_DIRECTORIES
 catkin_package(
   LIBRARIES
     rqt_multiplot
-  CATKIN_DEPENDS 
+  CATKIN_DEPENDS
+    rosbag
     roscpp
     rqt_gui
     rqt_gui_cpp

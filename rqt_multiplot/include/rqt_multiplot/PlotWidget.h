@@ -29,6 +29,7 @@
 #include <QWidget>
 
 #include <rqt_multiplot/BoundingRectangle.h>
+#include <rqt_multiplot/MessageBroker.h>
 #include <rqt_multiplot/PlotConfig.h>
 
 namespace Ui {
@@ -57,6 +58,8 @@ namespace rqt_multiplot {
 
     void setConfig(PlotConfig* config);
     PlotConfig* getConfig() const;
+    void setBroker(MessageBroker* broker);
+    MessageBroker* getBroker() const;
     PlotCursor* getCursor() const;
     BoundingRectangle getPreferredScale() const;
     void setCurrentScale(const BoundingRectangle& bounds);
@@ -100,9 +103,11 @@ namespace rqt_multiplot {
     QIcon normalIcon_;
     QIcon maximizedIcon_;
     QTimer* timer_;
-    QMenu* menuExport_;
+    QMenu* menuImportExport_;
         
     PlotConfig* config_;
+    
+    MessageBroker* broker_;
     
     QVector<PlotCurve*> curves_;
     
@@ -142,7 +147,7 @@ namespace rqt_multiplot {
     void pushButtonRunPauseClicked();
     void pushButtonClearClicked();
     void pushButtonSetupClicked();
-    void pushButtonExportClicked();
+    void pushButtonImportExportClicked();
     void pushButtonStateClicked();
     void menuExportImageFileTriggered();
     void menuExportTextFileTriggered();

@@ -16,11 +16,10 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
+#include <QApplication>
+#include <QTimerEvent>
 
-#include <rqt_multiplot/DataTypeRegistry.h>
-
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/ThreadedTimer.h"
 
 namespace rqt_multiplot {
 
@@ -28,98 +27,54 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
-  QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+ThreadedTimer::ThreadedTimer(QObject* parent) :
+  QThread(parent),
+  timer_(new QTimer()) {
+  timer_->moveToThread(this);
+  
+  connect(timer_, SIGNAL(timeout()), this, SLOT(timerTimeout()));
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
-
-MessageDefinitionLoader::Impl::~Impl() {
-  terminate();
+ThreadedTimer::~ThreadedTimer() {
+  quit();
   wait();
+  
+  delete timer_;
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
+int ThreadedTimer::getTimerId() const {
+  return timer_->timerId();
 }
 
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.definition_;
+void ThreadedTimer::setRate(double rate) {
+  timer_->setInterval(1e3/rate);
 }
 
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
-}
-
-bool MessageDefinitionLoader::isLoading() const {
-  return impl_.isRunning();
+double ThreadedTimer::getRate() const {
+  return 1e3/timer_->interval();
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.wait();
-  
-  impl_.type_ = type;
-  impl_.start();
-}
+void ThreadedTimer::run() {
+  timer_->start();  
 
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
-}
-
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&DataTypeRegistry::mutex_);
-    
-    definition_.load(type_.toStdString());
-  }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
-  }
+  QThread::exec();
 }
 
 /*****************************************************************************/
-/* Slots                                                                     */
+/* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
+void ThreadedTimer::timerTimeout() {
+  if (parent())
+    QApplication::postEvent(parent(), new QTimerEvent(timer_->timerId()));
 }
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
-}
-  
+
 }

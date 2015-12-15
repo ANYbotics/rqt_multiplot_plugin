@@ -16,70 +16,72 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CURVE_H
-#define RQT_MULTIPLOT_PLOT_CURVE_H
+#ifndef RQT_MULTIPLOT_BAG_READER_H
+#define RQT_MULTIPLOT_BAG_READER_H
 
-#include <QObject>
-#include <QPair>
-#include <QPointF>
+#include <QMap>
+#include <QMutex>
+#include <QString>
+#include <QStringList>
+#include <QThread>
 
-#include <qwt/qwt_plot_curve.h>
-
-#include <rqt_multiplot/BoundingRectangle.h>
-#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/BagQuery.h>
 #include <rqt_multiplot/MessageBroker.h>
 
 namespace rqt_multiplot {
-  class CurveData;
-  class CurveDataSequencer;
-
-  class PlotCurve :
-    public QObject,
-    private QwtPlotCurve {
+  class BagReader :
+    public MessageBroker {
   Q_OBJECT
   public:
-    PlotCurve(QObject* parent = 0);
-    virtual ~PlotCurve();
+    BagReader(QObject* parent = 0);
+    virtual ~BagReader();
     
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
-    void setBroker(MessageBroker* broker);
-    MessageBroker* getBroker() const;
-    CurveData* getData() const;
-    CurveDataSequencer* getDataSequencer() const;
-    QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
-      axis) const;
-    BoundingRectangle getPreferredScale() const;
+    QString getFileName() const;
+    QStringList getTopics() const;
+    QString getError() const;
+    bool isReading() const;
     
-    void attach(QwtPlot* plot);
-    void detach();
+    void read(const QString& fileName);
+    void wait();
     
-    void run();
-    void pause();
-    void clear();
-  
+    bool subscribe(const QString& topic, QObject* receiver,
+      const char* method, const PropertyMap& properties = PropertyMap(),
+      Qt::ConnectionType type = Qt::AutoConnection);
+    bool unsubscribe(const QString& topic, QObject* receiver,
+      const char* method = 0);
+    
+    bool event(QEvent* event);
+    
   signals:
-    void preferredScaleChanged(const BoundingRectangle& bounds);
-    void replotRequested();
+    void readingStarted();
+    void messageRead(const QString& topic, const Message& message);
+    void readingProgressChanged(double progress);
+    void readingFinished();
+    void readingFailed(const QString& error);
     
   private:
-    CurveConfig* config_;
-
-    MessageBroker* broker_;
+    class Impl :
+      public QThread {
+    public:
+      Impl(QObject* parent = 0);
+      virtual ~Impl();
+      
+      void run();
+      
+      mutable QMutex mutex_;
+      QString fileName_;
+      QString error_;
+      
+      QMap<QString, BagQuery*> queries_;
+    };
     
-    CurveData* data_;
-    CurveDataSequencer* dataSequencer_;
-
-    bool paused_;
+    Impl impl_;
     
   private slots:
-    void configTitleChanged(const QString& title);
-    void configAxisConfigChanged();
-    void configColorCurrentColorChanged(const QColor& color);
-    void configStyleChanged();
-    void configDataConfigChanged();
-    
-    void dataSequencerPointReceived(const QPointF& point);
+    void threadStarted();
+    void threadFinished();
+
+    void queryAboutToBeDestroyed();
   };
 };
 

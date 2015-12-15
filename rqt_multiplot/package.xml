@@ -11,11 +11,13 @@
 
   <buildtool_depend>catkin</buildtool_depend>
   
+  <build_depend>rosbag</build_depend>
   <build_depend>roscpp</build_depend>
   <build_depend>rqt_gui</build_depend>
   <build_depend>rqt_gui_cpp</build_depend>
   <build_depend>variant_topic_tools</build_depend>
   
+  <run_depend>rosbag</run_depend>
   <run_depend>roscpp</run_depend>
   <run_depend>rqt_gui</run_depend>
   <run_depend>rqt_gui_cpp</run_depend>

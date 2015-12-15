@@ -16,70 +16,32 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_CURVE_H
-#define RQT_MULTIPLOT_PLOT_CURVE_H
+#ifndef RQT_MULTIPLOT_THREADED_TIMER_H
+#define RQT_MULTIPLOT_THREADED_TIMER_H
 
-#include <QObject>
-#include <QPair>
-#include <QPointF>
-
-#include <qwt/qwt_plot_curve.h>
-
-#include <rqt_multiplot/BoundingRectangle.h>
-#include <rqt_multiplot/CurveConfig.h>
-#include <rqt_multiplot/MessageBroker.h>
+#include <QThread>
+#include <QTimer>
 
 namespace rqt_multiplot {
-  class CurveData;
-  class CurveDataSequencer;
-
-  class PlotCurve :
-    public QObject,
-    private QwtPlotCurve {
+  class ThreadedTimer :
+    public QThread {
   Q_OBJECT
   public:
-    PlotCurve(QObject* parent = 0);
-    virtual ~PlotCurve();
+    ThreadedTimer(QObject* parent = 0);
+    virtual ~ThreadedTimer();
     
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
-    void setBroker(MessageBroker* broker);
-    MessageBroker* getBroker() const;
-    CurveData* getData() const;
-    CurveDataSequencer* getDataSequencer() const;
-    QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
-      axis) const;
-    BoundingRectangle getPreferredScale() const;
+    int getTimerId() const;
+    void setRate(double rate);
+    double getRate() const;
     
-    void attach(QwtPlot* plot);
-    void detach();
-    
+  protected:
     void run();
-    void pause();
-    void clear();
-  
-  signals:
-    void preferredScaleChanged(const BoundingRectangle& bounds);
-    void replotRequested();
     
   private:
-    CurveConfig* config_;
-
-    MessageBroker* broker_;
-    
-    CurveData* data_;
-    CurveDataSequencer* dataSequencer_;
-
-    bool paused_;
+    QTimer* timer_;
     
   private slots:
-    void configTitleChanged(const QString& title);
-    void configAxisConfigChanged();
-    void configColorCurrentColorChanged(const QColor& color);
-    void configStyleChanged();
-    void configDataConfigChanged();
-    
-    void dataSequencerPointReceived(const QPointF& point);
+    void timerTimeout();
   };
 };
 

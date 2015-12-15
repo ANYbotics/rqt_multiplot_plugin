@@ -16,58 +16,35 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
-
-#include <variant_topic_tools/MessageDefinition.h>
+#include "rqt_multiplot/ProgressChangeEvent.h"
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
-  Q_OBJECT
-  public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    bool isLoading() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
-  };
-};
 
-#endif
+/*****************************************************************************/
+/* Static initializations                                                    */
+/*****************************************************************************/
+
+const QEvent::Type ProgressChangeEvent::Type = static_cast<QEvent::Type>(
+  QEvent::registerEventType());
+
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
+
+ProgressChangeEvent::ProgressChangeEvent(double progress) :
+  QEvent(Type),
+  progress_(progress) {
+}
+
+ProgressChangeEvent::~ProgressChangeEvent() {
+}
+
+/*****************************************************************************/
+/* Accessors                                                                 */
+/*****************************************************************************/
+
+double ProgressChangeEvent::getProgress() const {
+  return progress_;
+}
+
+}

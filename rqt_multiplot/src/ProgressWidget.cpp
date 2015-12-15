@@ -16,11 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QMutexLocker>
+#include <ros/package.h>
 
-#include <rqt_multiplot/DataTypeRegistry.h>
+#include <ui_ProgressWidget.h>
 
-#include "rqt_multiplot/MessageDefinitionLoader.h"
+#include "rqt_multiplot/ProgressWidget.h"
 
 namespace rqt_multiplot {
 
@@ -28,98 +28,84 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
-  QObject(parent),
-  impl_(this) {
-  connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
-  connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
+ProgressWidget::ProgressWidget(QWidget* parent) :
+  QWidget(parent),
+  ui_(new Ui::ProgressWidget()),
+  started_(false) {
+  ui_->setupUi(this);
+  
+  ui_->progressBar->setMinimum(0);
+  ui_->progressBar->setMaximum(100);
+  ui_->progressBar->setValue(0);
+  
+  ui_->widgetStatus->setIcon(StatusWidget::Okay,
+    QPixmap(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/okay.png"))));
+  ui_->widgetStatus->setIcon(StatusWidget::Error,
+    QPixmap(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/error.png"))));
+  ui_->widgetStatus->setFrames(StatusWidget::Busy,
+    QPixmap(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/busy.png"))), 8);
 }
 
-MessageDefinitionLoader::~MessageDefinitionLoader() {
-  impl_.quit();
-  impl_.wait();
-}
-
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
-
-MessageDefinitionLoader::Impl::~Impl() {
-  terminate();
-  wait();
+ProgressWidget::~ProgressWidget() {
+  delete ui_;
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QString MessageDefinitionLoader::getType() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.type_;
+void ProgressWidget::setCurrentProgress(double progress) {
+  if (started_)
+    ui_->progressBar->setValue(progress*1e2);
 }
 
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.definition_;
+double ProgressWidget::getCurrentProgress() const {
+  if (started_)
+    return ui_->progressBar->value()*1e-2;
 }
 
-QString MessageDefinitionLoader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.error_;
-}
-
-bool MessageDefinitionLoader::isLoading() const {
-  return impl_.isRunning();
+bool ProgressWidget::isStarted() const {
+  return started_;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageDefinitionLoader::load(const QString& type) {
-  impl_.wait();
-  
-  impl_.type_ = type;
-  impl_.start();
-}
-
-void MessageDefinitionLoader::wait() {
-  impl_.wait();
-}
-
-void MessageDefinitionLoader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
-  try {
-    QMutexLocker lock(&DataTypeRegistry::mutex_);
+void ProgressWidget::start(const QString& toolTip) {
+  if (!started_) {
+    ui_->widgetStatus->setCurrentRole(StatusWidget::Busy, toolTip);
     
-    definition_.load(type_.toStdString());
-  }
-  catch (const ros::Exception& exception) {
-    definition_.clear();
-    error_ = QString::fromStdString(exception.what());
+    ui_->progressBar->reset();
+    ui_->progressBar->setTextVisible(true);
+    
+    started_ = true;
   }
 }
 
-/*****************************************************************************/
-/* Slots                                                                     */
-/*****************************************************************************/
+void ProgressWidget::finish(const QString& toolTip) {
+  if (started_) {
+    ui_->widgetStatus->setCurrentRole(StatusWidget::Okay, toolTip);
+    
+    ui_->progressBar->reset();
+    ui_->progressBar->setTextVisible(false);
+    
+    started_ = false;
+  }
+}
 
-void MessageDefinitionLoader::threadStarted() {
-  emit loadingStarted();
+void ProgressWidget::fail(const QString& toolTip) {
+  if (started_) {
+    ui_->widgetStatus->setCurrentRole(StatusWidget::Error, toolTip);  
+    
+    ui_->progressBar->reset();
+    ui_->progressBar->setTextVisible(false);
+    
+    started_ = false;
+  }
 }
-  
-void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
-    emit loadingFinished();
-  else
-    emit loadingFailed(impl_.error_);
-}
-  
+
 }

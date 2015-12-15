@@ -37,13 +37,15 @@ namespace rqt_multiplot {
 PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotTableConfigWidget()),
-  menuExport_(new QMenu(this)),
+  menuImportExport_(new QMenu(this)),
   config_(0),
   plotTable_(0) {
   ui_->setupUi(this);
   
   ui_->labelBackgroundColor->setAutoFillBackground(true);
   ui_->labelForegroundColor->setAutoFillBackground(true);
+
+  ui_->widgetProgress->setEnabled(false);
   
   ui_->pushButtonRun->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
@@ -54,15 +56,18 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
-  ui_->pushButtonExport->setIcon(
+  ui_->pushButtonImportExport->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/export.png"))));
+    append("/resource/16x16/eject.png"))));
   
   ui_->pushButtonPause->setEnabled(false);
   
-  menuExport_->addAction("Export to image file...", this,
+  menuImportExport_->addAction("Import from bag file...", this,
+    SLOT(menuImportBagFileTriggered()));
+  menuImportExport_->addSeparator();
+  menuImportExport_->addAction("Export to image file...", this,
     SLOT(menuExportImageFileTriggered()));
-  menuExport_->addAction("Export to text file...", this,
+  menuImportExport_->addAction("Export to text file...", this,
     SLOT(menuExportTextFileTriggered()));
   
   connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
@@ -83,8 +88,8 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     SLOT(pushButtonPauseClicked()));
   connect(ui_->pushButtonClear, SIGNAL(clicked()), this,
     SLOT(pushButtonClearClicked()));
-  connect(ui_->pushButtonExport, SIGNAL(clicked()), this,
-    SLOT(pushButtonExportClicked()));
+  connect(ui_->pushButtonImportExport, SIGNAL(clicked()), this,
+    SLOT(pushButtonImportExportClicked()));
   
   ui_->labelBackgroundColor->installEventFilter(this);
   ui_->labelForegroundColor->installEventFilter(this);
@@ -149,7 +154,15 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
   if (plotTable != plotTable_) {
     if (plotTable_) {
       disconnect(plotTable_, SIGNAL(plotPausedChanged()),
-        this, SLOT(plotTablePlotPausedChanged()));
+        this, SLOT(plotTablePlotPausedChanged()));  
+      disconnect(plotTable_, SIGNAL(jobStarted(const QString&)),
+        this, SLOT(plotTableJobStarted(const QString&)));
+      disconnect(plotTable_, SIGNAL(jobProgressChanged(double)),
+        this, SLOT(plotTableJobProgressChanged(double)));
+      disconnect(plotTable_, SIGNAL(jobFinished(const QString&)),
+        this, SLOT(plotTableJobFinished(const QString&)));
+      disconnect(plotTable_, SIGNAL(jobFailed(const QString&)),
+        this, SLOT(plotTableJobFailed(const QString&)));
     }
     
     plotTable_ = plotTable;
@@ -157,6 +170,14 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
     if (plotTable) {
       connect(plotTable, SIGNAL(plotPausedChanged()),
         this, SLOT(plotTablePlotPausedChanged()));
+      connect(plotTable, SIGNAL(jobStarted(const QString&)),
+        this, SLOT(plotTableJobStarted(const QString&)));
+      connect(plotTable, SIGNAL(jobProgressChanged(double)),
+        this, SLOT(plotTableJobProgressChanged(double)));
+      connect(plotTable, SIGNAL(jobFinished(const QString&)),
+        this, SLOT(plotTableJobFinished(const QString&)));
+      connect(plotTable, SIGNAL(jobFailed(const QString&)),
+        this, SLOT(plotTableJobFailed(const QString&)));
       
       plotTablePlotPausedChanged();
     }
@@ -272,26 +293,19 @@ void PlotTableConfigWidget::pushButtonClearClicked() {
     plotTable_->clearPlots();
 }
 
-void PlotTableConfigWidget::pushButtonExportClicked() {
-  menuExport_->popup(QCursor::pos());
+void PlotTableConfigWidget::pushButtonImportExportClicked() {
+  menuImportExport_->popup(QCursor::pos());
 }
 
-void PlotTableConfigWidget::plotTablePlotPausedChanged() {
-  if (plotTable_) {
-    bool allPlotsPaused = true;
-    bool anyPlotPaused = false;
-    
-    for (size_t row = 0; row < plotTable_->getNumRows(); ++row) {
-      for (size_t column = 0; column < plotTable_->getNumColumns();
-          ++column) {
-        allPlotsPaused &= plotTable_->getPlotWidget(row, column)->isPaused();
-        anyPlotPaused |= plotTable_->getPlotWidget(row, column)->isPaused();
-      }
-    }
-    
-    ui_->pushButtonRun->setEnabled(anyPlotPaused);
-    ui_->pushButtonPause->setEnabled(!allPlotsPaused);
-  }
+void PlotTableConfigWidget::menuImportBagFileTriggered() {
+  QFileDialog dialog(this, "Open Bag", QDir::homePath(),
+    "ROS Bag (*.bag)");
+  
+  dialog.setAcceptMode(QFileDialog::AcceptOpen);
+  dialog.setFileMode(QFileDialog::ExistingFile);
+  
+  if (dialog.exec() == QDialog::Accepted)
+    plotTable_->loadFromBagFile(dialog.selectedFiles().first());
 }
 
 void PlotTableConfigWidget::menuExportImageFileTriggered() {
@@ -316,6 +330,42 @@ void PlotTableConfigWidget::menuExportTextFileTriggered() {
   
   if (dialog.exec() == QDialog::Accepted)
     plotTable_->saveToTextFile(dialog.selectedFiles().first());
+}
+
+void PlotTableConfigWidget::plotTablePlotPausedChanged() {
+  if (plotTable_) {
+    bool allPlotsPaused = true;
+    bool anyPlotPaused = false;
+    
+    for (size_t row = 0; row < plotTable_->getNumRows(); ++row) {
+      for (size_t column = 0; column < plotTable_->getNumColumns();
+          ++column) {
+        allPlotsPaused &= plotTable_->getPlotWidget(row, column)->isPaused();
+        anyPlotPaused |= plotTable_->getPlotWidget(row, column)->isPaused();
+      }
+    }
+    
+    ui_->pushButtonRun->setEnabled(anyPlotPaused);
+    ui_->pushButtonPause->setEnabled(!allPlotsPaused);
+  }
+}
+
+void PlotTableConfigWidget::plotTableJobStarted(const QString& toolTip) {
+  ui_->widgetProgress->setEnabled(true);
+  
+  ui_->widgetProgress->start(toolTip);
+}
+
+void PlotTableConfigWidget::plotTableJobProgressChanged(double progress) {
+  ui_->widgetProgress->setCurrentProgress(progress);
+}
+
+void PlotTableConfigWidget::plotTableJobFinished(const QString& toolTip) {
+  ui_->widgetProgress->finish(toolTip);
+}
+
+void PlotTableConfigWidget::plotTableJobFailed(const QString& toolTip) {
+  ui_->widgetProgress->fail(toolTip);
 }
 
 }

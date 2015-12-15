@@ -55,8 +55,9 @@ PlotWidget::PlotWidget(QWidget* parent) :
   QWidget(parent),
   ui_(new Ui::PlotWidget()),
   timer_(new QTimer(this)),
-  menuExport_(new QMenu(this)),
+  menuImportExport_(new QMenu(this)),
   config_(0),
+  broker_(0),
   legend_(0),
   cursor_(0),
   panner_(0),
@@ -83,9 +84,9 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->pushButtonClear->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/clear.png"))));
-  ui_->pushButtonExport->setIcon(
+  ui_->pushButtonImportExport->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/export.png"))));
+    append("/resource/16x16/eject.png"))));
   ui_->pushButtonSetup->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/setup.png"))));
@@ -113,9 +114,9 @@ PlotWidget::PlotWidget(QWidget* parent) :
   timer_->setInterval(1e3/30.0);
   timer_->start();
   
-  menuExport_->addAction("Export to image file...", this,
+  menuImportExport_->addAction("Export to image file...", this,
     SLOT(menuExportImageFileTriggered()));
-  menuExport_->addAction("Export to text file...", this,
+  menuImportExport_->addAction("Export to text file...", this,
     SLOT(menuExportTextFileTriggered()));    
 
   cursor_ = new PlotCursor(ui_->plot->canvas());
@@ -144,8 +145,8 @@ PlotWidget::PlotWidget(QWidget* parent) :
     SLOT(pushButtonClearClicked()));
   connect(ui_->pushButtonSetup, SIGNAL(clicked()), this,
     SLOT(pushButtonSetupClicked()));
-  connect(ui_->pushButtonExport, SIGNAL(clicked()), this,
-    SLOT(pushButtonExportClicked()));
+  connect(ui_->pushButtonImportExport, SIGNAL(clicked()), this,
+    SLOT(pushButtonImportExportClicked()));
   connect(ui_->pushButtonState, SIGNAL(clicked()), this,
     SLOT(pushButtonStateClicked()));
   
@@ -229,6 +230,19 @@ void PlotWidget::setConfig(PlotConfig* config) {
 
 PlotConfig* PlotWidget::getConfig() const {
   return config_;
+}
+
+void PlotWidget::setBroker(MessageBroker* broker) {
+  if (broker != broker_) {
+    broker_ = broker;
+    
+    for (size_t index = 0; index < curves_.count(); ++index)
+      curves_[index]->setBroker(broker);
+  }
+}
+
+MessageBroker* PlotWidget::getBroker() const {
+  return broker_;
 }
 
 PlotCursor* PlotWidget::getCursor() const {
@@ -544,6 +558,7 @@ void PlotWidget::configCurveAdded(size_t index) {
 
   curve->attach(ui_->plot);
   curve->setConfig(config_->getCurveConfig(index));
+  curve->setBroker(broker_);
   
   connect(curve, SIGNAL(replotRequested()), this,
     SLOT(curveReplotRequested()));
@@ -655,8 +670,8 @@ void PlotWidget::pushButtonSetupClicked() {
   }
 }
 
-void PlotWidget::pushButtonExportClicked() {
-  menuExport_->popup(QCursor::pos());
+void PlotWidget::pushButtonImportExportClicked() {
+  menuImportExport_->popup(QCursor::pos());
 }
 
 void PlotWidget::pushButtonStateClicked() {

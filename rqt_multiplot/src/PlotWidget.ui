@@ -100,7 +100,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonExport">
+      <widget class="QPushButton" name="pushButtonImportExport">
        <property name="minimumSize">
         <size>
          <width>22</width>
@@ -124,7 +124,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../resource/16x16/export.png</normaloff>../resource/16x16/export.png</iconset>
+         <normaloff>../resource/16x16/eject.png</normaloff>../resource/16x16/eject.png</iconset>
        </property>
        <property name="flat">
         <bool>true</bool>

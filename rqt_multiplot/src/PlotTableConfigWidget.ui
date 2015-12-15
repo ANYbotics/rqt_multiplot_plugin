@@ -20,150 +20,7 @@
    <property name="margin">
     <number>0</number>
    </property>
-   <item row="0" column="9">
-    <widget class="QCheckBox" name="checkBoxLinkScale">
-     <property name="toolTip">
-      <string>Link plot scales</string>
-     </property>
-     <property name="layoutDirection">
-      <enum>Qt::LeftToRight</enum>
-     </property>
-     <property name="text">
-      <string>Scale</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="2">
-    <widget class="QSpinBox" name="spinBoxColumns">
-     <property name="toolTip">
-      <string>Number of plot columns</string>
-     </property>
-     <property name="minimum">
-      <number>1</number>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="6">
-    <widget class="QFrame" name="frameForegroundColor">
-     <property name="minimumSize">
-      <size>
-       <width>22</width>
-       <height>22</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>22</width>
-       <height>22</height>
-      </size>
-     </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_3">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelForegroundColor">
-        <property name="toolTip">
-         <string>Plot foreground color</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="5">
-    <widget class="QFrame" name="frameBackgroundColor">
-     <property name="minimumSize">
-      <size>
-       <width>22</width>
-       <height>22</height>
-      </size>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>22</width>
-       <height>22</height>
-      </size>
-     </property>
-     <property name="cursor">
-      <cursorShape>PointingHandCursor</cursorShape>
-     </property>
-     <property name="toolTip">
-      <string>Plot background color</string>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="QLabel" name="labelBackgroundColor">
-        <property name="toolTip">
-         <string>Plot background color</string>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item row="0" column="16">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Expanding</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>100</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="4">
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Colors</string>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="3">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="12">
-    <widget class="Line" name="line_3">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="19">
+   <item row="0" column="18">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <property name="spacing">
       <number>0</number>
@@ -283,7 +140,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="pushButtonExport">
+      <widget class="QPushButton" name="pushButtonImportExport">
        <property name="minimumSize">
         <size>
          <width>22</width>
@@ -307,7 +164,7 @@
        </property>
        <property name="icon">
         <iconset>
-         <normaloff>../resource/16x16/export.png</normaloff>../resource/16x16/export.png</iconset>
+         <normaloff>../resource/16x16/eject.png</normaloff>../resource/16x16/eject.png</iconset>
        </property>
        <property name="flat">
         <bool>true</bool>
@@ -315,6 +172,16 @@
       </widget>
      </item>
     </layout>
+   </item>
+   <item row="0" column="16">
+    <widget class="rqt_multiplot::ProgressWidget" name="widgetProgress" native="true">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
    </item>
    <item row="0" column="10">
     <widget class="QCheckBox" name="checkBoxLinkCursor">
@@ -326,43 +193,10 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="17">
-    <spacer name="horizontalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeType">
-      <enum>QSizePolicy::Fixed</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>22</width>
-       <height>20</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="0" column="18">
-    <widget class="Line" name="line_4">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="7">
-    <widget class="Line" name="line_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
-    <widget class="QSpinBox" name="spinBoxRows">
-     <property name="toolTip">
-      <string>Number of plot rows</string>
-     </property>
-     <property name="minimum">
-      <number>1</number>
+   <item row="0" column="4">
+    <widget class="QLabel" name="label">
+     <property name="text">
+      <string>Colors</string>
      </property>
     </widget>
    </item>
@@ -382,10 +216,10 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="8">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Link</string>
+   <item row="0" column="15">
+    <widget class="Line" name="line_5">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
      </property>
     </widget>
    </item>
@@ -393,6 +227,157 @@
     <widget class="QLabel" name="label_4">
      <property name="text">
       <string>Track</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="7">
+    <widget class="Line" name="line_2">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="8">
+    <widget class="QLabel" name="label_2">
+     <property name="text">
+      <string>Link</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="12">
+    <widget class="Line" name="line_3">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="3">
+    <widget class="Line" name="line">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5">
+    <widget class="QFrame" name="frameBackgroundColor">
+     <property name="minimumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="toolTip">
+      <string>Plot background color</string>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelBackgroundColor">
+        <property name="toolTip">
+         <string>Plot background color</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="9">
+    <widget class="QCheckBox" name="checkBoxLinkScale">
+     <property name="toolTip">
+      <string>Link plot scales</string>
+     </property>
+     <property name="layoutDirection">
+      <enum>Qt::LeftToRight</enum>
+     </property>
+     <property name="text">
+      <string>Scale</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="2">
+    <widget class="QSpinBox" name="spinBoxColumns">
+     <property name="toolTip">
+      <string>Number of plot columns</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="17">
+    <widget class="Line" name="line_4">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="6">
+    <widget class="QFrame" name="frameForegroundColor">
+     <property name="minimumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_3">
+      <property name="margin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
+       <widget class="QLabel" name="labelForegroundColor">
+        <property name="toolTip">
+         <string>Plot foreground color</string>
+        </property>
+        <property name="text">
+         <string/>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QSpinBox" name="spinBoxRows">
+     <property name="toolTip">
+      <string>Number of plot rows</string>
+     </property>
+     <property name="minimum">
+      <number>1</number>
      </property>
     </widget>
    </item>
@@ -406,15 +391,16 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="15">
-    <widget class="Line" name="line_5">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>rqt_multiplot::ProgressWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">rqt_multiplot/ProgressWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

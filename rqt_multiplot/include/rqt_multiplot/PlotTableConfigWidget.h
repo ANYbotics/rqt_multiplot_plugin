@@ -49,7 +49,7 @@ namespace rqt_multiplot {
   private:
     Ui::PlotTableConfigWidget* ui_;
 
-    QMenu* menuExport_;
+    QMenu* menuImportExport_;
     
     PlotTableConfig* config_;
     PlotTableWidget* plotTable_;
@@ -72,11 +72,16 @@ namespace rqt_multiplot {
     void pushButtonRunClicked();
     void pushButtonPauseClicked();
     void pushButtonClearClicked();
-    void pushButtonExportClicked();
+    void pushButtonImportExportClicked();
+    void menuImportBagFileTriggered();
     void menuExportImageFileTriggered();
     void menuExportTextFileTriggered();
     
     void plotTablePlotPausedChanged();
+    void plotTableJobStarted(const QString& toolTip);
+    void plotTableJobProgressChanged(double progress);
+    void plotTableJobFinished(const QString& toolTip);
+    void plotTableJobFailed(const QString& toolTip);    
   };
 };
 

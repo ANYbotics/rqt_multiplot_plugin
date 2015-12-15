@@ -48,6 +48,7 @@ namespace rqt_multiplot {
     QStringList getConfigHistory() const;
     
     void loadConfig(const QString& url);
+    void readBag(const QString& url);
     
     bool confirmClose();
     

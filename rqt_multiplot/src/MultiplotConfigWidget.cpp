@@ -24,10 +24,11 @@
 #include <ros/console.h>
 #include <ros/package.h>
 
+#include <rqt_multiplot/XmlSettings.h>
+
 #include <ui_MultiplotConfigWidget.h>
 
 #include "rqt_multiplot/MultiplotConfigWidget.h"
-#include "rqt_multiplot/XmlSettings.h"
 
 namespace rqt_multiplot {
 
@@ -96,7 +97,7 @@ void MultiplotConfigWidget::setConfig(MultiplotConfig* config) {
     config_ = config;
     
     if (config)
-      connect(config_, SIGNAL(changed()), this, SLOT(configChanged()));
+      connect(config, SIGNAL(changed()), this, SLOT(configChanged()));
   }
 }
 

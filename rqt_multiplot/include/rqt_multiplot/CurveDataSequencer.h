@@ -20,6 +20,7 @@
 #define RQT_MULTIPLOT_CURVE_DATA_SEQUENCER_H
 
 #include <QLinkedList>
+#include <QMap>
 #include <QObject>
 #include <QPointF>
 #include <QVector>
@@ -27,7 +28,7 @@
 #include <ros/time.h>
 
 #include <rqt_multiplot/CurveConfig.h>
-#include <rqt_multiplot/MessageSubscriberRegistry.h>
+#include <rqt_multiplot/MessageBroker.h>
 
 namespace rqt_multiplot {
   class CurveDataSequencer :
@@ -39,6 +40,8 @@ namespace rqt_multiplot {
     
     void setConfig(CurveConfig* config);
     CurveConfig* getConfig() const;
+    void setBroker(MessageBroker* broker);
+    MessageBroker* getBroker() const;
     bool isSubscribed() const;
     
     void subscribe();
@@ -83,20 +86,26 @@ namespace rqt_multiplot {
     
     CurveConfig* config_;
     
-    MessageSubscriberRegistry* registry_;
-    QVector<MessageSubscriber*> subscribers_;
+    MessageBroker* broker_;
+
+    QMap<CurveConfig::Axis, QString> subscribedTopics_;    
+    QMap<CurveConfig::Axis, QString> timeFields_;
+    QMap<CurveConfig::Axis, TimeValueList> timeValues_;
     
-    QVector<QString> timeFields_;
-    QVector<TimeValueList> timeValues_;
-    
+    void processMessage(const Message& message);
+    void processMessage(CurveConfig::Axis axis, const Message& message);
     void interpolate();
     
   private slots:
     void configAxisConfigChanged();
     void configSubscriberQueueSizeChanged(size_t queueSize);
     
-    void subscriberMessageReceived(const QString& topic, const Message&
-      message);
+    void subscriberMessageReceived(const QString& topic, const
+      Message& message);
+    void subscriberXAxisMessageReceived(const QString& topic, const
+      Message& message);
+    void subscriberYAxisMessageReceived(const QString& topic, const
+      Message& message);
   };
 };
 

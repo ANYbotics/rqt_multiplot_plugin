@@ -28,13 +28,16 @@
 #include <variant_topic_tools/Subscriber.h>
 
 #include <rqt_multiplot/Message.h>
-#include <rqt_multiplot/MessageEvent.h>
 
 namespace rqt_multiplot {
   class MessageSubscriber :
     public QObject {
   Q_OBJECT
   public:
+    enum Property {
+      QueueSize
+    };
+    
     MessageSubscriber(QObject* parent = 0, const ros::NodeHandle&
       nodeHandle = ros::NodeHandle("~"));
     ~MessageSubscriber();

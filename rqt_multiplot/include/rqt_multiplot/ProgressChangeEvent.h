@@ -16,57 +16,24 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_PROGRESS_CHANGE_EVENT_H
+#define RQT_MULTIPLOT_MESSAGE_EVENT_H
 
-#include <QMutex>
-#include <QObject>
-#include <QString>
-#include <QThread>
-
-#include <variant_topic_tools/MessageDefinition.h>
+#include <QEvent>
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
-  Q_OBJECT
+  class ProgressChangeEvent :
+    public QEvent {
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
+    static const QEvent::Type Type;
     
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    bool isLoading() const;
+    ProgressChangeEvent(double progress);
+    virtual ~ProgressChangeEvent();
     
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
+    double getProgress() const;
     
   private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+    double progress_;
   };
 };
 

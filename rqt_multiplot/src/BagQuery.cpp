@@ -16,13 +16,22 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <vector>
+
 #include <QApplication>
 
-#include <variant_topic_tools/MessageType.h>
+#include <rosbag/message_instance.h>
 
+#include <variant_topic_tools/DataTypeRegistry.h>
+#include <variant_topic_tools/Message.h>
+#include <variant_topic_tools/MessageDefinition.h>
+#include <variant_topic_tools/MessageType.h>
+#include <variant_topic_tools/MessageVariant.h>
+
+#include <rqt_multiplot/DataTypeRegistry.h>
 #include <rqt_multiplot/MessageEvent.h>
 
-#include "rqt_multiplot/MessageSubscriber.h"
+#include "rqt_multiplot/BagQuery.h"
 
 namespace rqt_multiplot {
 
@@ -30,71 +39,22 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageSubscriber::MessageSubscriber(QObject* parent, const ros::NodeHandle&
-    nodeHandle) :
-  QObject(parent),
-  nodeHandle_(nodeHandle),
-  queueSize_(100) {
+BagQuery::BagQuery(QObject* parent) :
+  QObject(parent) {
 }
 
-MessageSubscriber::~MessageSubscriber() {
-}
-
-/*****************************************************************************/
-/* Accessors                                                                 */
-/*****************************************************************************/
-
-const ros::NodeHandle& MessageSubscriber::getNodeHandle() const {
-  return nodeHandle_;
-}
-
-const QString& MessageSubscriber::getTopic() const {
-  return topic_;
-}
-
-void MessageSubscriber::setTopic(const QString& topic) {
-  if (topic != topic_) {
-    topic_ = topic;
-    
-    if (subscriber_) {
-      unsubscribe();
-      subscribe();
-    }
-  }
-}
-
-void MessageSubscriber::setQueueSize(size_t queueSize) {
-  if (queueSize != queueSize_) {
-    queueSize_ = queueSize;
-    
-    if (subscriber_) {
-      unsubscribe();
-      subscribe();
-    }
-  }
-}
-
-size_t MessageSubscriber::getQueueSize() const {
-  return queueSize_;
-}
-
-size_t MessageSubscriber::getNumPublishers() const {
-  return subscriber_.getNumPublishers();
-}
-
-bool MessageSubscriber::isValid() const {
-  return subscriber_;
+BagQuery::~BagQuery() {
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-bool MessageSubscriber::event(QEvent* event) {
+bool BagQuery::event(QEvent* event) {
   if (event->type() == MessageEvent::Type) {
     MessageEvent* messageEvent = static_cast<MessageEvent*>(event);
 
-    emit messageReceived(messageEvent->getTopic(), messageEvent->
+    emit messageRead(messageEvent->getTopic(), messageEvent->
       getMessage());
     
     return true;
@@ -103,51 +63,50 @@ bool MessageSubscriber::event(QEvent* event) {
   return QObject::event(event);
 }
 
-void MessageSubscriber::subscribe() {
-  variant_topic_tools::MessageType type;
-  
-  subscriber_ = type.subscribe(nodeHandle_, topic_.toStdString(), queueSize_,
-    boost::bind(&MessageSubscriber::callback, this, _1, _2));
-  
-  if (subscriber_)
-    emit subscribed(topic_);
-}
-
-void MessageSubscriber::unsubscribe() {
-  if (subscriber_) {
-    subscriber_.shutdown();
-    
-    QApplication::removePostedEvents(this, MessageEvent::Type);
-    
-    emit unsubscribed(topic_);
-  }
-}
-
-void MessageSubscriber::callback(const variant_topic_tools::MessageVariant&
-    variant, const ros::Time& receiptTime) {
+void BagQuery::callback(const rosbag::MessageInstance& instance) {
   Message message;
-  
-  message.setReceiptTime(receiptTime);
-  message.setVariant(variant);
 
-  MessageEvent* messageEvent = new MessageEvent(topic_, message);
+  if (!dataType_.isValid()) {
+    DataTypeRegistry::mutex_.lock();
+    
+    variant_topic_tools::DataTypeRegistry registry;
+    dataType_ = registry.getDataType(instance.getDataType());
+
+    if (!dataType_) {
+      variant_topic_tools::MessageType messageType(instance.getDataType(),
+        instance.getMD5Sum(), instance.getMessageDefinition());
+      variant_topic_tools::MessageDefinition messageDefinition(
+        messageType);
+      
+      dataType_ = messageDefinition.getMessageDataType();
+    }
+    
+    DataTypeRegistry::mutex_.unlock();
+    
+    serializer_ = dataType_.createSerializer();
+  }
+
+  std::vector<uint8_t> data(instance.size());
+  ros::serialization::OStream outputStream(data.data(), data.size());
+  instance.write(outputStream);
+
+  variant_topic_tools::MessageVariant variant = dataType_.createVariant();
+  ros::serialization::IStream inputStream(data.data(), data.size());
+  
+  serializer_.deserialize(inputStream, variant);
+  
+  message.setReceiptTime(instance.getTime());
+  message.setVariant(variant);
+  
+  MessageEvent* messageEvent = new MessageEvent(QString::fromStdString(
+    instance.getTopic()), message);
   
   QApplication::postEvent(this, messageEvent);
 }
 
-void MessageSubscriber::connectNotify(const char* signal) {
-  if ((QByteArray(signal) == QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&)))) &&
-      !subscriber_)
-    subscribe();
-}
-
-void MessageSubscriber::disconnectNotify(const char* signal) {
+void BagQuery::disconnectNotify(const char* signal) {
   if (!receivers(QMetaObject::normalizedSignature(
       SIGNAL(messageReceived(const QString&, const Message&))))) {
-    if (subscriber_)
-      unsubscribe();
-    
     emit aboutToBeDestroyed();
   
     deleteLater();

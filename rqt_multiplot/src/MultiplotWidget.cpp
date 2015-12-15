@@ -106,6 +106,10 @@ void MultiplotWidget::loadConfig(const QString& url) {
   ui_->configWidget->loadConfig(url);
 }
 
+void MultiplotWidget::readBag(const QString& url) {
+//   ui_->bagReaderWidget->readBag(url);
+}
+
 bool MultiplotWidget::confirmClose() {
   return ui_->configWidget->confirmSave(false);
 }

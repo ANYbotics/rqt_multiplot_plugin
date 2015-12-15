@@ -16,57 +16,43 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
-#define RQT_MULTIPLOT_MESSAGE_DEFINITION_LOADER_H
+#ifndef RQT_MULTIPLOT_BAG_QUERY_H
+#define RQT_MULTIPLOT_BAG_QUERY_H
 
-#include <QMutex>
 #include <QObject>
-#include <QString>
-#include <QThread>
 
-#include <variant_topic_tools/MessageDefinition.h>
+#include <variant_topic_tools/MessageDataType.h>
+#include <variant_topic_tools/MessageSerializer.h>
+
+#include <rqt_multiplot/Message.h>
+
+namespace rosbag {
+  class MessageInstance;
+};
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
+  class BagQuery :
     public QObject {
   Q_OBJECT
   public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
+    friend class BagReader;
     
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    bool isLoading() const;
+    BagQuery(QObject* parent = 0);
+    ~BagQuery();
     
-    void load(const QString& type);
-    void wait();
+    bool event(QEvent* event);
     
   signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
+    void messageRead(const QString& topic, const Message& message);
+    void aboutToBeDestroyed();
+  
   private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
+    variant_topic_tools::MessageDataType dataType_;
+    variant_topic_tools::MessageSerializer serializer_;
     
-    Impl impl_;
+    void callback(const rosbag::MessageInstance& instance);
     
-  private slots:
-    void threadStarted();
-    void threadFinished();
+    void disconnectNotify(const char* signal);
   };
 };
 

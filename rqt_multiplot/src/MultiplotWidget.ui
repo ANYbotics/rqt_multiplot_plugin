@@ -14,18 +14,21 @@
    <string>Multiplot</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="3" column="0">
-    <widget class="Line" name="line">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="0">
     <layout class="QGridLayout" name="gridLayout_3">
      <property name="horizontalSpacing">
       <number>5</number>
      </property>
+     <item row="2" column="1">
+      <widget class="rqt_multiplot::PlotTableConfigWidget" name="plotTableConfigWidget" native="true">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="minimumSize">
@@ -45,14 +48,37 @@
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="rqt_multiplot::MultiplotConfigWidget" name="configWidget" native="true">
+     <item row="4" column="0" colspan="2">
+      <widget class="QFrame" name="frame">
        <property name="sizePolicy">
-        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
+        <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
          <horstretch>0</horstretch>
          <verstretch>0</verstretch>
         </sizepolicy>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="frameShape">
+        <enum>QFrame::Panel</enum>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Sunken</enum>
+       </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <property name="margin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>-1</number>
+        </property>
+        <item row="0" column="0">
+         <widget class="rqt_multiplot::PlotTableWidget" name="plotTableWidget" native="true"/>
+        </item>
+       </layout>
       </widget>
      </item>
      <item row="2" column="0">
@@ -74,15 +100,8 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0" colspan="2">
-      <widget class="Line" name="line_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="1">
-      <widget class="rqt_multiplot::PlotTableConfigWidget" name="plotTableConfigWidget" native="true">
+     <item row="0" column="1">
+      <widget class="rqt_multiplot::MultiplotConfigWidget" name="configWidget" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -91,40 +110,21 @@
        </property>
       </widget>
      </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="Line" name="line">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0" colspan="2">
+      <widget class="Line" name="line_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+      </widget>
+     </item>
     </layout>
-   </item>
-   <item row="4" column="0">
-    <widget class="QFrame" name="frame">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="MinimumExpanding">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Panel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Sunken</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <property name="margin">
-       <number>0</number>
-      </property>
-      <property name="spacing">
-       <number>-1</number>
-      </property>
-      <item row="0" column="0">
-       <widget class="rqt_multiplot::PlotTableWidget" name="plotTableWidget" native="true"/>
-      </item>
-     </layout>
-    </widget>
    </item>
   </layout>
  </widget>

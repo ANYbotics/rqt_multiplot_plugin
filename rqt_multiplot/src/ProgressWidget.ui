@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ProgressWidget</class>
+ <widget class="QWidget" name="ProgressWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>706</width>
+    <height>23</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="horizontalSpacing">
+    <number>5</number>
+   </property>
+   <property name="margin">
+    <number>0</number>
+   </property>
+   <item row="0" column="0">
+    <widget class="QProgressBar" name="progressBar">
+     <property name="enabled">
+      <bool>true</bool>
+     </property>
+     <property name="value">
+      <number>0</number>
+     </property>
+     <property name="textVisible">
+      <bool>false</bool>
+     </property>
+     <property name="invertedAppearance">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1">
+    <widget class="rqt_multiplot::StatusWidget" name="widgetStatus" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>rqt_multiplot::StatusWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">rqt_multiplot/StatusWidget.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

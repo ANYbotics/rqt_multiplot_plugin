@@ -20,30 +20,32 @@
 #define RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_REGISTRY_H
 
 #include <QMap>
-#include <QObject>
 #include <QString>
 
+#include <rqt_multiplot/MessageBroker.h>
 #include <rqt_multiplot/MessageSubscriber.h>
 
 namespace rqt_multiplot {
   class MessageSubscriberRegistry :
-    public QObject {
+    public MessageBroker {
   Q_OBJECT
   public:
-    MessageSubscriberRegistry(QObject* parent = 0);
-    ~MessageSubscriberRegistry();
+    MessageSubscriberRegistry(QObject* parent = 0, const ros::NodeHandle&
+      nodeHandle = ros::NodeHandle("~"));
+    virtual ~MessageSubscriberRegistry();
     
-    static const ros::NodeHandle& getNodeHandle();
+    const ros::NodeHandle& getNodeHandle() const;
     
-    MessageSubscriber* getSubscriber(const QString& topic);
-    
-    bool subscribe(const QString& topic, QObject* receiver, const char* method,
-      size_t queueSize = 100, Qt::ConnectionType type = Qt::AutoConnection);
-    bool unsubscribe(const QString& topic, QObject* receiver, const char*
-      method = 0);
+    bool subscribe(const QString& topic, QObject* receiver,
+      const char* method, const PropertyMap& properties = PropertyMap(),
+      Qt::ConnectionType type = Qt::AutoConnection);
+    bool unsubscribe(const QString& topic, QObject* receiver,
+      const char* method = 0);
     
   private:
-    static QMap<QString, MessageSubscriber*> subscribers_;
+    ros::NodeHandle nodeHandle_;
+    
+    QMap<QString, MessageSubscriber*> subscribers_;
     
   private slots:
     void subscriberAboutToBeDestroyed();

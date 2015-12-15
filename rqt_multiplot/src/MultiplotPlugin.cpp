@@ -63,34 +63,34 @@ void MultiplotPlugin::shutdownPlugin() {
 
 void MultiplotPlugin::saveSettings(qt_gui_cpp::Settings& pluginSettings,
     qt_gui_cpp::Settings& instanceSettings) const {
-  size_t maxHistoryLength = widget_->getMaxConfigHistoryLength();
-  QStringList history = widget_->getConfigHistory();
+  size_t maxConfigHistoryLength = widget_->getMaxConfigHistoryLength();
+  QStringList configHistory = widget_->getConfigHistory();
   
   instanceSettings.remove("history");
   
   instanceSettings.setValue("history/max_length",
-    (unsigned int)maxHistoryLength);
+    (unsigned int)maxConfigHistoryLength);
   
-  for (size_t i = 0; i < history.count(); ++i)
+  for (size_t i = 0; i < configHistory.count(); ++i)
     instanceSettings.setValue("history/config_"+QString::number(i),
-      history[i]);
+      configHistory[i]);
 }
 
 void MultiplotPlugin::restoreSettings(const qt_gui_cpp::Settings&
     pluginSettings, const qt_gui_cpp::Settings& instanceSettings) {
-  size_t maxHistoryLength = widget_->getMaxConfigHistoryLength();
-  QStringList history;
+  size_t maxConfigHistoryLength = widget_->getMaxConfigHistoryLength();
+  QStringList configHistory;
   
-  maxHistoryLength = instanceSettings.value("history/max_length",
-    (unsigned int)maxHistoryLength).toUInt();
+  maxConfigHistoryLength = instanceSettings.value("history/max_length",
+    (unsigned int)maxConfigHistoryLength).toUInt();
 
-  while (instanceSettings.contains("history/config_"+QString::number(
-      history.count())))
-    history.append(instanceSettings.value("history/config_"+QString::number(
-      history.count())).toString());
+  while (instanceSettings.contains("history/config_"+QString::
+      number(configHistory.count())))
+    configHistory.append(instanceSettings.value("history/config_"+
+      QString::number(configHistory.count())).toString());
     
-  widget_->setMaxConfigHistoryLength(maxHistoryLength);
-  widget_->setConfigHistory(history);
+  widget_->setMaxConfigHistoryLength(maxConfigHistoryLength);
+  widget_->setConfigHistory(configHistory);
 }
 
 void MultiplotPlugin::parseArguments(const QStringList& arguments) {
@@ -110,6 +110,8 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
   
   options.add_options()
     ("multiplot-config,c", boost::program_options::value<std::string>(), "");
+  options.add_options()
+    ("multiplot-bag,b", boost::program_options::value<std::string>(), "");
 
   try {
     boost::program_options::store(boost::program_options::parse_command_line(
@@ -119,6 +121,9 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
     if (variables.count("multiplot-config"))
       widget_->loadConfig(QString::fromStdString(
         variables["multiplot-config"].as<std::string>()));
+    if (variables.count("multiplot-bag"))
+      widget_->readBag(QString::fromStdString(
+        variables["multiplot-bag"].as<std::string>()));
   }
   catch (const std::exception& exception) {
     ROS_ERROR("Error parsing command line: %s", exception.what());

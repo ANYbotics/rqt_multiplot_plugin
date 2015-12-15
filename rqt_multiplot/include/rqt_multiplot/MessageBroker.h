@@ -16,56 +16,30 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_H
-#define RQT_MULTIPLOT_MESSAGE_FIELD_SUBSCRIBER_H
+#ifndef RQT_MULTIPLOT_MESSAGE_BROKER_H
+#define RQT_MULTIPLOT_MESSAGE_BROKER_H
 
 #include <QObject>
-#include <QString>
+#include <QMap>
+#include <QVariant>
 
 #include <rqt_multiplot/Message.h>
-#include <rqt_multiplot/MessageSubscriber.h>
-#include <rqt_multiplot/MessageSubscriberRegistry.h>
 
 namespace rqt_multiplot {
-  class MessageFieldSubscriber :
+  class MessageBroker :
     public QObject {
   Q_OBJECT
   public:
-    MessageFieldSubscriber(QObject* parent = 0);
-    ~MessageFieldSubscriber();
-
-    void setTopic(const QString& topic);
-    const QString& getTopic() const;
-    void setField(const QString& field);
-    const QString& getField() const;
-    void setQueueSize(size_t queueSize);
-    size_t getQueueSize() const;
-    size_t getNumPublishers() const;  
-    bool isValid() const;
+    typedef QMap<int, QVariant> PropertyMap;
     
-  signals:
-    void subscribed(const QString& topic, const QString& field);
-    void valueReceived(const QString& topic, const QString& field,
-      double value);
-    void unsubscribed(const QString& topic, const QString& field);
-    void aboutToBeDestroyed();
+    MessageBroker(QObject* parent = 0);
+    virtual ~MessageBroker();
     
-  private:
-    QString topic_;
-    QString field_;
-    size_t queueSize_;
-    
-    MessageSubscriberRegistry* subscriberRegistry_;
-    MessageSubscriber* subscriber_;
-    
-    void subscribe();
-    void unsubscribe();
-    
-    void connectNotify(const char* signal);
-    void disconnectNotify(const char* signal);
-    
-  private slots:
-    void messageReceived(const QString& topic, const Message& message);
+    virtual bool subscribe(const QString& topic, QObject* receiver,
+      const char* method, const PropertyMap& properties = PropertyMap(),
+      Qt::ConnectionType type = Qt::AutoConnection) = 0;
+    virtual bool unsubscribe(const QString& topic, QObject* receiver,
+      const char* method = 0) = 0;
   };
 };
 
