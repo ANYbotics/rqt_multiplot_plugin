@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-24) unstable; urgency=low
+
+  * Fixed bag reader to not block event processing
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 13:37:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-23) unstable; urgency=low
 
   * Implemented bag import feature

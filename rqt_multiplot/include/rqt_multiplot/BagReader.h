@@ -37,7 +37,6 @@ namespace rqt_multiplot {
     virtual ~BagReader();
     
     QString getFileName() const;
-    QStringList getTopics() const;
     QString getError() const;
     bool isReading() const;
     
@@ -68,7 +67,7 @@ namespace rqt_multiplot {
       
       void run();
       
-      mutable QMutex mutex_;
+      QMutex mutex_;
       QString fileName_;
       QString error_;
       

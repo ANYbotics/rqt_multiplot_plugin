@@ -423,8 +423,6 @@ void PlotTableWidget::bagReaderReadingStarted() {
 }
 
 void PlotTableWidget::bagReaderReadingProgressChanged(double progress) {
-  QApplication::processEvents();
-  
   emit jobProgressChanged(progress);
 }
 

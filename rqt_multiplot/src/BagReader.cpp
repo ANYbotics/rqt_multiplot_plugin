@@ -59,20 +59,10 @@ BagReader::Impl::~Impl() {
 /*****************************************************************************/
 
 QString BagReader::getFileName() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
   return impl_.fileName_;
 }
 
-QStringList BagReader::getTopics() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
-  return impl_.queries_.keys();
-}
-
 QString BagReader::getError() const {
-  QMutexLocker lock(&impl_.mutex_);
-  
   return impl_.error_;
 }
 
@@ -88,7 +78,8 @@ void BagReader::read(const QString& fileName) {
   impl_.wait();
   
   impl_.fileName_ = fileName;
-  
+  impl_.error_.clear();
+   
   impl_.start();
 }
 
@@ -141,10 +132,6 @@ bool BagReader::event(QEvent* event) {
 }
 
 void BagReader::Impl::run() {
-  QMutexLocker lock(&mutex_);
-  
-  error_.clear();
-  
   if (queries_.isEmpty())
     return;
   
@@ -157,11 +144,15 @@ void BagReader::Impl::run() {
     
     for (rosbag::View::iterator it = view.begin(); it != view.end();
         ++it) {
+      mutex_.lock();
+    
       QMap<QString, BagQuery*>::const_iterator jt = queries_.find(
         QString::fromStdString(it->getTopic()));
       
       if (jt != queries_.end())
         jt.value()->callback(*it);
+
+      mutex_.unlock();
       
       double progress = (it->getTime()-view.getBeginTime()).toSec()/
         (view.getEndTime()-view.getBeginTime()).toSec();
