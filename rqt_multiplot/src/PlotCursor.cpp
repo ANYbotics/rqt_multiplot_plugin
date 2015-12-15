@@ -16,6 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <cmath>
 #include <limits>
 
 #include <QEvent>
@@ -119,41 +120,65 @@ bool PlotCursor::hasMouseControl() const {
 }
 
 QRect PlotCursor::getTextRect(const QPointF& point, const QFont& font) const {
-    QwtText text = trackerTextF(point);
-    
-    if (text.isEmpty())
-      return QRect();
+  QwtText text = trackerTextF(point);
+  
+  if (text.isEmpty())
+    return QRect();
 
-    QSizeF textSize = text.textSize(font);
-    QRect textRect(0, 0, qCeil(textSize.width()), qCeil(textSize.height()));
-    QPoint position = transform(point);
-    
-    int alignment = Qt::AlignTop | Qt::AlignRight;
-    int margin = 5;
-    int x = position.x();
-    int y = position.y();
-    
-    if (alignment & Qt::AlignLeft)
-      x -= textRect.width() + margin;
-    else if (alignment & Qt::AlignRight)
-      x += margin;
+  QSizeF textSize = text.textSize(font);
+  QRect textRect(0, 0, qCeil(textSize.width()), qCeil(textSize.height()));
+  QPoint position = transform(point);
+  
+  int alignment = Qt::AlignTop | Qt::AlignRight;
+  int margin = 5;
+  int x = position.x();
+  int y = position.y();
+  
+  if (alignment & Qt::AlignLeft)
+    x -= textRect.width() + margin;
+  else if (alignment & Qt::AlignRight)
+    x += margin;
 
-    if (alignment & Qt::AlignBottom)
-      y += margin;
-    else if (alignment & Qt::AlignTop)
-      y -= textRect.height() + margin;
+  if (alignment & Qt::AlignBottom)
+    y += margin;
+  else if (alignment & Qt::AlignTop)
+    y -= textRect.height() + margin;
 
-    textRect.moveTopLeft(QPoint(x, y));
+  textRect.moveTopLeft(QPoint(x, y));
 
-    int right = qMin(textRect.right(), pickRect().right()-margin);
-    int bottom = qMin( textRect.bottom(), pickRect().bottom()-margin);
-    textRect.moveBottomRight(QPoint(right, bottom));
+  int right = qMin(textRect.right(), pickRect().right()-margin);
+  int bottom = qMin( textRect.bottom(), pickRect().bottom()-margin);
+  textRect.moveBottomRight(QPoint(right, bottom));
 
-    int left = qMax(textRect.left(), pickRect().left()+margin);
-    int top = qMax(textRect.top(), pickRect().top()+margin);
-    textRect.moveTopLeft(QPoint(left, top));
+  int left = qMax(textRect.left(), pickRect().left()+margin);
+  int top = qMax(textRect.top(), pickRect().top()+margin);
+  textRect.moveTopLeft(QPoint(left, top));
 
-    return textRect;
+  return textRect;
+}
+
+QwtText PlotCursor::trackerTextF(const QPointF& point) const {
+  QwtScaleMap xMap = plot()->canvasMap(xAxis());
+  QwtScaleMap yMap = plot()->canvasMap(yAxis());
+  
+  double xPrecision = log10(fabs(xMap.invTransform(1.0)-
+    xMap.invTransform(0.0)));
+  double yPrecision = log10(fabs(yMap.invTransform(1.0)-
+    yMap.invTransform(0.0)));
+  
+  QString x, y;
+  
+  if ((xPrecision < 0.0) && (fabs(point.x()) >= 1.0))
+    x.sprintf("%.*f", point.x(), (int)ceil(fabs(xPrecision)));
+  else
+    x.sprintf("%g", point.x());
+  
+  if ((yPrecision < 0.0) && (fabs(point.y()) >= 1.0))
+    y.sprintf("%.*f", point.y(), (int)ceil(fabs(yPrecision)));
+  else
+    y.sprintf("%g", point.y());
+  
+  return QwtText(x+", "+y);
 }
 
 /*****************************************************************************/

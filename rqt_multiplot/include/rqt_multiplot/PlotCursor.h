@@ -52,6 +52,8 @@ namespace rqt_multiplot {
   protected:
     QRect getTextRect(const QPointF& point, const QFont& font) const;
 
+    QwtText trackerTextF(const QPointF& point) const;
+    
     void begin();
     void move(const QPoint& point);
     bool end(bool ok = true);
