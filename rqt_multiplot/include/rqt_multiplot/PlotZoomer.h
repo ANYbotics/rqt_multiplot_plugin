@@ -30,6 +30,13 @@ namespace rqt_multiplot {
     ~PlotZoomer();
     
     void drawRubberBand(QPainter* painter) const;
+    
+  protected:
+    void widgetMousePressEvent(QMouseEvent* event);
+    void widgetMouseReleaseEvent(QMouseEvent* event);
+    
+  private:
+    QPoint position_;
   };
 };
 

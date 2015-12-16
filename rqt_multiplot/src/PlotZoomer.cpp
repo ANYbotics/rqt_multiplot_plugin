@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QMouseEvent>
+
 #include <qwt/qwt_painter.h>
 
 #include <rqt_multiplot/PlotZoomerMachine.h>
@@ -60,6 +62,22 @@ void PlotZoomer::drawRubberBand(QPainter* painter) const {
   }
   else
     QwtPlotZoomer::drawRubberBand(painter);
+}
+
+void PlotZoomer::widgetMousePressEvent(QMouseEvent* event) {
+  if (mouseMatch(MouseSelect2, event))
+    position_ = event->pos();
+  
+  QwtPlotZoomer::widgetMousePressEvent(event);
+}
+
+void PlotZoomer::widgetMouseReleaseEvent(QMouseEvent* event) {
+  if (mouseMatch(MouseSelect2, event)) {
+    if (position_ == event->pos())
+      zoom(0);
+  }
+  else
+    QwtPlotZoomer::widgetMouseReleaseEvent(event);
 }
 
 }

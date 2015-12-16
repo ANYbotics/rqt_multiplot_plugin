@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-31) unstable; urgency=low
+
+  * Fixed right-click magnification for Dario
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 16:09:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-30) unstable; urgency=low
 
   * Added axis configuration swap button for Dario
