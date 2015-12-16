@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QAbstractItemView>
+#include <QKeyEvent>
 #include <QLineEdit>
 
 #include "rqt_multiplot/MessageTopicComboBox.h"
@@ -28,8 +30,12 @@ namespace rqt_multiplot {
 
 MessageTopicComboBox::MessageTopicComboBox(QWidget* parent) :
   QComboBox(parent),
+  completer_(new MatchFilterCompleter(this, Qt::MatchContains)),
   registry_(new MessageTopicRegistry(this)),
   isUpdating_(false) {
+  connect(completer_, SIGNAL(activated(const QString&)), this,
+    SLOT(completerActivated(const QString&)));
+    
   connect(registry_, SIGNAL(updateStarted()), this,
     SLOT(registryUpdateStarted()));
   connect(registry_, SIGNAL(updateFinished()), this,
@@ -69,9 +75,14 @@ void MessageTopicComboBox::setEditable(bool editable) {
       
       blockSignals(false);
       
+      completer_->setModel(model());
+      completer_->setWidget(this);
+    
       connect(lineEdit(), SIGNAL(editingFinished()), this,
         SLOT(lineEditEditingFinished()));
     }
+    else
+      completer_->setModel(model());
   }
 }
 
@@ -119,9 +130,57 @@ void MessageTopicComboBox::updateTopics() {
   registry_->update();
 }
 
+void MessageTopicComboBox::keyPressEvent(QKeyEvent* event) {
+  if (completer_->popup()->isVisible()) {
+    switch (event->key()) {
+      case Qt::Key_Escape:
+      case Qt::Key_Tab:
+      case Qt::Key_Backtab:
+        event->ignore();
+        return;
+      case Qt::Key_Enter:
+      case Qt::Key_Return:
+        if (completer_->popup()->currentIndex().isValid()) {
+          event->ignore();
+          return; 
+        }
+        else
+          completer_->popup()->hide();    
+    }
+  }
+
+  bool isShortcut = (event->modifiers() & Qt::ControlModifier) &&
+    (event->key() == Qt::Key_E);
+  bool ctrlOrShift = event->modifiers() &
+    (Qt::ControlModifier | Qt::ShiftModifier);
+    
+  if (!isShortcut)
+    QComboBox::keyPressEvent(event);
+
+  if (!isShortcut && !ctrlOrShift && (event->modifiers() != Qt::NoModifier)) {
+    completer_->popup()->hide();    
+    return;
+  }
+
+  if (count() >= 0) {
+    completer_->setCompletionPrefix(currentText());
+    completer_->complete();
+    completer_->popup()->setCurrentIndex(QModelIndex());
+  }
+}
+
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
+
+void MessageTopicComboBox::completerActivated(const QString& text) {  
+  if (lineEdit()) {
+    setEditText(text);
+    lineEdit()->selectAll();
+  }
+  
+  setCurrentTopic(text);
+}
 
 void MessageTopicComboBox::registryUpdateStarted() {
   setEnabled(false);
@@ -162,7 +221,10 @@ void MessageTopicComboBox::currentIndexChanged(const QString& text) {
 }
 
 void MessageTopicComboBox::lineEditEditingFinished() {
-  setCurrentTopic(currentText());
+  if (!completer_->popup()->isVisible())
+    setCurrentTopic(currentText());
+  else
+    completer_->popup()->hide();
 }
 
 }

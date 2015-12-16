@@ -16,55 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
-#define RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
+#ifndef RQT_MULTIPLOT_MATCH_FILTER_COMPLETER_MODEL_H
+#define RQT_MULTIPLOT_MATCH_FILTER_COMPLETER_MODEL_H
 
-#include <QComboBox>
-
-#include <rqt_multiplot/MatchFilterCompleter.h>
-#include <rqt_multiplot/MessageTopicRegistry.h>
+#include <QSortFilterProxyModel>
+#include <QString>
 
 namespace rqt_multiplot {
-  class MessageTopicComboBox :
-    public QComboBox {
+  class MatchFilterCompleterModel :
+    public QSortFilterProxyModel {
   Q_OBJECT
   public:
-    MessageTopicComboBox(QWidget* parent = 0);
-    virtual ~MessageTopicComboBox();
-    
-    void setEditable(bool editable);
-    void setCurrentTopic(const QString& topic);
-    QString getCurrentTopic() const;
-    QString getCurrentTopicType() const;
-    bool isUpdating() const;
-    bool isCurrentTopicRegistered() const;
+    MatchFilterCompleterModel(QObject* parent = 0, Qt::MatchFlags
+      matchFlags = Qt::MatchStartsWith, const QString& filterKey =
+      QString());
+    virtual ~MatchFilterCompleterModel();
   
-    void updateTopics();
-    
-  signals:
-    void updateStarted();
-    void updateFinished();
-    void currentTopicChanged(const QString& topic);
+    void setMatchFlags(Qt::MatchFlags flags);
+    Qt::MatchFlags getMatchFlags() const;
+    void setFilterKey(const QString& key);
+    const QString& getFilterKey() const;
     
   protected:
-    void keyPressEvent(QKeyEvent* event);
+    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent)
+      const;
 
   private:
-    QString currentTopic_;
-    
-    MatchFilterCompleter* completer_;
-    
-    MessageTopicRegistry* registry_;
-    bool isUpdating_;
-    
-  private slots:
-    void completerActivated(const QString& text);
-    
-    void registryUpdateStarted();
-    void registryUpdateFinished();
-    
-    void currentIndexChanged(const QString& text);
-    void lineEditEditingFinished();
+    Qt::MatchFlags matchFlags_;
+    QString filterKey_;
   };
 };
 

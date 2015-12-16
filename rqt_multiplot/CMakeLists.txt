@@ -63,6 +63,8 @@ set(rqt_multiplot_SRCS
   src/CurveStyleWidget.cpp
   src/DataTypeRegistry.cpp
   src/FileScheme.cpp
+  src/MatchFilterCompleter.cpp
+  src/MatchFilterCompleterModel.cpp
   src/Message.cpp
   src/MessageBroker.cpp
   src/MessageDefinitionLoader.cpp
@@ -149,6 +151,8 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveStyleWidget.h
   include/rqt_multiplot/DataTypeRegistry.h
   include/rqt_multiplot/FileScheme.h
+  include/rqt_multiplot/MatchFilterCompleter.h
+  include/rqt_multiplot/MatchFilterCompleterModel.h
   include/rqt_multiplot/Message.h
   include/rqt_multiplot/MessageBroker.h
   include/rqt_multiplot/MessageDefinitionLoader.h
