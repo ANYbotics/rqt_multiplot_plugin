@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <ros/package.h>
+
 #include <ui_CurveConfigWidget.h>
 
 #include "rqt_multiplot/CurveConfigWidget.h"
@@ -32,6 +34,13 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
   config_(new CurveConfig(this)),
   messageTopicRegistry_(new MessageTopicRegistry(this)) {
   ui_->setupUi(this);
+
+  ui_->pushButtonCopyRight->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/arrow_right.png"))));
+  ui_->pushButtonCopyLeft->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/arrow_left.png"))));
   
   ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
     CurveConfig::X));
@@ -46,8 +55,26 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
   connect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)), this,
     SLOT(configSubscriberQueueSizeChanged(size_t)));
   
+  connect(config_->getAxisConfig(CurveConfig::X),
+    SIGNAL(topicChanged(const QString&)), this,
+    SLOT(configAxisConfigTopicChanged(const QString&)));
+  connect(config_->getAxisConfig(CurveConfig::Y),
+    SIGNAL(topicChanged(const QString&)), this,
+    SLOT(configAxisConfigTopicChanged(const QString&)));
+
+  connect(config_->getAxisConfig(CurveConfig::X),
+    SIGNAL(typeChanged(const QString&)), this,
+    SLOT(configAxisConfigTypeChanged(const QString&)));
+  connect(config_->getAxisConfig(CurveConfig::Y),
+    SIGNAL(typeChanged(const QString&)), this,
+    SLOT(configAxisConfigTypeChanged(const QString&)));
+  
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
     SLOT(lineEditTitleEditingFinished()));
+  connect(ui_->pushButtonCopyRight, SIGNAL(clicked()), this,
+    SLOT(pushButtonCopyRightClicked()));
+  connect(ui_->pushButtonCopyLeft, SIGNAL(clicked()), this,
+    SLOT(pushButtonCopyLeftClicked()));
   connect(ui_->spinBoxSubscriberQueueSize, SIGNAL(valueChanged(int)),
     this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
   
@@ -89,8 +116,44 @@ void CurveConfigWidget::configSubscriberQueueSizeChanged(size_t queueSize) {
   ui_->spinBoxSubscriberQueueSize->setValue(queueSize);
 }
 
+void CurveConfigWidget::configAxisConfigTopicChanged(const QString& topic) {
+  CurveAxisConfig* source = static_cast<CurveAxisConfig*>(sender());
+  CurveAxisConfig* destination = 0;
+  
+  if (source == config_->getAxisConfig(CurveConfig::X))
+    destination = config_->getAxisConfig(CurveConfig::Y);
+  else
+    destination = config_->getAxisConfig(CurveConfig::X);  
+  
+  if (destination->getTopic().isEmpty())
+    destination->setTopic(topic);
+}
+
+void CurveConfigWidget::configAxisConfigTypeChanged(const QString& type) {
+  CurveAxisConfig* source = static_cast<CurveAxisConfig*>(sender());
+  CurveAxisConfig* destination = 0;
+  
+  if (source == config_->getAxisConfig(CurveConfig::X))
+    destination = config_->getAxisConfig(CurveConfig::Y);
+  else
+    destination = config_->getAxisConfig(CurveConfig::X);  
+  
+  if (destination->getType().isEmpty())
+    destination->setType(type);
+}
+
 void CurveConfigWidget::lineEditTitleEditingFinished() {
   config_->setTitle(ui_->lineEditTitle->text());
+}
+
+void CurveConfigWidget::pushButtonCopyRightClicked() {
+  *config_->getAxisConfig(CurveConfig::Y) = *config_->getAxisConfig(
+    CurveConfig::X);
+}
+
+void CurveConfigWidget::pushButtonCopyLeftClicked() {
+  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(
+    CurveConfig::Y);
 }
 
 void CurveConfigWidget::spinBoxSubscriberQueueSizeValueChanged(int value) {

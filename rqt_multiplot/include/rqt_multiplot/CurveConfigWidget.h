@@ -51,7 +51,12 @@ namespace rqt_multiplot {
     void configTitleChanged(const QString& title);
     void configSubscriberQueueSizeChanged(size_t queueSize);
     
+    void configAxisConfigTopicChanged(const QString& topic);
+    void configAxisConfigTypeChanged(const QString& type);
+    
     void lineEditTitleEditingFinished();
+    void pushButtonCopyRightClicked();
+    void pushButtonCopyLeftClicked();
     void spinBoxSubscriberQueueSizeValueChanged(int value);
   };
 };
