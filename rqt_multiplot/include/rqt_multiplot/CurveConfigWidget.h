@@ -57,6 +57,7 @@ namespace rqt_multiplot {
     void lineEditTitleEditingFinished();
     void pushButtonCopyRightClicked();
     void pushButtonCopyLeftClicked();
+    void pushButtonSwapClicked();
     void spinBoxSubscriberQueueSizeValueChanged(int value);
   };
 };

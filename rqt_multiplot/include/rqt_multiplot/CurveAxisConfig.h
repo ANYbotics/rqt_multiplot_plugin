@@ -35,7 +35,7 @@ namespace rqt_multiplot {
       MessageReceiptTime
     };
     
-    CurveAxisConfig(QObject* parent, const QString& topic = QString(),
+    CurveAxisConfig(QObject* parent = 0, const QString& topic = QString(),
       const QString& type = QString(), FieldType fieldType = MessageData,
       const QString& field = QString());
     ~CurveAxisConfig();

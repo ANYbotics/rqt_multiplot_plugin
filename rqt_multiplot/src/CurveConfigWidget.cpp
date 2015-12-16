@@ -41,6 +41,9 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
   ui_->pushButtonCopyLeft->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/22x22/arrow_left.png"))));
+  ui_->pushButtonSwap->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/22x22/arrows_right_left.png"))));
   
   ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
     CurveConfig::X));
@@ -75,6 +78,8 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
     SLOT(pushButtonCopyRightClicked()));
   connect(ui_->pushButtonCopyLeft, SIGNAL(clicked()), this,
     SLOT(pushButtonCopyLeftClicked()));
+  connect(ui_->pushButtonSwap, SIGNAL(clicked()), this,
+    SLOT(pushButtonSwapClicked()));
   connect(ui_->spinBoxSubscriberQueueSize, SIGNAL(valueChanged(int)),
     this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
   
@@ -154,6 +159,15 @@ void CurveConfigWidget::pushButtonCopyRightClicked() {
 void CurveConfigWidget::pushButtonCopyLeftClicked() {
   *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(
     CurveConfig::Y);
+}
+
+void CurveConfigWidget::pushButtonSwapClicked() {
+  CurveAxisConfig xAxisConfig;
+  
+  xAxisConfig = *config_->getAxisConfig(CurveConfig::X);
+  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(
+    CurveConfig::Y);
+  *config_->getAxisConfig(CurveConfig::Y) = xAxisConfig;
 }
 
 void CurveConfigWidget::spinBoxSubscriberQueueSizeValueChanged(int value) {

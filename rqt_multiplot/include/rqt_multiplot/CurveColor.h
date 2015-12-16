@@ -33,7 +33,7 @@ namespace rqt_multiplot {
       Custom
     };
     
-    CurveColor(QObject* parent, Type type = Auto, unsigned char
+    CurveColor(QObject* parent = 0, Type type = Auto, unsigned char
       autoColorIndex = 0, const QColor& customColor = Qt::black);
     ~CurveColor();
     
