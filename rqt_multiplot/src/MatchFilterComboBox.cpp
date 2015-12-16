@@ -16,9 +16,11 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QAbstractItemView>
+#include <QKeyEvent>
 #include <QLineEdit>
 
-#include "rqt_multiplot/MessageTypeComboBox.h"
+#include "rqt_multiplot/MatchFilterComboBox.h"
 
 namespace rqt_multiplot {
 
@@ -26,136 +28,111 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageTypeComboBox::MessageTypeComboBox(QWidget* parent) :
-  MatchFilterComboBox(parent),
-  registry_(new MessageTypeRegistry(this)),
-  isUpdating_(false) {    
-  getMatchFilterCompleter()->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    
-  connect(registry_, SIGNAL(updateStarted()), this,
-    SLOT(registryUpdateStarted()));
-  connect(registry_, SIGNAL(updateFinished()), this,
-    SLOT(registryUpdateFinished()));
-  
-  connect(this, SIGNAL(currentIndexChanged(const QString&)), this,
-    SLOT(currentIndexChanged(const QString&)));
-  
-  if (registry_->isUpdating())
-    registryUpdateStarted();
-  else if (!registry_->isEmpty())
-    registryUpdateFinished();
-  else
-    registry_->update();
+MatchFilterComboBox::MatchFilterComboBox(QWidget* parent) :
+  QComboBox(parent),
+  matchFilterCompleter_(new MatchFilterCompleter(this, Qt::MatchContains)) {
+  connect(matchFilterCompleter_, SIGNAL(activated(const QString&)), this,
+    SLOT(matchFilterCompleterActivated(const QString&)));
 }
 
-MessageTypeComboBox::~MessageTypeComboBox() {
+MatchFilterComboBox::~MatchFilterComboBox() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void MessageTypeComboBox::setEditable(bool editable) {
+void MatchFilterComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
-    MatchFilterComboBox::setEditable(editable);
+    QComboBox::setEditable(editable);
     
     if (lineEdit()) {
-      blockSignals(true);
-  
-      int index = findText(currentType_);
-      
-      if (index < 0)
-        setEditText(currentType_);
-      else
-        setCurrentIndex(index);
-      
-      blockSignals(false);
+      matchFilterCompleter_->setModel(model());
+      matchFilterCompleter_->setWidget(this);
       
       connect(lineEdit(), SIGNAL(editingFinished()), this,
         SLOT(lineEditEditingFinished()));
     }
-  }
-}
-
-void MessageTypeComboBox::setCurrentType(const QString& type) {
-  if (type != currentType_) {
-    currentType_ = type;
-    
-    int index = findText(type);
-    
-    if (index < 0)
-      setEditText(type);
     else
-      setCurrentIndex(index);
-    
-    emit currentTypeChanged(type);
+      matchFilterCompleter_->setModel(model());
   }
 }
 
-QString MessageTypeComboBox::getCurrentType() const {
-  return currentType_;
-}
-
-bool MessageTypeComboBox::isUpdating() const {
-  return isUpdating_;
-}
-
-bool MessageTypeComboBox::isCurrentTypeRegistered() const {
-  return (findText(currentType_) >= 0);
+MatchFilterCompleter* MatchFilterComboBox::getMatchFilterCompleter() const {
+  return matchFilterCompleter_;
 }
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void MessageTypeComboBox::updateTypes() {
-  registry_->update();
+void MatchFilterComboBox::keyPressEvent(QKeyEvent* event) {
+  bool doComplete = (count() >= 0);
+  
+  if (matchFilterCompleter_->popup()->isVisible()) {
+    switch (event->key()) {
+      case Qt::Key_Escape:
+      case Qt::Key_Tab:
+      case Qt::Key_Backtab:
+        event->ignore();
+        return;
+      case Qt::Key_Enter:
+      case Qt::Key_Return:
+        if (matchFilterCompleter_->popup()->currentIndex().isValid()) {
+          event->ignore();
+          return; 
+        }
+        else {
+          matchFilterCompleter_->popup()->hide();    
+          doComplete = false;
+        }
+    }
+  }
+
+  bool isShortcut = (event->modifiers() & Qt::ControlModifier) &&
+    (event->key() == Qt::Key_E);
+  bool ctrlOrShift = event->modifiers() &
+    (Qt::ControlModifier | Qt::ShiftModifier);
+    
+  if (!isShortcut)
+    QComboBox::keyPressEvent(event);
+
+  if (!isShortcut && !ctrlOrShift && (event->modifiers() != Qt::NoModifier)) {
+    matchFilterCompleter_->popup()->hide();    
+    return;
+  }
+
+  if (doComplete) {
+    matchFilterCompleter_->setCompletionPrefix(currentText());
+    matchFilterCompleter_->complete();
+    matchFilterCompleter_->popup()->setCurrentIndex(QModelIndex());
+  }
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MessageTypeComboBox::registryUpdateStarted() {
-  setEnabled(false);
+void MatchFilterComboBox::matchFilterCompleterActivated(const QString& text) {  
+  setEditText(text);
+  lineEdit()->selectAll();
+
+  setCurrentIndex(findText(text));
   
-  isUpdating_= true;
-  emit updateStarted();
-  
-  clear();
+  matchFilterCompleter_->popup()->hide();
 }
 
-void MessageTypeComboBox::registryUpdateFinished() {
-  QList<QString> types = registry_->getTypes();
-  
-  blockSignals(true);
-  
-  for (QList<QString>::const_iterator it = types.begin();
-      it != types.end(); ++it)
-    addItem(*it);
-  
-  int index = findText(currentType_);
-  
-  if (index < 0)
-    setEditText(currentType_);
+void MatchFilterComboBox::lineEditEditingFinished() {
+  if (!matchFilterCompleter_->popup()->isVisible()) {
+    int index = findText(currentText());
+    
+    if (index < 0)
+      setEditText(currentText());
+    else
+      setCurrentIndex(index);
+  }
   else
-    setCurrentIndex(index);
-
-  blockSignals(false);
-  
-  isUpdating_= false;
-  emit updateFinished();
-  
-  setEnabled(true);
-}
-
-void MessageTypeComboBox::currentIndexChanged(const QString& text) {
-  if (currentIndex() >= 0)
-    setCurrentType(text);
-}
-
-void MessageTypeComboBox::lineEditEditingFinished() {
-  setCurrentType(currentText());
+    matchFilterCompleter_->popup()->hide();
 }
 
 }

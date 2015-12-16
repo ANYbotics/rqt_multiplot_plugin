@@ -16,34 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MATCH_FILTER_COMPLETER_MODEL_H
-#define RQT_MULTIPLOT_MATCH_FILTER_COMPLETER_MODEL_H
+#ifndef RQT_MULTIPLOT_MATCH_FILTER_COMBO_BOX_H
+#define RQT_MULTIPLOT_MATCH_FILTER_COMBO_BOX_H
 
-#include <QSortFilterProxyModel>
-#include <QString>
+#include <QComboBox>
+
+#include <rqt_multiplot/MatchFilterCompleter.h>
 
 namespace rqt_multiplot {
-  class MatchFilterCompleterModel :
-    public QSortFilterProxyModel {
+  class MatchFilterComboBox :
+    public QComboBox {
   Q_OBJECT
   public:
-    MatchFilterCompleterModel(QObject* parent = 0, Qt::MatchFlags
-      filterMatchFlags = Qt::MatchStartsWith, const QString&
-      filterKey = QString());
-    virtual ~MatchFilterCompleterModel();
-  
-    void setFilterMatchFlags(Qt::MatchFlags flags);
-    Qt::MatchFlags getFilterMatchFlags() const;
-    void setFilterKey(const QString& key);
-    const QString& getFilterKey() const;
+    MatchFilterComboBox(QWidget* parent = 0);
+    virtual ~MatchFilterComboBox();
+    
+    void setEditable(bool editable);
+    MatchFilterCompleter* getMatchFilterCompleter() const;
     
   protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent)
-      const;
+    void keyPressEvent(QKeyEvent* event);
 
   private:
-    Qt::MatchFlags filterMatchFlags_;
-    QString filterKey_;
+    MatchFilterCompleter* matchFilterCompleter_;
+    
+  private slots:
+    void matchFilterCompleterActivated(const QString& text);
+    
+    void lineEditEditingFinished();
   };
 };
 

@@ -29,11 +29,13 @@ namespace rqt_multiplot {
   Q_OBJECT
   public:
     MatchFilterCompleter(QObject* parent = 0, Qt::MatchFlags
-      matchFlags = Qt::MatchStartsWith);
+      filterMatchFlags = Qt::MatchStartsWith);
     virtual ~MatchFilterCompleter();
   
-    void setMatchFlags(Qt::MatchFlags flags);
-    Qt::MatchFlags getMatchFlags() const;
+    void setFilterMatchFlags(Qt::MatchFlags flags);
+    Qt::MatchFlags getFilterMatchFlags() const;
+    void setFilterCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
+    Qt::CaseSensitivity getFilterCaseSensitivity() const;
     
     QStringList splitPath(const QString& path) const;
     

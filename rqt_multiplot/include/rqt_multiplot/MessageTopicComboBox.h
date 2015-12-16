@@ -19,14 +19,12 @@
 #ifndef RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
 #define RQT_MULTIPLOT_MESSAGE_TOPIC_COMBO_BOX_H
 
-#include <QComboBox>
-
-#include <rqt_multiplot/MatchFilterCompleter.h>
+#include <rqt_multiplot/MatchFilterComboBox.h>
 #include <rqt_multiplot/MessageTopicRegistry.h>
 
 namespace rqt_multiplot {
   class MessageTopicComboBox :
-    public QComboBox {
+    public MatchFilterComboBox {
   Q_OBJECT
   public:
     MessageTopicComboBox(QWidget* parent = 0);
@@ -46,20 +44,13 @@ namespace rqt_multiplot {
     void updateFinished();
     void currentTopicChanged(const QString& topic);
     
-  protected:
-    void keyPressEvent(QKeyEvent* event);
-
   private:
     QString currentTopic_;
-    
-    MatchFilterCompleter* completer_;
     
     MessageTopicRegistry* registry_;
     bool isUpdating_;
     
   private slots:
-    void completerActivated(const QString& text);
-    
     void registryUpdateStarted();
     void registryUpdateFinished();
     

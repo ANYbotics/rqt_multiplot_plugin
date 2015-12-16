@@ -29,9 +29,9 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 MatchFilterCompleter::MatchFilterCompleter(QObject* parent, Qt::MatchFlags
-    matchFlags) :
+    filterMatchFlags) :
   QCompleter(parent),
-  proxyModel_(new MatchFilterCompleterModel(this, matchFlags)) {
+  proxyModel_(new MatchFilterCompleterModel(this, filterMatchFlags)) {
   setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 }
 
@@ -42,12 +42,21 @@ MatchFilterCompleter::~MatchFilterCompleter() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void MatchFilterCompleter::setMatchFlags(Qt::MatchFlags flags) {
-  proxyModel_->setMatchFlags(flags);
+void MatchFilterCompleter::setFilterMatchFlags(Qt::MatchFlags flags) {
+  proxyModel_->setFilterMatchFlags(flags);
 }
 
-Qt::MatchFlags MatchFilterCompleter::getMatchFlags() const {
-  return proxyModel_->getMatchFlags();
+Qt::MatchFlags MatchFilterCompleter::getFilterMatchFlags() const {
+  return proxyModel_->getFilterMatchFlags();
+}
+
+void MatchFilterCompleter::setFilterCaseSensitivity(Qt::CaseSensitivity
+    caseSensitivity) {
+  proxyModel_->setFilterCaseSensitivity(caseSensitivity);
+}
+
+Qt::CaseSensitivity MatchFilterCompleter::getFilterCaseSensitivity() const {
+  return proxyModel_->filterCaseSensitivity();
 }
 
 /*****************************************************************************/

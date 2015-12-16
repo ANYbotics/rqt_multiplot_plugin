@@ -1,3 +1,10 @@
+ros-rqt-multiplot-plugin (0.0.1-29) unstable; urgency=low
+
+  * Implemented match filter combo box as class
+  * Added match filter completer to type combo box
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 13:39:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-28) unstable; urgency=low
 
   * Added match filter completer to topic combo box

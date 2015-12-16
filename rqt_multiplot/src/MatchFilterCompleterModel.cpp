@@ -27,9 +27,9 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 MatchFilterCompleterModel::MatchFilterCompleterModel(QObject* parent,
-    Qt::MatchFlags matchFlags, const QString& filterKey) :
+    Qt::MatchFlags filterMatchFlags, const QString& filterKey) :
   QSortFilterProxyModel(parent),
-  matchFlags_(matchFlags),
+  filterMatchFlags_(filterMatchFlags),
   filterKey_(filterKey) {
 }
 
@@ -40,16 +40,16 @@ MatchFilterCompleterModel::~MatchFilterCompleterModel() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void MatchFilterCompleterModel::setMatchFlags(Qt::MatchFlags flags) {
-  if (flags != matchFlags_) {
-    matchFlags_ = flags;
+void MatchFilterCompleterModel::setFilterMatchFlags(Qt::MatchFlags flags) {
+  if (flags != filterMatchFlags_) {
+    filterMatchFlags_ = flags;
     
     filterChanged();
   }
 }
 
-Qt::MatchFlags MatchFilterCompleterModel::getMatchFlags() const {
-  return matchFlags_;
+Qt::MatchFlags MatchFilterCompleterModel::getFilterMatchFlags() const {
+  return filterMatchFlags_;
 }
 
 void MatchFilterCompleterModel::setFilterKey(const QString& key) {
@@ -70,7 +70,7 @@ const QString& MatchFilterCompleterModel::getFilterKey() const {
 
 bool MatchFilterCompleterModel::filterAcceptsRow(int sourceRow, const
     QModelIndex& sourceParent) const {
-  if (matchFlags_ & Qt::MatchRegExp)
+  if (filterMatchFlags_ & Qt::MatchRegExp)
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
       
   if (filterKeyColumn() == -1)
@@ -84,12 +84,14 @@ bool MatchFilterCompleterModel::filterAcceptsRow(int sourceRow, const
   
   QString key = sourceModel()->data(sourceIndex, filterRole()).toString();  
   
-  if (matchFlags_ & Qt::MatchContains)
+  if (filterMatchFlags_ & Qt::MatchContains)
     return key.contains(filterKey_, filterCaseSensitivity());
-  else if (matchFlags_ & Qt::MatchStartsWith)
+  else if (filterMatchFlags_ & Qt::MatchStartsWith)
     return key.startsWith(filterKey_, filterCaseSensitivity());
-  else if (matchFlags_ & Qt::MatchEndsWith)
+  else if (filterMatchFlags_ & Qt::MatchEndsWith)
     return key.endsWith(filterKey_, filterCaseSensitivity());
+  else
+    return true;
 }
 
 }

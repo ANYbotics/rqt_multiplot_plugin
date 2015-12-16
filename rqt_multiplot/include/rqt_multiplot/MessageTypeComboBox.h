@@ -19,13 +19,12 @@
 #ifndef RQT_MULTIPLOT_MESSAGE_TYPE_COMBO_BOX_H
 #define RQT_MULTIPLOT_MESSAGE_TYPE_COMBO_BOX_H
 
-#include <QComboBox>
-
+#include <rqt_multiplot/MatchFilterComboBox.h>
 #include <rqt_multiplot/MessageTypeRegistry.h>
 
 namespace rqt_multiplot {
   class MessageTypeComboBox :
-    public QComboBox {
+    public MatchFilterComboBox {
   Q_OBJECT
   public:
     MessageTypeComboBox(QWidget* parent = 0);
