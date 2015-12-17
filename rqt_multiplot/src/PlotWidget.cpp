@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFile>
 #include <QFileDialog>
 #include <QFontMetrics>
@@ -70,6 +72,8 @@ PlotWidget::PlotWidget(QWidget* parent) :
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
   
   ui_->setupUi(this);
+  
+  setAcceptDrops(true);
   
   runIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
     "rqt_multiplot").append("/resource/16x16/run.png")));
@@ -484,6 +488,30 @@ void PlotWidget::saveToTextFile(const QString& fileName) {
         break;
     }
   }
+}
+
+void PlotWidget::dragEnterEvent(QDragEnterEvent* event) {
+  if (event->mimeData()->hasFormat("application/rqt-mplotcurveconfig") &&
+      (event->source() != legend_) && config_)
+    event->acceptProposedAction();
+  else
+    event->ignore();
+}
+
+void PlotWidget::dropEvent(QDropEvent* event) {
+  if (event->mimeData()->hasFormat("application/rqt-mplotcurveconfig") &&
+      (event->source() != legend_) && config_) {
+    QByteArray data = event->mimeData()->data(
+      "application/rqt-mplotcurveconfig");
+    QDataStream stream(&data, QIODevice::ReadOnly);
+
+    CurveConfig* curveConfig = config_->addCurve();
+    stream >> *curveConfig;
+
+    event->acceptProposedAction();
+  }
+  else
+    event->ignore();
 }
 
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {

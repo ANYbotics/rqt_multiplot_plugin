@@ -16,49 +16,33 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_AXIS_SCALE_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_AXIS_SCALE_WIDGET_H
-
-#include <QWidget>
-
-#include <rqt_multiplot/CurveAxisScale.h>
-
-namespace Ui {
-  class CurveAxisScaleWidget;
-};
+#include "rqt_multiplot/Config.h"
 
 namespace rqt_multiplot {
-  class CurveAxisScaleWidget :
-    public QWidget {
-  Q_OBJECT
-  public:
-    CurveAxisScaleWidget(QWidget* parent = 0);
-    virtual ~CurveAxisScaleWidget();
-    
-    void setScale(CurveAxisScale* scale);
-    CurveAxisScale* getScale() const;
-    
-  private:
-    Ui::CurveAxisScaleWidget* ui_;
-    
-    CurveAxisScale* scale_;
-    
-  private slots:
-    void scaleTypeChanged(int type);
-    void scaleAbsoluteMinimumChanged(double minimum);
-    void scaleAbsoluteMaximumChanged(double maximum);
-    void scaleRelativeMinimumChanged(double minimum);
-    void scaleRelativeMaximumChanged(double maximum);
-    
-    void radioButtonAbsoluteToggled(bool checked);
-    void radioButtonRelativeToggled(bool checked);
-    void radioButtonAutoToggled(bool checked);
-    
-    void lineEditAbsoluteMinimumEditingFinished();
-    void lineEditAbsoluteMaximumEditingFinished();
-    void lineEditRelativeMinimumEditingFinished();
-    void lineEditRelativeMaximumEditingFinished();
-  };
-};
 
-#endif
+/*****************************************************************************/
+/* Constructors and Destructor                                               */
+/*****************************************************************************/
+
+Config::Config(QObject* parent) :
+  QObject(parent) {
+}
+
+Config::~Config() {
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+QDataStream& operator<<(QDataStream& stream, const Config& config) {
+  config.write(stream);
+  return stream;
+}
+
+QDataStream& operator>>(QDataStream& stream, Config& config) {
+  config.read(stream);
+  return stream;
+}
+
+}

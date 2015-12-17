@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveStyle.h"
+#include "rqt_multiplot/CurveStyleConfig.h"
 
 namespace rqt_multiplot {
 
@@ -24,11 +24,11 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveStyle::CurveStyle(QObject* parent, Type type, bool linesInterpolate,
-    Qt::Orientation sticksOrientation, double sticksBaseline,
-    bool stepsInvert, size_t penWidth, Qt::PenStyle penStyle, bool
-    renderAntialias) :
-  QObject(parent),
+CurveStyleConfig::CurveStyleConfig(QObject* parent, Type type, bool
+    linesInterpolate, Qt::Orientation sticksOrientation, double
+    sticksBaseline, bool stepsInvert, size_t penWidth, Qt::PenStyle
+    penStyle, bool renderAntialias) :
+  Config(parent),
   type_(type),
   linesInterpolate_(linesInterpolate),
   sticksOrientation_(sticksOrientation),
@@ -39,14 +39,14 @@ CurveStyle::CurveStyle(QObject* parent, Type type, bool linesInterpolate,
   renderAntialias_(renderAntialias) {
 }
 
-CurveStyle::~CurveStyle() {
+CurveStyleConfig::~CurveStyleConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveStyle::setType(Type type) {
+void CurveStyleConfig::setType(Type type) {
   if (type != type_) {
     type_ = type;
     
@@ -55,11 +55,11 @@ void CurveStyle::setType(Type type) {
   }
 }
 
-CurveStyle::Type CurveStyle::getType() const {
+CurveStyleConfig::Type CurveStyleConfig::getType() const {
   return type_;
 }
 
-void CurveStyle::setLinesInterpolate(bool interpolate) {
+void CurveStyleConfig::setLinesInterpolate(bool interpolate) {
   if (interpolate != linesInterpolate_) {
     linesInterpolate_ = interpolate;
     
@@ -68,11 +68,11 @@ void CurveStyle::setLinesInterpolate(bool interpolate) {
   }
 }
 
-bool CurveStyle::areLinesInterpolated() const {
+bool CurveStyleConfig::areLinesInterpolated() const {
   return linesInterpolate_;
 }
 
-void CurveStyle::setSticksOrientation(Qt::Orientation orientation) {
+void CurveStyleConfig::setSticksOrientation(Qt::Orientation orientation) {
   if (orientation != sticksOrientation_) {
     sticksOrientation_ = orientation;
     
@@ -81,11 +81,11 @@ void CurveStyle::setSticksOrientation(Qt::Orientation orientation) {
   }
 }
 
-Qt::Orientation CurveStyle::getSticksOrientation() const {
+Qt::Orientation CurveStyleConfig::getSticksOrientation() const {
   return sticksOrientation_;
 }
 
-void CurveStyle::setSticksBaseline(double baseline) {
+void CurveStyleConfig::setSticksBaseline(double baseline) {
   if (baseline != sticksBaseline_) {
     sticksBaseline_ = baseline;
     
@@ -94,11 +94,11 @@ void CurveStyle::setSticksBaseline(double baseline) {
   }
 }
 
-double CurveStyle::getSticksBaseline() const {
+double CurveStyleConfig::getSticksBaseline() const {
   return sticksBaseline_;
 }
 
-void CurveStyle::setStepsInvert(bool invert) {
+void CurveStyleConfig::setStepsInvert(bool invert) {
   if (invert != stepsInvert_) {
     stepsInvert_ = invert;
     
@@ -107,11 +107,11 @@ void CurveStyle::setStepsInvert(bool invert) {
   }
 }
 
-bool CurveStyle::areStepsInverted() const {
+bool CurveStyleConfig::areStepsInverted() const {
   return stepsInvert_;
 }
 
-void CurveStyle::setPenWidth(size_t width) {
+void CurveStyleConfig::setPenWidth(size_t width) {
   if (width != penWidth_) {
     penWidth_ = width;
     
@@ -120,11 +120,11 @@ void CurveStyle::setPenWidth(size_t width) {
   }
 }
 
-size_t CurveStyle::getPenWidth() const {
+size_t CurveStyleConfig::getPenWidth() const {
   return penWidth_;
 }
 
-void CurveStyle::setPenStyle(Qt::PenStyle style) {
+void CurveStyleConfig::setPenStyle(Qt::PenStyle style) {
   if (style != penStyle_) {
     penStyle_ = style;
     
@@ -133,11 +133,11 @@ void CurveStyle::setPenStyle(Qt::PenStyle style) {
   }
 }
 
-Qt::PenStyle CurveStyle::getPenStyle() const {
+Qt::PenStyle CurveStyleConfig::getPenStyle() const {
   return penStyle_;
 }
 
-void CurveStyle::setRenderAntialias(bool antialias) {
+void CurveStyleConfig::setRenderAntialias(bool antialias) {
   if (antialias != renderAntialias_) {
     renderAntialias_ = antialias;
     
@@ -146,7 +146,7 @@ void CurveStyle::setRenderAntialias(bool antialias) {
   }
 }
 
-bool CurveStyle::isRenderAntialiased() const {
+bool CurveStyleConfig::isRenderAntialiased() const {
   return renderAntialias_;
 }
 
@@ -154,7 +154,7 @@ bool CurveStyle::isRenderAntialiased() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void CurveStyle::save(QSettings& settings) const {
+void CurveStyleConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
   
   settings.setValue("lines_interpolate", linesInterpolate_);
@@ -167,7 +167,7 @@ void CurveStyle::save(QSettings& settings) const {
   settings.setValue("render_antialias", renderAntialias_);
 }
 
-void CurveStyle::load(QSettings& settings) {
+void CurveStyleConfig::load(QSettings& settings) {
   setType(static_cast<Type>(settings.value("type", Lines).toInt()));
   
   setLinesInterpolate(settings.value("lines_interpolate", false).toBool());
@@ -182,11 +182,63 @@ void CurveStyle::load(QSettings& settings) {
   setRenderAntialias(settings.value("render_antialias", false).toBool());
 }
 
+void CurveStyleConfig::reset() {
+  setType(Lines);
+  
+  setLinesInterpolate(false);
+  setSticksOrientation(Qt::Vertical);
+  setSticksBaseline(0.0);
+  setStepsInvert(false);
+  
+  setPenWidth(1);
+  setPenStyle(Qt::SolidLine);
+  setRenderAntialias(false);
+}
+
+void CurveStyleConfig::write(QDataStream& stream) const {
+  stream << (int)type_;
+  
+  stream << linesInterpolate_;
+  stream << (int)sticksOrientation_;
+  stream << sticksBaseline_;
+  stream << stepsInvert_;
+  
+  stream << (quint64)penWidth_;
+  stream << (int)penStyle_;
+  stream << renderAntialias_;
+}
+
+void CurveStyleConfig::read(QDataStream& stream) {
+  int type, sticksOrientation, penStyle;
+  bool linesInterpolate, stepsInvert, renderAntialias;
+  double sticksBaseline;
+  quint64 penWidth;
+  
+  stream >> type;
+  setType(static_cast<Type>(type));
+  
+  stream >> linesInterpolate;
+  setLinesInterpolate(linesInterpolate);
+  stream >> sticksOrientation;
+  setSticksOrientation(static_cast<Qt::Orientation>(sticksOrientation));
+  stream >> sticksBaseline;
+  setSticksBaseline(sticksBaseline);
+  stream >> stepsInvert;
+  setStepsInvert(stepsInvert);
+  
+  stream >> penWidth;
+  setPenWidth(penWidth);
+  stream >> penStyle;
+  setPenStyle(static_cast<Qt::PenStyle>(penStyle));
+  stream >> renderAntialias;
+  setRenderAntialias(renderAntialias);
+}
+
 /*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 
-CurveStyle& CurveStyle::operator=(const CurveStyle& src) {
+CurveStyleConfig& CurveStyleConfig::operator=(const CurveStyleConfig& src) {
   setType(src.type_);
   
   setLinesInterpolate(src.linesInterpolate_);

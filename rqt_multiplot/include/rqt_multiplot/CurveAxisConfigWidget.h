@@ -57,7 +57,7 @@ namespace rqt_multiplot {
     void configTypeChanged(const QString& type);
     void configFieldTypeChanged(int fieldType);
     void configFieldChanged(const QString& field);
-    void configScaleChanged();
+    void configScaleConfigChanged();
     
     void comboBoxTopicUpdateStarted();
     void comboBoxTopicUpdateFinished();

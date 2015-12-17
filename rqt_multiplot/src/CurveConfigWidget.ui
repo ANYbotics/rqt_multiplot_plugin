@@ -73,7 +73,7 @@
     </widget>
    </item>
    <item row="7" column="1" colspan="3">
-    <widget class="rqt_multiplot::CurveColorWidget" name="curveColorWidget" native="true"/>
+    <widget class="rqt_multiplot::CurveColorConfigWidget" name="curveColorConfigWidget" native="true"/>
    </item>
    <item row="2" column="0">
     <widget class="QLabel" name="label_2">
@@ -121,7 +121,7 @@
     </widget>
    </item>
    <item row="11" column="1" rowspan="2" colspan="3">
-    <widget class="rqt_multiplot::CurveStyleWidget" name="curveStyleWidget" native="true">
+    <widget class="rqt_multiplot::CurveStyleConfigWidget" name="curveStyleConfigWidget" native="true">
      <property name="minimumSize">
       <size>
        <width>0</width>
@@ -482,15 +482,15 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>rqt_multiplot::CurveColorWidget</class>
+   <class>rqt_multiplot::CurveColorConfigWidget</class>
    <extends>QWidget</extends>
-   <header location="global">rqt_multiplot/CurveColorWidget.h</header>
+   <header location="global">rqt_multiplot/CurveColorConfigWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>rqt_multiplot::CurveStyleWidget</class>
+   <class>rqt_multiplot::CurveStyleConfigWidget</class>
    <extends>QWidget</extends>
-   <header>rqt_multiplot/CurveStyleWidget.h</header>
+   <header>rqt_multiplot/CurveStyleConfigWidget.h</header>
    <container>1</container>
   </customwidget>
   <customwidget>

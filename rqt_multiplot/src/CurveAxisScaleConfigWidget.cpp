@@ -18,9 +18,9 @@
 
 #include <QDoubleValidator>
 
-#include <ui_CurveAxisScaleWidget.h>
+#include <ui_CurveAxisScaleConfigWidget.h>
 
-#include "rqt_multiplot/CurveAxisScaleWidget.h"
+#include "rqt_multiplot/CurveAxisScaleConfigWidget.h"
 
 namespace rqt_multiplot {
 
@@ -28,10 +28,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveAxisScaleWidget::CurveAxisScaleWidget(QWidget* parent) :
+CurveAxisScaleConfigWidget::CurveAxisScaleConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::CurveAxisScaleWidget()),
-  scale_(0) {
+  ui_(new Ui::CurveAxisScaleConfigWidget()),
+  config_(0) {
   ui_->setupUi(this);
   
   ui_->lineEditAbsoluteMinimum->setEnabled(false);
@@ -65,7 +65,7 @@ CurveAxisScaleWidget::CurveAxisScaleWidget(QWidget* parent) :
     this, SLOT(lineEditRelativeMaximumEditingFinished()));
 }
 
-CurveAxisScaleWidget::~CurveAxisScaleWidget() {
+CurveAxisScaleConfigWidget::~CurveAxisScaleConfigWidget() {
   delete ui_;
 }
 
@@ -73,119 +73,119 @@ CurveAxisScaleWidget::~CurveAxisScaleWidget() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveAxisScaleWidget::setScale(CurveAxisScale* scale) {
-  if (scale != scale_) {
-    if (scale_) {
-      disconnect(scale_, SIGNAL(typeChanged(int)), this,
-        SLOT(scaleTypeChanged(int)));
-      disconnect(scale_, SIGNAL(absoluteMinimumChanged(double)), this,
-        SLOT(scaleAbsoluteMinimumChanged(double)));
-      disconnect(scale_, SIGNAL(absoluteMaximumChanged(double)), this,
-        SLOT(scaleAbsoluteMaximumChanged(double)));
-      disconnect(scale_, SIGNAL(relativeMinimumChanged(double)), this,
-        SLOT(scaleRelativeMinimumChanged(double)));
-      disconnect(scale_, SIGNAL(relativeMaximumChanged(double)), this,
-        SLOT(scaleRelativeMaximumChanged(double)));
+void CurveAxisScaleConfigWidget::setConfig(CurveAxisScaleConfig* config) {
+  if (config != config_) {
+    if (config_) {
+      disconnect(config_, SIGNAL(typeChanged(int)), this,
+        SLOT(configTypeChanged(int)));
+      disconnect(config_, SIGNAL(absoluteMinimumChanged(double)), this,
+        SLOT(configAbsoluteMinimumChanged(double)));
+      disconnect(config_, SIGNAL(absoluteMaximumChanged(double)), this,
+        SLOT(configAbsoluteMaximumChanged(double)));
+      disconnect(config_, SIGNAL(relativeMinimumChanged(double)), this,
+        SLOT(configRelativeMinimumChanged(double)));
+      disconnect(config_, SIGNAL(relativeMaximumChanged(double)), this,
+        SLOT(configRelativeMaximumChanged(double)));
     }
     
-    scale_ = scale;
+    config_ = config;
     
-    if (scale) {
-      connect(scale, SIGNAL(typeChanged(int)), this,
-        SLOT(scaleTypeChanged(int)));
-      connect(scale, SIGNAL(absoluteMinimumChanged(double)), this,
-        SLOT(scaleAbsoluteMinimumChanged(double)));
-      connect(scale, SIGNAL(absoluteMaximumChanged(double)), this,
-        SLOT(scaleAbsoluteMaximumChanged(double)));
-      connect(scale, SIGNAL(relativeMinimumChanged(double)), this,
-        SLOT(scaleRelativeMinimumChanged(double)));
-      connect(scale, SIGNAL(relativeMaximumChanged(double)), this,
-        SLOT(scaleRelativeMaximumChanged(double)));
+    if (config) {
+      connect(config, SIGNAL(typeChanged(int)), this,
+        SLOT(configTypeChanged(int)));
+      connect(config, SIGNAL(absoluteMinimumChanged(double)), this,
+        SLOT(configAbsoluteMinimumChanged(double)));
+      connect(config, SIGNAL(absoluteMaximumChanged(double)), this,
+        SLOT(configAbsoluteMaximumChanged(double)));
+      connect(config, SIGNAL(relativeMinimumChanged(double)), this,
+        SLOT(configRelativeMinimumChanged(double)));
+      connect(config, SIGNAL(relativeMaximumChanged(double)), this,
+        SLOT(configRelativeMaximumChanged(double)));
       
-      scaleTypeChanged(scale->getType());
-      scaleAbsoluteMinimumChanged(scale->getAbsoluteMinimum());
-      scaleAbsoluteMaximumChanged(scale->getAbsoluteMaximum());
-      scaleRelativeMinimumChanged(scale->getRelativeMinimum());
-      scaleRelativeMaximumChanged(scale->getRelativeMaximum());
+      configTypeChanged(config->getType());
+      configAbsoluteMinimumChanged(config->getAbsoluteMinimum());
+      configAbsoluteMaximumChanged(config->getAbsoluteMaximum());
+      configRelativeMinimumChanged(config->getRelativeMinimum());
+      configRelativeMaximumChanged(config->getRelativeMaximum());
     }
   }
 }
 
-CurveAxisScale* CurveAxisScaleWidget::getScale() const {
-  return scale_;
+CurveAxisScaleConfig* CurveAxisScaleConfigWidget::getConfig() const {
+  return config_;
 }
 
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveAxisScaleWidget::scaleTypeChanged(int type) {
-  if (type == CurveAxisScale::Absolute)
+void CurveAxisScaleConfigWidget::configTypeChanged(int type) {
+  if (type == CurveAxisScaleConfig::Absolute)
     ui_->radioButtonAbsolute->setChecked(true);
-  else if (type == CurveAxisScale::Relative)
+  else if (type == CurveAxisScaleConfig::Relative)
     ui_->radioButtonRelative->setChecked(true);
   else
     ui_->radioButtonAuto->setChecked(true);
 }
 
-void CurveAxisScaleWidget::scaleAbsoluteMinimumChanged(double minimum) {
+void CurveAxisScaleConfigWidget::configAbsoluteMinimumChanged(double minimum) {
   ui_->lineEditAbsoluteMinimum->setText(QString::number(minimum));
 }
 
-void CurveAxisScaleWidget::scaleAbsoluteMaximumChanged(double maximum) {
+void CurveAxisScaleConfigWidget::configAbsoluteMaximumChanged(double maximum) {
   ui_->lineEditAbsoluteMaximum->setText(QString::number(maximum));
 }
 
-void CurveAxisScaleWidget::scaleRelativeMinimumChanged(double minimum) {
+void CurveAxisScaleConfigWidget::configRelativeMinimumChanged(double minimum) {
   ui_->lineEditRelativeMinimum->setText(QString::number(minimum));
 }
 
-void CurveAxisScaleWidget::scaleRelativeMaximumChanged(double maximum) {
+void CurveAxisScaleConfigWidget::configRelativeMaximumChanged(double maximum) {
   ui_->lineEditRelativeMaximum->setText(QString::number(maximum));
 }
 
-void CurveAxisScaleWidget::radioButtonAbsoluteToggled(bool checked) {
+void CurveAxisScaleConfigWidget::radioButtonAbsoluteToggled(bool checked) {
   ui_->lineEditAbsoluteMinimum->setEnabled(checked);
   ui_->lineEditAbsoluteMaximum->setEnabled(checked);
   
-  if (scale_ && checked)
-    scale_->setType(CurveAxisScale::Absolute);
+  if (config_ && checked)
+    config_->setType(CurveAxisScaleConfig::Absolute);
 }
 
-void CurveAxisScaleWidget::radioButtonRelativeToggled(bool checked) {
+void CurveAxisScaleConfigWidget::radioButtonRelativeToggled(bool checked) {
   ui_->lineEditRelativeMinimum->setEnabled(checked);
   ui_->lineEditRelativeMaximum->setEnabled(checked);
   
-  if (scale_ && checked)
-    scale_->setType(CurveAxisScale::Relative);
+  if (config_ && checked)
+    config_->setType(CurveAxisScaleConfig::Relative);
 }
 
-void CurveAxisScaleWidget::radioButtonAutoToggled(bool checked) {
-  if (scale_ && checked)
-    scale_->setType(CurveAxisScale::Auto);
+void CurveAxisScaleConfigWidget::radioButtonAutoToggled(bool checked) {
+  if (config_ && checked)
+    config_->setType(CurveAxisScaleConfig::Auto);
 }
 
-void CurveAxisScaleWidget::lineEditAbsoluteMinimumEditingFinished() {
-  if (scale_)
-    scale_->setAbsoluteMinimum(ui_->lineEditAbsoluteMinimum->text().
+void CurveAxisScaleConfigWidget::lineEditAbsoluteMinimumEditingFinished() {
+  if (config_)
+    config_->setAbsoluteMinimum(ui_->lineEditAbsoluteMinimum->text().
       toDouble());
 }
 
-void CurveAxisScaleWidget::lineEditAbsoluteMaximumEditingFinished() {
-  if (scale_)
-    scale_->setAbsoluteMaximum(ui_->lineEditAbsoluteMaximum->text().
+void CurveAxisScaleConfigWidget::lineEditAbsoluteMaximumEditingFinished() {
+  if (config_)
+    config_->setAbsoluteMaximum(ui_->lineEditAbsoluteMaximum->text().
       toDouble());
 }
 
-void CurveAxisScaleWidget::lineEditRelativeMinimumEditingFinished() {
-  if (scale_)
-    scale_->setRelativeMinimum(ui_->lineEditRelativeMinimum->text().
+void CurveAxisScaleConfigWidget::lineEditRelativeMinimumEditingFinished() {
+  if (config_)
+    config_->setRelativeMinimum(ui_->lineEditRelativeMinimum->text().
       toDouble());
 }
 
-void CurveAxisScaleWidget::lineEditRelativeMaximumEditingFinished() {
-  if (scale_)
-    scale_->setRelativeMaximum(ui_->lineEditRelativeMaximum->text().
+void CurveAxisScaleConfigWidget::lineEditRelativeMaximumEditingFinished() {
+  if (config_)
+    config_->setRelativeMaximum(ui_->lineEditRelativeMaximum->text().
       toDouble());
 }
 

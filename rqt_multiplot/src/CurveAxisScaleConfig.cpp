@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include "rqt_multiplot/CurveAxisScale.h"
+#include "rqt_multiplot/CurveAxisScaleConfig.h"
 
 namespace rqt_multiplot {
 
@@ -24,10 +24,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveAxisScale::CurveAxisScale(QObject* parent, Type type, double
-    absoluteMinimum, double absoluteMaximum, double relativeMinimum,
+CurveAxisScaleConfig::CurveAxisScaleConfig(QObject* parent, Type type,
+    double absoluteMinimum, double absoluteMaximum, double relativeMinimum,
     double relativeMaximum) :
-  QObject(parent),
+  Config(parent),
   type_(type),
   absoluteMinimum_(absoluteMinimum),
   absoluteMaximum_(absoluteMaximum),
@@ -35,14 +35,14 @@ CurveAxisScale::CurveAxisScale(QObject* parent, Type type, double
   relativeMaximum_(relativeMaximum) {
 }
 
-CurveAxisScale::~CurveAxisScale() {
+CurveAxisScaleConfig::~CurveAxisScaleConfig() {
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveAxisScale::setType(Type type) {
+void CurveAxisScaleConfig::setType(Type type) {
   if (type != type_) {
     type_ = type;
     
@@ -51,11 +51,11 @@ void CurveAxisScale::setType(Type type) {
   }
 }
 
-CurveAxisScale::Type CurveAxisScale::getType() const {
+CurveAxisScaleConfig::Type CurveAxisScaleConfig::getType() const {
   return type_;
 }
 
-void CurveAxisScale::setAbsoluteMinimum(double minimum) {
+void CurveAxisScaleConfig::setAbsoluteMinimum(double minimum) {
   if (minimum != absoluteMinimum_) {
     absoluteMinimum_ = minimum;
     
@@ -64,11 +64,11 @@ void CurveAxisScale::setAbsoluteMinimum(double minimum) {
   }
 }
 
-double CurveAxisScale::getAbsoluteMinimum() const {
+double CurveAxisScaleConfig::getAbsoluteMinimum() const {
   return absoluteMinimum_;
 }
 
-void CurveAxisScale::setAbsoluteMaximum(double maximum) {
+void CurveAxisScaleConfig::setAbsoluteMaximum(double maximum) {
   if (maximum != absoluteMaximum_) {
     absoluteMaximum_ = maximum;
     
@@ -77,11 +77,11 @@ void CurveAxisScale::setAbsoluteMaximum(double maximum) {
   }
 }
 
-double CurveAxisScale::getAbsoluteMaximum() const {
+double CurveAxisScaleConfig::getAbsoluteMaximum() const {
   return absoluteMaximum_;
 }
 
-void CurveAxisScale::setRelativeMinimum(double minimum) {
+void CurveAxisScaleConfig::setRelativeMinimum(double minimum) {
   if (minimum != relativeMinimum_) {
     relativeMinimum_ = minimum;
     
@@ -90,11 +90,11 @@ void CurveAxisScale::setRelativeMinimum(double minimum) {
   }
 }
 
-double CurveAxisScale::getRelativeMinimum() const {
+double CurveAxisScaleConfig::getRelativeMinimum() const {
   return relativeMinimum_;
 }
 
-void CurveAxisScale::setRelativeMaximum(double maximum) {
+void CurveAxisScaleConfig::setRelativeMaximum(double maximum) {
   if (maximum != relativeMaximum_) {
     relativeMaximum_ = maximum;
     
@@ -103,11 +103,11 @@ void CurveAxisScale::setRelativeMaximum(double maximum) {
   }
 }
 
-double CurveAxisScale::getRelativeMaximum() const {
+double CurveAxisScaleConfig::getRelativeMaximum() const {
   return relativeMaximum_;
 }
 
-bool CurveAxisScale::isValid() const {
+bool CurveAxisScaleConfig::isValid() const {
   if (type_ == Absolute)
     return (absoluteMaximum_ != absoluteMinimum_);
   if (type_ == Relative)
@@ -120,30 +120,75 @@ bool CurveAxisScale::isValid() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void CurveAxisScale::save(QSettings& settings) const {
+void CurveAxisScaleConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
+  
   settings.setValue("absolute_minimum", absoluteMinimum_);
   settings.setValue("absolute_maximum", absoluteMaximum_);
+  
   settings.setValue("relative_minimum", relativeMinimum_);
   settings.setValue("relative_maximum", relativeMaximum_);
 }
 
-void CurveAxisScale::load(QSettings& settings) {
-  setType(static_cast<Type>(settings.value("type", Auto).toInt()));  
+void CurveAxisScaleConfig::load(QSettings& settings) {
+  setType(static_cast<Type>(settings.value("type", Auto).toInt()));
+  
   setAbsoluteMinimum(settings.value("absolute_minimum", 0.0).toDouble());
   setAbsoluteMaximum(settings.value("absolute_maximum", 1000.0).toDouble());
+  
   setRelativeMinimum(settings.value("relative_minimum", -1000.0).toDouble());
   setRelativeMaximum(settings.value("relative_maximum", 0.0).toDouble());
+}
+
+void CurveAxisScaleConfig::reset() {
+  setType(Auto);
+  
+  setAbsoluteMinimum(0.0);
+  setAbsoluteMaximum(1000.0);
+  
+  setRelativeMinimum(-1000.0);
+  setRelativeMaximum(0.0);
+}
+
+void CurveAxisScaleConfig::write(QDataStream& stream) const {
+  stream << (int)type_;
+  
+  stream << absoluteMinimum_;
+  stream << absoluteMaximum_;
+  
+  stream << relativeMinimum_;
+  stream << relativeMaximum_;
+}
+
+void CurveAxisScaleConfig::read(QDataStream& stream) {
+  int type;
+  double absoluteMinimum, absoluteMaximum, relativeMinimum, relativeMaximum;
+  
+  stream >> type;
+  setType(static_cast<Type>(type));
+  
+  stream >> absoluteMinimum;
+  setAbsoluteMinimum(absoluteMinimum);
+  stream >> absoluteMaximum;
+  setAbsoluteMaximum(absoluteMaximum);
+  
+  stream >> relativeMinimum;
+  setRelativeMinimum(relativeMinimum);
+  stream >> relativeMaximum;
+  setRelativeMaximum(relativeMaximum);
 }
 
 /*****************************************************************************/
 /* Operators                                                                 */
 /*****************************************************************************/
 
-CurveAxisScale& CurveAxisScale::operator=(const CurveAxisScale& src) {
+CurveAxisScaleConfig& CurveAxisScaleConfig::operator=(const
+    CurveAxisScaleConfig& src) {
   setType(src.type_);
+  
   setAbsoluteMinimum(src.absoluteMinimum_);
   setAbsoluteMaximum(src.absoluteMaximum_);
+  
   setRelativeMinimum(src.relativeMinimum_);
   setRelativeMaximum(src.relativeMaximum_);
   

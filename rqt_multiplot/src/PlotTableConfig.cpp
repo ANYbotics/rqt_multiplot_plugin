@@ -27,7 +27,7 @@ namespace rqt_multiplot {
 PlotTableConfig::PlotTableConfig(QObject* parent, const QColor&
     backgroundColor, const QColor& foregroundColor, size_t numRows,
     size_t numColumns, bool linkScale, bool linkCursor, bool trackPoints) :
-  QObject(parent),
+  Config(parent),
   backgroundColor_(backgroundColor),
   foregroundColor_(foregroundColor),
   linkScale_(linkScale),
@@ -276,6 +276,45 @@ void PlotTableConfig::reset() {
   setLinkScale(false);
   setLinkCursor(false);
   setTrackPoints(false);
+}
+
+void PlotTableConfig::write(QDataStream& stream) const {
+  stream << backgroundColor_;
+  stream << foregroundColor_;
+  
+  stream << (quint64)getNumRows() << (quint64)getNumColumns();
+  
+  for (size_t row = 0; row < plotConfig_.count(); ++row)
+    for (size_t column = 0; column < plotConfig_[row].count(); ++column)
+      plotConfig_[row][column]->write(stream);
+  
+  stream << linkScale_;
+  stream << linkCursor_;
+  stream << trackPoints_;
+}
+
+void PlotTableConfig::read(QDataStream& stream) {
+  QColor backgroundColor, foregroundColor;
+  bool linkScale, linkCursor, trackPoints;
+  quint64 numRows, numColumns;
+  
+  stream >> backgroundColor;
+  setBackgroundColor(backgroundColor);
+  stream >> foregroundColor;
+  setForegroundColor(foregroundColor);
+  
+  stream >> numRows >> numColumns;
+  setNumPlots(numRows, numColumns);
+  for (size_t row = 0; row < plotConfig_.count(); ++row)
+    for (size_t column = 0; column < plotConfig_[row].count(); ++column)
+      plotConfig_[row][column]->read(stream);
+  
+  stream >> linkScale;
+  setLinkScale(linkScale);
+  stream >> linkCursor;
+  setLinkCursor(linkCursor);
+  stream >> trackPoints;
+  setTrackPoints(trackPoints);
 }
 
 /*****************************************************************************/

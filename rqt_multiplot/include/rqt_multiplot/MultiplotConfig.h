@@ -19,14 +19,12 @@
 #ifndef RQT_MULTIPLOT_MULTIPLOT_CONFIG_H
 #define RQT_MULTIPLOT_MULTIPLOT_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
-
+#include <rqt_multiplot/Config.h>
 #include <rqt_multiplot/PlotTableConfig.h>
 
 namespace rqt_multiplot {
   class MultiplotConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     MultiplotConfig(QObject* parent);
@@ -40,8 +38,8 @@ namespace rqt_multiplot {
     void load(QSettings& settings);
     void reset();
     
-  signals:
-    void changed();
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
     
   private:
     PlotTableConfig* tableConfig_;

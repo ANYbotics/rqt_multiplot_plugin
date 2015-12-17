@@ -26,7 +26,7 @@ namespace rqt_multiplot {
 
 PlotAxisConfig::PlotAxisConfig(QObject* parent, TitleType titleType, const
     QString& customTitle, bool titleVisible) :
-  QObject(parent),
+  Config(parent),
   titleType_(titleType),
   customTitle_(customTitle),
   titleVisible_(titleVisible) {
@@ -99,6 +99,25 @@ void PlotAxisConfig::reset() {
   setTitleType(AutoTitle);
   setCustomTitle("Untitled Axis");
   setTitleVisible(true);
+}
+
+void PlotAxisConfig::write(QDataStream& stream) const {
+  stream << (int)titleType_;
+  stream << customTitle_;
+  stream << titleVisible_;
+}
+
+void PlotAxisConfig::read(QDataStream& stream) {
+  int titleType;
+  QString customTitle;
+  bool titleVisible;
+  
+  stream >> titleType;
+  setTitleType(static_cast<TitleType>(titleType));
+  stream >> customTitle;
+  setCustomTitle(customTitle);
+  stream >> titleVisible;
+  setTitleVisible(titleVisible);
 }
 
 /*****************************************************************************/

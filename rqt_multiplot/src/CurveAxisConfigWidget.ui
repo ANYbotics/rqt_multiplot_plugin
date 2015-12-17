@@ -234,7 +234,7 @@
       </widget>
      </item>
      <item row="0" column="0" rowspan="2">
-      <widget class="rqt_multiplot::CurveAxisScaleWidget" name="widgetScale" native="true">
+      <widget class="rqt_multiplot::CurveAxisScaleConfigWidget" name="widgetScale" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -277,9 +277,9 @@
    <container>1</container>
   </customwidget>
   <customwidget>
-   <class>rqt_multiplot::CurveAxisScaleWidget</class>
+   <class>rqt_multiplot::CurveAxisScaleConfigWidget</class>
    <extends>QWidget</extends>
-   <header location="global">rqt_multiplot/CurveAxisScaleWidget.h</header>
+   <header location="global">rqt_multiplot/CurveAxisScaleConfigWidget.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

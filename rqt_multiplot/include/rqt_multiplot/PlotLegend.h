@@ -22,12 +22,18 @@
 #include <qwt/qwt_legend.h>
 
 namespace rqt_multiplot {
+  class PlotCurve;
+  
   class PlotLegend :
     public QwtLegend {
   Q_OBJECT
   public:
     PlotLegend(QWidget* parent);
     ~PlotLegend();
+    
+    PlotCurve* findCurve(QWidget* widget) const;
+    
+    bool eventFilter(QObject* object, QEvent* event);
   };
 };
 

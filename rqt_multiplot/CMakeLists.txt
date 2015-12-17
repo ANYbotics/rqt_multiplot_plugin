@@ -40,13 +40,14 @@ set(rqt_multiplot_SRCS
   src/BitOperations.cpp
   src/BoundingRectangle.cpp
   src/ColorOperations.cpp
+  src/Config.cpp
   src/ConfigComboBox.cpp
   src/CurveAxisConfig.cpp
   src/CurveAxisConfigWidget.cpp
-  src/CurveAxisScale.cpp
-  src/CurveAxisScaleWidget.cpp
-  src/CurveColor.cpp
-  src/CurveColorWidget.cpp
+  src/CurveAxisScaleConfig.cpp
+  src/CurveAxisScaleConfigWidget.cpp
+  src/CurveColorConfig.cpp
+  src/CurveColorConfigWidget.cpp
   src/CurveConfig.cpp
   src/CurveConfigDialog.cpp
   src/CurveConfigWidget.cpp
@@ -59,8 +60,8 @@ set(rqt_multiplot_SRCS
   src/CurveDataVector.cpp
   src/CurveItemWidget.cpp
   src/CurveListWidget.cpp
-  src/CurveStyle.cpp
-  src/CurveStyleWidget.cpp
+  src/CurveStyleConfig.cpp
+  src/CurveStyleConfigWidget.cpp
   src/DataTypeRegistry.cpp
   src/FileScheme.cpp
   src/MatchFilterComboBox.cpp
@@ -129,13 +130,14 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/BitOperations.h
   include/rqt_multiplot/BoundingRectangle.h
   include/rqt_multiplot/ColorOperations.h
+  include/rqt_multiplot/Config.h
   include/rqt_multiplot/ConfigComboBox.h
   include/rqt_multiplot/CurveAxisConfig.h
   include/rqt_multiplot/CurveAxisConfigWidget.h
-  include/rqt_multiplot/CurveAxisScale.h
-  include/rqt_multiplot/CurveAxisScaleWidget.h
-  include/rqt_multiplot/CurveColor.h
-  include/rqt_multiplot/CurveColorWidget.h
+  include/rqt_multiplot/CurveAxisScaleConfig.h
+  include/rqt_multiplot/CurveAxisScaleConfigWidget.h
+  include/rqt_multiplot/CurveColorConfig.h
+  include/rqt_multiplot/CurveColorConfigWidget.h
   include/rqt_multiplot/CurveConfig.h
   include/rqt_multiplot/CurveConfigDialog.h
   include/rqt_multiplot/CurveConfigWidget.h
@@ -148,8 +150,8 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveDataVector.h
   include/rqt_multiplot/CurveItemWidget.h
   include/rqt_multiplot/CurveListWidget.h
-  include/rqt_multiplot/CurveStyle.h
-  include/rqt_multiplot/CurveStyleWidget.h
+  include/rqt_multiplot/CurveStyleConfig.h
+  include/rqt_multiplot/CurveStyleConfigWidget.h
   include/rqt_multiplot/DataTypeRegistry.h
   include/rqt_multiplot/FileScheme.h
   include/rqt_multiplot/MatchFilterComboBox.h
@@ -214,13 +216,13 @@ set(rqt_multiplot_HDRS
 
 set(rqt_multiplot_UIS
   src/CurveAxisConfigWidget.ui
-  src/CurveAxisScaleWidget.ui
-  src/CurveColorWidget.ui
+  src/CurveAxisScaleConfigWidget.ui
+  src/CurveColorConfigWidget.ui
   src/CurveConfigDialog.ui
   src/CurveConfigWidget.ui
   src/CurveDataConfigWidget.ui
   src/CurveItemWidget.ui
-  src/CurveStyleWidget.ui
+  src/CurveStyleConfigWidget.ui
   src/MessageFieldWidget.ui
   src/MultiplotConfigWidget.ui
   src/MultiplotWidget.ui

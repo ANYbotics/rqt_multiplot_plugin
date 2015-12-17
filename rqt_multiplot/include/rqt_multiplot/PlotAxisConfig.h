@@ -19,12 +19,11 @@
 #ifndef RQT_MULTIPLOT_PLOT_AXIS_CONFIG_H
 #define RQT_MULTIPLOT_PLOT_AXIS_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
+#include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
   class PlotAxisConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     enum TitleType {
@@ -47,13 +46,15 @@ namespace rqt_multiplot {
     void load(QSettings& settings);
     void reset();
     
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
     PlotAxisConfig& operator=(const PlotAxisConfig& src);
     
   signals:
     void titleTypeChanged(int type);
     void customTitleChanged(const QString& title);
     void titleVisibleChanged(bool visible);
-    void changed();
     
   private:
     TitleType titleType_;

@@ -16,41 +16,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_ITEM_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_ITEM_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_COLOR_CONFIG_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_COLOR_CONFIG_WIDGET_H
 
 #include <QWidget>
 
-#include <rqt_multiplot/CurveConfig.h>
+#include <rqt_multiplot/CurveColorConfig.h>
 
 namespace Ui {
-  class CurveItemWidget;
+  class CurveColorConfigWidget;
 };
 
 namespace rqt_multiplot {
-  class CurveItemWidget :
+  class CurveColorConfigWidget :
     public QWidget {
   Q_OBJECT
   public:
-    CurveItemWidget(QWidget* parent = 0);
-    virtual ~CurveItemWidget();
-
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
+    CurveColorConfigWidget(QWidget* parent = 0);
+    virtual ~CurveColorConfigWidget();
+    
+    void setConfig(CurveColorConfig* config);
+    CurveColorConfig* getConfig() const;
   
+  signals:
+    void currentColorChanged(const QColor& color);  
+    
   protected:
     bool eventFilter(QObject* object, QEvent* event);
     
   private:
-    Ui::CurveItemWidget* ui_;
+    Ui::CurveColorConfigWidget* ui_;
     
-    CurveConfig* config_;
+    CurveColorConfig* config_;
     
   private slots:
-    void configTitleChanged(const QString& title);
-    void configXAxisConfigChanged();
-    void configYAxisConfigChanged();
-    void configColorConfigCurrentColorChanged(const QColor& color);
+    void configTypeChanged(int type);
+    void configCurrentColorChanged(const QColor& color);
+    
+    void checkBoxAutoStateChanged(int state);
   };
 };
 

@@ -16,59 +16,48 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_AXIS_SCALE_H
-#define RQT_MULTIPLOT_CURVE_AXIS_SCALE_H
+#ifndef RQT_MULTIPLOT_CURVE_AXIS_SCALE_CONFIG_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_AXIS_SCALE_CONFIG_WIDGET_H
 
-#include <QObject>
-#include <QSettings>
+#include <QWidget>
+
+#include <rqt_multiplot/CurveAxisScaleConfig.h>
+
+namespace Ui {
+  class CurveAxisScaleConfigWidget;
+};
 
 namespace rqt_multiplot {
-  class CurveAxisScale :
-    public QObject {
+  class CurveAxisScaleConfigWidget :
+    public QWidget {
   Q_OBJECT
   public:
-    enum Type {
-      Auto,
-      Absolute,
-      Relative
-    };
+    CurveAxisScaleConfigWidget(QWidget* parent = 0);
+    virtual ~CurveAxisScaleConfigWidget();
     
-    CurveAxisScale(QObject* parent = 0, Type type = Auto, double
-      absoluteMinimum = 0.0, double absoluteMaximum = 1000.0, double
-      relativeMinimum = -1000.0, double relativeMaximum = 0.0);
-    ~CurveAxisScale();
-    
-    void setType(Type type);
-    Type getType() const;
-    void setAbsoluteMinimum(double minimum);
-    double getAbsoluteMinimum() const;
-    void setAbsoluteMaximum(double maximum);
-    double getAbsoluteMaximum() const;
-    void setRelativeMinimum(double minimum);
-    double getRelativeMinimum() const;
-    void setRelativeMaximum(double maximum);
-    double getRelativeMaximum() const;
-    bool isValid() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    CurveAxisScale& operator=(const CurveAxisScale& src);
-    
-  signals:
-    void typeChanged(int type);
-    void absoluteMinimumChanged(double minimum);
-    void absoluteMaximumChanged(double maxnimum);
-    void relativeMinimumChanged(double minimum);
-    void relativeMaximumChanged(double maxnimum);
-    void changed();
+    void setConfig(CurveAxisScaleConfig* config);
+    CurveAxisScaleConfig* getConfig() const;
     
   private:
-    Type type_;
-    double absoluteMinimum_;
-    double absoluteMaximum_;
-    double relativeMinimum_;
-    double relativeMaximum_;
+    Ui::CurveAxisScaleConfigWidget* ui_;
+    
+    CurveAxisScaleConfig* config_;
+    
+  private slots:
+    void configTypeChanged(int type);
+    void configAbsoluteMinimumChanged(double minimum);
+    void configAbsoluteMaximumChanged(double maximum);
+    void configRelativeMinimumChanged(double minimum);
+    void configRelativeMaximumChanged(double maximum);
+    
+    void radioButtonAbsoluteToggled(bool checked);
+    void radioButtonRelativeToggled(bool checked);
+    void radioButtonAutoToggled(bool checked);
+    
+    void lineEditAbsoluteMinimumEditingFinished();
+    void lineEditAbsoluteMaximumEditingFinished();
+    void lineEditRelativeMinimumEditingFinished();
+    void lineEditRelativeMaximumEditingFinished();
   };
 };
 

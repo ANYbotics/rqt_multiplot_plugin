@@ -132,7 +132,7 @@ void PlotConfigWidget::pushButtonAddCurveClicked() {
   dialog.setWindowTitle(config_->getTitle().isEmpty() ?
     "Add Curve to Plot" :
     "Add Curve to \""+config_->getTitle()+"\"");
-  dialog.getWidget()->getConfig().getColor()->setAutoColorIndex(
+  dialog.getWidget()->getConfig().getColorConfig()->setAutoColorIndex(
     config_->getNumCurves());
 
   if (dialog.exec() == QDialog::Accepted) {
@@ -165,9 +165,8 @@ void PlotConfigWidget::pushButtonEditCurveClicked() {
       "Edit \""+curveConfig->getTitle()+"\"");
     dialog.getWidget()->setConfig(*curveConfig);
     
-    if (dialog.exec() == QDialog::Accepted) {
+    if (dialog.exec() == QDialog::Accepted)
       *curveConfig = dialog.getWidget()->getConfig();
-    }
   }
 }
 

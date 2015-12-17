@@ -16,52 +16,34 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_COLOR_H
-#define RQT_MULTIPLOT_CURVE_COLOR_H
+#ifndef RQT_MULTIPLOT_CONFIG_H
+#define RQT_MULTIPLOT_CONFIG_H
 
-#include <QColor>
+#include <QDataStream>
 #include <QObject>
 #include <QSettings>
 
 namespace rqt_multiplot {
-  class CurveColor :
+  class Config :
     public QObject {
   Q_OBJECT
   public:
-    enum Type {
-      Auto,
-      Custom
-    };
+    Config(QObject* parent = 0);
+    ~Config();
+
+    virtual void save(QSettings& settings) const = 0;
+    virtual void load(QSettings& settings) = 0;
+    virtual void reset() = 0;
     
-    CurveColor(QObject* parent = 0, Type type = Auto, unsigned char
-      autoColorIndex = 0, const QColor& customColor = Qt::black);
-    ~CurveColor();
-    
-    void setType(Type type);
-    Type getType() const;
-    void setAutoColorIndex(unsigned char index);
-    unsigned char getAutoColorIndex() const;
-    void setCustomColor(const QColor& color);
-    const QColor& getCustomColor() const;
-    QColor getCurrentColor() const;
-  
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    
-    CurveColor& operator=(const CurveColor& src);
+    virtual void write(QDataStream& stream) const = 0;
+    virtual void read(QDataStream& stream) = 0;
     
   signals:
-    void typeChanged(int type);
-    void autoColorIndexChanged(unsigned char index);
-    void customColorChanged(const QColor& color);
-    void currentColorChanged(const QColor& color);
     void changed();
-    
-  private:
-    Type type_;
-    unsigned char autoColorIndex_;
-    QColor customColor_;
   };
+  
+  QDataStream& operator<<(QDataStream& stream, const Config& config);
+  QDataStream& operator>>(QDataStream& stream, Config& config);
 };
 
 #endif

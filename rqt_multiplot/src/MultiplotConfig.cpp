@@ -25,7 +25,7 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 MultiplotConfig::MultiplotConfig(QObject* parent) :
-  QObject(parent),
+  Config(parent),
   tableConfig_(new PlotTableConfig(this)) {
   connect(tableConfig_, SIGNAL(changed()), this, SLOT(tableConfigChanged()));
 }
@@ -59,6 +59,14 @@ void MultiplotConfig::load(QSettings& settings) {
 
 void MultiplotConfig::reset() {
   tableConfig_->reset();
+}
+
+void MultiplotConfig::write(QDataStream& stream) const {
+  tableConfig_->write(stream);
+}
+
+void MultiplotConfig::read(QDataStream& stream) {
+  tableConfig_->read(stream);
 }
 
 /*****************************************************************************/

@@ -17,6 +17,7 @@
  ******************************************************************************/
 
 #include "rqt_multiplot/CurveConfig.h"
+#include <boost/concept_check.hpp>
 
 namespace rqt_multiplot {
 
@@ -26,10 +27,10 @@ namespace rqt_multiplot {
 
 CurveConfig::CurveConfig(QObject* parent, const QString& title, size_t
     subscriberQueueSize) :
-  QObject(parent),
+  Config(parent),
   title_(title),
-  color_(new CurveColor(this)),
-  style_(new CurveStyle(this)),
+  colorConfig_(new CurveColorConfig(this)),
+  styleConfig_(new CurveStyleConfig(this)),
   dataConfig_(new CurveDataConfig(this)),
   subscriberQueueSize_(subscriberQueueSize) {
   axisConfig_[X] = new CurveAxisConfig(this);
@@ -38,8 +39,8 @@ CurveConfig::CurveConfig(QObject* parent, const QString& title, size_t
   connect(axisConfig_[X], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
   connect(axisConfig_[Y], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
   
-  connect(color_, SIGNAL(changed()), this, SLOT(colorChanged()));
-  connect(style_, SIGNAL(changed()), this, SLOT(styleChanged()));
+  connect(colorConfig_, SIGNAL(changed()), this, SLOT(colorConfigChanged()));
+  connect(styleConfig_, SIGNAL(changed()), this, SLOT(styleConfigChanged()));
   
   connect(dataConfig_, SIGNAL(changed()), this, SLOT(dataConfigChanged()));
 }
@@ -73,12 +74,12 @@ CurveAxisConfig* CurveConfig::getAxisConfig(Axis axis) const {
     return 0;
 }
 
-CurveColor* CurveConfig::getColor() const {
-  return color_;
+CurveColorConfig* CurveConfig::getColorConfig() const {
+  return colorConfig_;
 }
 
-CurveStyle* CurveConfig::getStyle() const {
-  return style_;
+CurveStyleConfig* CurveConfig::getStyleConfig() const {
+  return styleConfig_;
 }
 
 CurveDataConfig* CurveConfig::getDataConfig() const {
@@ -115,11 +116,11 @@ void CurveConfig::save(QSettings& settings) const {
   settings.endGroup();
   
   settings.beginGroup("color");
-  color_->save(settings);
+  colorConfig_->save(settings);
   settings.endGroup();
   
   settings.beginGroup("style");
-  style_->save(settings);
+  styleConfig_->save(settings);
   settings.endGroup();
   
   settings.beginGroup("data");
@@ -143,11 +144,11 @@ void CurveConfig::load(QSettings& settings) {
   settings.endGroup();
   
   settings.beginGroup("color");
-  color_->load(settings);
+  colorConfig_->load(settings);
   settings.endGroup();
   
   settings.beginGroup("style");
-  style_->load(settings);
+  styleConfig_->load(settings);
   settings.endGroup();
   
   settings.beginGroup("data");
@@ -156,6 +157,53 @@ void CurveConfig::load(QSettings& settings) {
   
   setSubscriberQueueSize(settings.value("subscriber_queue_size", 100).
     toULongLong());
+}
+
+void CurveConfig::reset() {
+  setTitle("Untitled Curve");
+  
+  axisConfig_[X]->reset();
+  axisConfig_[Y]->reset();
+  
+  colorConfig_->reset();
+  styleConfig_->reset();
+  
+  dataConfig_->reset();
+  
+  setSubscriberQueueSize(100);
+}
+
+void CurveConfig::write(QDataStream& stream) const {
+  stream << title_;
+  
+  axisConfig_[X]->write(stream);
+  axisConfig_[Y]->write(stream);
+  
+  colorConfig_->write(stream);
+  styleConfig_->write(stream);
+  
+  dataConfig_->write(stream);
+  
+  stream << (quint64)subscriberQueueSize_;
+}
+
+void CurveConfig::read(QDataStream& stream) {
+  QString title;
+  quint64 subscriberQueueSize;
+  
+  stream >> title;
+  setTitle(title);
+  
+  axisConfig_[X]->read(stream);
+  axisConfig_[Y]->read(stream);
+  
+  colorConfig_->read(stream);
+  styleConfig_->read(stream);
+  
+  dataConfig_->read(stream);
+  
+  stream >> subscriberQueueSize;
+  setSubscriberQueueSize(subscriberQueueSize);  
 }
 
 /*****************************************************************************/
@@ -168,8 +216,8 @@ CurveConfig& CurveConfig::operator=(const CurveConfig& src) {
   *axisConfig_[X] = *src.axisConfig_[X];
   *axisConfig_[Y] = *src.axisConfig_[Y];
   
-  *color_ = *src.color_;
-  *style_ = *src.style_;
+  *colorConfig_ = *src.colorConfig_;
+  *styleConfig_ = *src.styleConfig_;
   
   *dataConfig_ = *src.dataConfig_;
   
@@ -186,11 +234,11 @@ void CurveConfig::axisConfigChanged() {
   emit changed();
 }
 
-void CurveConfig::colorChanged() {
+void CurveConfig::colorConfigChanged() {
   emit changed();
 }
 
-void CurveConfig::styleChanged() {
+void CurveConfig::styleConfigChanged() {
   emit changed();
 }
 

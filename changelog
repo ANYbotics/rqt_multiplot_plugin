@@ -1,3 +1,13 @@
+ros-rqt-multiplot-plugin (0.0.1-32) unstable; urgency=low
+
+  * Refactored configuration classes
+  * Added drag and drop feature for copying and moving curves from the
+    legend of one plot to another plot
+  * Added possibility to double-click legend items for editing curve
+    properties
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 17 Dec 2015 16:18:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-31) unstable; urgency=low
 
   * Fixed right-click magnification for Dario

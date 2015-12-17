@@ -26,7 +26,7 @@ namespace rqt_multiplot {
 
 CurveDataConfig::CurveDataConfig(QObject* parent, Type type, size_t
     circularBufferCapacity) :
-  QObject(parent),
+  Config(parent),
   type_(type),
   circularBufferCapacity_(circularBufferCapacity) {
 }
@@ -75,9 +75,29 @@ void CurveDataConfig::save(QSettings& settings) const {
 }
 
 void CurveDataConfig::load(QSettings& settings) {
-  setType(static_cast<Type>(settings.value("type").toInt()));
+  setType(static_cast<Type>(settings.value("type", Vector).toInt()));
   setCircularBufferCapacity(settings.value("circular_buffer_capacity",
     10000).toULongLong());
+}
+
+void CurveDataConfig::reset() {
+  setType(Vector);
+  setCircularBufferCapacity(10000);
+}
+
+void CurveDataConfig::write(QDataStream& stream) const {
+  stream << (int)type_;
+  stream << (quint64)circularBufferCapacity_;
+}
+
+void CurveDataConfig::read(QDataStream& stream) {
+  int type;
+  quint64 circularBufferCapacity;
+  
+  stream >> type;
+  setType(static_cast<Type>(type));
+  stream >> circularBufferCapacity;
+  setCircularBufferCapacity(circularBufferCapacity);
 }
 
 /*****************************************************************************/

@@ -19,18 +19,17 @@
 #ifndef RQT_MULTIPLOT_PLOT_CONFIG_H
 #define RQT_MULTIPLOT_PLOT_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
 #include <QString>
 #include <QVector>
 
+#include <rqt_multiplot/Config.h>
 #include <rqt_multiplot/CurveConfig.h>
 #include <rqt_multiplot/PlotAxesConfig.h>
 #include <rqt_multiplot/PlotLegendConfig.h>
 
 namespace rqt_multiplot {
   class PlotConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot",
@@ -39,6 +38,7 @@ namespace rqt_multiplot {
 
     void setTitle(const QString& title);
     const QString& getTitle() const;
+    void setNumCurves(size_t numCurves);
     size_t getNumCurves() const;
     CurveConfig* getCurveConfig(size_t index) const;
     PlotAxesConfig* getAxesConfig() const;
@@ -55,6 +55,9 @@ namespace rqt_multiplot {
     void load(QSettings& settings);
     void reset();
     
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
     PlotConfig& operator=(const PlotConfig& src);
     
   signals:
@@ -64,7 +67,6 @@ namespace rqt_multiplot {
     void curvesCleared();
     void curveConfigChanged(size_t index);
     void plotRateChanged(double rate);
-    void changed();
     
   private:
     QString title_;
@@ -75,6 +77,7 @@ namespace rqt_multiplot {
     
   private slots:
     void curveConfigChanged();
+    void curveConfigDestroyed();
     void axesConfigChanged();
     void legendConfigChanged();
   };

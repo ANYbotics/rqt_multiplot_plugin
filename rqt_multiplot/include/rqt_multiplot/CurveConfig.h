@@ -19,19 +19,18 @@
 #ifndef RQT_MULTIPLOT_CURVE_CONFIG_H
 #define RQT_MULTIPLOT_CURVE_CONFIG_H
 
-#include <QObject>
 #include <QMap>
-#include <QSettings>
 #include <QString>
 
+#include <rqt_multiplot/Config.h>
 #include <rqt_multiplot/CurveAxisConfig.h>
-#include <rqt_multiplot/CurveColor.h>
+#include <rqt_multiplot/CurveColorConfig.h>
 #include <rqt_multiplot/CurveDataConfig.h>
-#include <rqt_multiplot/CurveStyle.h>
+#include <rqt_multiplot/CurveStyleConfig.h>
 
 namespace rqt_multiplot {
   class CurveConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     enum Axis {
@@ -46,34 +45,37 @@ namespace rqt_multiplot {
     void setTitle(const QString& title);
     const QString& getTitle() const;
     CurveAxisConfig* getAxisConfig(Axis axis) const;
-    CurveColor* getColor() const;
-    CurveStyle* getStyle() const;
+    CurveColorConfig* getColorConfig() const;
+    CurveStyleConfig* getStyleConfig() const;
     CurveDataConfig* getDataConfig() const;
     void setSubscriberQueueSize(size_t queueSize);
     size_t getSubscriberQueueSize() const;
 
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
+    
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
     
     CurveConfig& operator=(const CurveConfig& src);
     
   signals:
     void titleChanged(const QString& title);
     void subscriberQueueSizeChanged(size_t queueSize);
-    void changed();
     
   private:
     QString title_;
     QMap<Axis, CurveAxisConfig*> axisConfig_;
-    CurveColor* color_;
-    CurveStyle* style_;
+    CurveColorConfig* colorConfig_;
+    CurveStyleConfig* styleConfig_;
     CurveDataConfig* dataConfig_;
     size_t subscriberQueueSize_;
     
   private slots:
     void axisConfigChanged();
-    void colorChanged();
-    void styleChanged();
+    void colorConfigChanged();
+    void styleConfigChanged();
     void dataConfigChanged();
   };
 };

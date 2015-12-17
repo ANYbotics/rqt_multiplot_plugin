@@ -16,15 +16,14 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_STYLE_H
-#define RQT_MULTIPLOT_CURVE_STYLE_H
+#ifndef RQT_MULTIPLOT_CURVE_STYLE_CONFIG_H
+#define RQT_MULTIPLOT_CURVE_STYLE_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
+#include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class CurveStyle :
-    public QObject {
+  class CurveStyleConfig :
+    public Config {
   Q_OBJECT
   public:
     enum Type {
@@ -34,12 +33,12 @@ namespace rqt_multiplot {
       Points
     };
     
-    CurveStyle(QObject* parent = 0, Type type = Lines, bool
+    CurveStyleConfig(QObject* parent = 0, Type type = Lines, bool
       linesInterpolate = false, Qt::Orientation sticksOrientation = 
       Qt::Vertical, double sticksBaseline = 0.0, bool stepsInvert =
       false, size_t penWidth = 1, Qt::PenStyle penStyle = Qt::SolidLine, 
       bool renderAntialias = false);
-    ~CurveStyle();
+    ~CurveStyleConfig();
     
     void setType(Type type);
     Type getType() const;
@@ -62,8 +61,12 @@ namespace rqt_multiplot {
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
     
-    CurveStyle& operator=(const CurveStyle& src);
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
+    CurveStyleConfig& operator=(const CurveStyleConfig& src);
     
   signals:
     void typeChanged(int type);
@@ -74,7 +77,6 @@ namespace rqt_multiplot {
     void penWidthChanged(size_t width);
     void penStyleChanged(int style);
     void renderAntialiasChanged(bool antialias);
-    void changed();
     
   private:
     Type type_;

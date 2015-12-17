@@ -120,14 +120,14 @@ void CurveAxisConfigWidget::setConfig(CurveAxisConfig* config) {
         SLOT(configFieldTypeChanged(int)));
       disconnect(config_, SIGNAL(fieldChanged(const QString&)), this,
         SLOT(configFieldChanged(const QString&)));
-      disconnect(config_->getScale(), SIGNAL(changed()), this,
-        SLOT(configScaleChanged()));
+      disconnect(config_->getScaleConfig(), SIGNAL(changed()), this,
+        SLOT(configScaleConfigChanged()));
     }
     
     config_ = config;
     
     if (config) {
-      ui_->widgetScale->setScale(config->getScale());
+      ui_->widgetScale->setConfig(config->getScaleConfig());
             
       connect(config, SIGNAL(topicChanged(const QString&)), this,
         SLOT(configTopicChanged(const QString&)));
@@ -137,17 +137,17 @@ void CurveAxisConfigWidget::setConfig(CurveAxisConfig* config) {
         SLOT(configFieldTypeChanged(int)));
       connect(config, SIGNAL(fieldChanged(const QString&)), this,
         SLOT(configFieldChanged(const QString&)));
-      connect(config->getScale(), SIGNAL(changed()), this,
-        SLOT(configScaleChanged()));
+      connect(config->getScaleConfig(), SIGNAL(changed()), this,
+        SLOT(configScaleConfigChanged()));
       
       configTopicChanged(config->getTopic());
       configTypeChanged(config->getType());
       configFieldTypeChanged(config->getFieldType());
       configFieldChanged(config->getField());
-      configScaleChanged();
+      configScaleConfigChanged();
     }
     else {
-      ui_->widgetScale->setScale(0);
+      ui_->widgetScale->setConfig(0);
     }
   }
 }
@@ -290,7 +290,7 @@ bool CurveAxisConfigWidget::validateScale() {
   if (!config_)
     return false;
   
-  if (!config_->getScale()->isValid()) {
+  if (!config_->getScaleConfig()->isValid()) {
     ui_->statusWidgetScale->setCurrentRole(StatusWidget::Error,
       "Axis scale invalid");
     
@@ -334,7 +334,7 @@ void CurveAxisConfigWidget::configFieldChanged(const QString& field) {
   validateField();
 }
 
-void CurveAxisConfigWidget::configScaleChanged() {
+void CurveAxisConfigWidget::configScaleConfigChanged() {
   validateScale();
 }
 

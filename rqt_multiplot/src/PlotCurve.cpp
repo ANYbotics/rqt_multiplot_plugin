@@ -61,11 +61,11 @@ void PlotCurve::setConfig(CurveConfig* config) {
         SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
       disconnect(config_->getAxisConfig(CurveConfig::Y),
         SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      disconnect(config_->getColor(), SIGNAL(currentColorChanged(
-        const QColor&)), this, SLOT(configColorCurrentColorChanged(
+      disconnect(config_->getColorConfig(), SIGNAL(currentColorChanged(
+        const QColor&)), this, SLOT(configColorConfigCurrentColorChanged(
         const QColor&)));
-      disconnect(config_->getStyle(), SIGNAL(changed()), this,
-        SLOT(configStyleChanged()));
+      disconnect(config_->getStyleConfig(), SIGNAL(changed()), this,
+        SLOT(configStyleConfigChanged()));
       disconnect(config_->getDataConfig(), SIGNAL(changed()), this,
         SLOT(configDataConfigChanged()));
       
@@ -81,18 +81,19 @@ void PlotCurve::setConfig(CurveConfig* config) {
         SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
       connect(config->getAxisConfig(CurveConfig::Y),
         SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      connect(config->getColor(), SIGNAL(currentColorChanged(
-        const QColor&)), this, SLOT(configColorCurrentColorChanged(
+      connect(config->getColorConfig(), SIGNAL(currentColorChanged(
+        const QColor&)), this, SLOT(configColorConfigCurrentColorChanged(
         const QColor&)));
-      connect(config->getStyle(), SIGNAL(changed()), this,
-        SLOT(configStyleChanged()));
+      connect(config->getStyleConfig(), SIGNAL(changed()), this,
+        SLOT(configStyleConfigChanged()));
       connect(config->getDataConfig(), SIGNAL(changed()), this,
         SLOT(configDataConfigChanged()));
       
       configTitleChanged(config->getTitle());
       configAxisConfigChanged();
-      configColorCurrentColorChanged(config->getColor()->getCurrentColor());
-      configStyleChanged();
+      configColorConfigCurrentColorChanged(config->getColorConfig()->
+        getCurrentColor());
+      configStyleConfigChanged();
       configDataConfigChanged();
       
       dataSequencer_->setConfig(config);
@@ -129,19 +130,20 @@ QPair<double, double> PlotCurve::getPreferredAxisScale(CurveConfig::Axis axis)
   QPair<double, double> axisBounds(0.0, -1.0);
   
   if (config_) {
-    CurveAxisScale* axisScale = config_->getAxisConfig(axis)->getScale();
+    CurveAxisScaleConfig* axisScaleConfig = config_->getAxisConfig(axis)->
+      getScaleConfig();
     
-    if (axisScale->getType() == CurveAxisScale::Absolute) {
-      axisBounds.first = axisScale->getAbsoluteMinimum();
-      axisBounds.second = axisScale->getAbsoluteMaximum();
+    if (axisScaleConfig->getType() == CurveAxisScaleConfig::Absolute) {
+      axisBounds.first = axisScaleConfig->getAbsoluteMinimum();
+      axisBounds.second = axisScaleConfig->getAbsoluteMaximum();
     }
-    else if (axisScale->getType() == CurveAxisScale::Relative) {
+    else if (axisScaleConfig->getType() == CurveAxisScaleConfig::Relative) {
       if (!data_->isEmpty()) {
         size_t index = data_->getNumPoints()-1;
         
-        axisBounds.first = data_->getValue(index, axis)+axisScale->
+        axisBounds.first = data_->getValue(index, axis)+axisScaleConfig->
           getRelativeMinimum();
-        axisBounds.second = data_->getValue(index, axis)+axisScale->
+        axisBounds.second = data_->getValue(index, axis)+axisScaleConfig->
           getRelativeMaximum();
       }
     }
@@ -206,43 +208,47 @@ void PlotCurve::configAxisConfigChanged() {
   emit preferredScaleChanged(getPreferredScale());
 }
 
-void PlotCurve::configColorCurrentColorChanged(const QColor& color) {
+void PlotCurve::configColorConfigCurrentColorChanged(const QColor& color) {
   setPen(color);
   
   emit replotRequested();
 }
 
-void PlotCurve::configStyleChanged() {
-  rqt_multiplot::CurveStyle* style = config_->getStyle();
+void PlotCurve::configStyleConfigChanged() {
+  rqt_multiplot::CurveStyleConfig* styleConfig = config_->getStyleConfig();
   
-  if (style->getType() == rqt_multiplot::CurveStyle::Sticks) {
+  if (styleConfig->getType() == rqt_multiplot::CurveStyleConfig::Sticks) {
     setStyle(QwtPlotCurve::Sticks);
     
-    setOrientation(style->getSticksOrientation());
-    setBaseline(style->getSticksBaseline());
+    setOrientation(styleConfig->getSticksOrientation());
+    setBaseline(styleConfig->getSticksBaseline());
   }
-  else if (style->getType() == rqt_multiplot::CurveStyle::Steps) {
+  else if (styleConfig->getType() == rqt_multiplot::CurveStyleConfig::
+      Steps) {
     setStyle(QwtPlotCurve::Steps);
     
-    setCurveAttribute(QwtPlotCurve::Inverted, style->areStepsInverted());    
+    setCurveAttribute(QwtPlotCurve::Inverted, styleConfig->
+      areStepsInverted());    
   }
-  else if (style->getType() == rqt_multiplot::CurveStyle::Points) {
+  else if (styleConfig->getType() == rqt_multiplot::CurveStyleConfig::
+      Points) {
     setStyle(QwtPlotCurve::Dots);
   }
   else {
     setStyle(QwtPlotCurve::Lines);
     
-    setCurveAttribute(QwtPlotCurve::Fitted, style->areLinesInterpolated());    
+    setCurveAttribute(QwtPlotCurve::Fitted, styleConfig->
+      areLinesInterpolated());    
   }
   
   QPen pen = QwtPlotCurve::pen();
 
-  pen.setWidth(style->getPenWidth());
-  pen.setStyle(style->getPenStyle());
+  pen.setWidth(styleConfig->getPenWidth());
+  pen.setStyle(styleConfig->getPenStyle());
   
   setPen(pen);
   
-  setRenderHint(QwtPlotItem::RenderAntialiased, style->
+  setRenderHint(QwtPlotItem::RenderAntialiased, styleConfig->
     isRenderAntialiased());
   
   emit replotRequested();

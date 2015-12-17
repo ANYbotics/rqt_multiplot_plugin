@@ -49,8 +49,8 @@ CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
     CurveConfig::X));
   ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
     CurveConfig::Y));
-  ui_->curveColorWidget->setColor(config_->getColor());
-  ui_->curveStyleWidget->setStyle(config_->getStyle());
+  ui_->curveColorConfigWidget->setConfig(config_->getColorConfig());
+  ui_->curveStyleConfigWidget->setConfig(config_->getStyleConfig());
   ui_->curveDataConfigWidget->setConfig(config_->getDataConfig());
   
   connect(config_, SIGNAL(titleChanged(const QString&)), this,

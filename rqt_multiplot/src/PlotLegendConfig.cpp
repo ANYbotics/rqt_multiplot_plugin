@@ -25,7 +25,7 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 PlotLegendConfig::PlotLegendConfig(QObject* parent, bool visible) :
-  QObject(parent),
+  Config(parent),
   visible_(visible) {
 }
 
@@ -63,6 +63,17 @@ void PlotLegendConfig::load(QSettings& settings) {
 
 void PlotLegendConfig::reset() {
   setVisible(true);
+}
+
+void PlotLegendConfig::write(QDataStream& stream) const {
+  stream << visible_;
+}
+
+void PlotLegendConfig::read(QDataStream& stream) {
+  bool visible;
+  
+  stream >> visible;
+  setVisible(visible);
 }
 
 /*****************************************************************************/

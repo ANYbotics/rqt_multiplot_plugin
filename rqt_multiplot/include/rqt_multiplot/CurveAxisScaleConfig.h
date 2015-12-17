@@ -16,26 +16,38 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_PLOT_AXES_CONFIG_H
-#define RQT_MULTIPLOT_PLOT_AXES_CONFIG_H
+#ifndef RQT_MULTIPLOT_CURVE_AXIS_SCALE_CONFIG_H
+#define RQT_MULTIPLOT_CURVE_AXIS_SCALE_CONFIG_H
 
 #include <rqt_multiplot/Config.h>
-#include <rqt_multiplot/PlotAxisConfig.h>
 
 namespace rqt_multiplot {
-  class PlotAxesConfig :
+  class CurveAxisScaleConfig :
     public Config {
   Q_OBJECT
   public:
-    enum Axis {
-      X,
-      Y
+    enum Type {
+      Auto,
+      Absolute,
+      Relative
     };
     
-    PlotAxesConfig(QObject* parent = 0);
-    ~PlotAxesConfig();
+    CurveAxisScaleConfig(QObject* parent = 0, Type type = Auto, double
+      absoluteMinimum = 0.0, double absoluteMaximum = 1000.0, double
+      relativeMinimum = -1000.0, double relativeMaximum = 0.0);
+    ~CurveAxisScaleConfig();
     
-    PlotAxisConfig* getAxisConfig(Axis axis) const;
+    void setType(Type type);
+    Type getType() const;
+    void setAbsoluteMinimum(double minimum);
+    double getAbsoluteMinimum() const;
+    void setAbsoluteMaximum(double maximum);
+    double getAbsoluteMaximum() const;
+    void setRelativeMinimum(double minimum);
+    double getRelativeMinimum() const;
+    void setRelativeMaximum(double maximum);
+    double getRelativeMaximum() const;
+    bool isValid() const;
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
@@ -44,13 +56,21 @@ namespace rqt_multiplot {
     void write(QDataStream& stream) const;
     void read(QDataStream& stream);
     
-    PlotAxesConfig& operator=(const PlotAxesConfig& src);
+    CurveAxisScaleConfig& operator=(const CurveAxisScaleConfig& src);
+    
+  signals:
+    void typeChanged(int type);
+    void absoluteMinimumChanged(double minimum);
+    void absoluteMaximumChanged(double maxnimum);
+    void relativeMinimumChanged(double minimum);
+    void relativeMaximumChanged(double maxnimum);
     
   private:
-    QMap<Axis, PlotAxisConfig*> axisConfig_;
-    
-  private slots:
-    void axisConfigChanged();
+    Type type_;
+    double absoluteMinimum_;
+    double absoluteMaximum_;
+    double relativeMinimum_;
+    double relativeMaximum_;
   };
 };
 

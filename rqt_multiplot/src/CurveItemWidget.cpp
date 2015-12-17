@@ -55,8 +55,9 @@ void CurveItemWidget::setConfig(CurveConfig* config) {
         SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
       disconnect(config_->getAxisConfig(CurveConfig::Y),
         SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      disconnect(config_->getColor(), SIGNAL(currentColorChanged(const
-        QColor&)), this, SLOT(configColorCurrentColorChanged(const QColor&)));
+      disconnect(config_->getColorConfig(), SIGNAL(currentColorChanged(const
+        QColor&)), this, SLOT(configColorConfigCurrentColorChanged(const
+        QColor&)));
     }
     
     config_ = config;
@@ -68,13 +69,15 @@ void CurveItemWidget::setConfig(CurveConfig* config) {
         SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
       connect(config->getAxisConfig(CurveConfig::Y),
         SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      connect(config->getColor(), SIGNAL(currentColorChanged(const
-        QColor&)), this, SLOT(configColorCurrentColorChanged(const QColor&)));
+      connect(config->getColorConfig(), SIGNAL(currentColorChanged(const
+        QColor&)), this, SLOT(configColorConfigCurrentColorChanged(const
+        QColor&)));
       
       configTitleChanged(config->getTitle());
       configXAxisConfigChanged();
       configYAxisConfigChanged();
-      configColorCurrentColorChanged(config->getColor()->getCurrentColor());
+      configColorConfigCurrentColorChanged(config->getColorConfig()->
+        getCurrentColor());
     }
   }
 }
@@ -93,7 +96,7 @@ bool CurveItemWidget::eventFilter(QObject* object, QEvent* event) {
       QPaintEvent* paintEvent = static_cast<QPaintEvent*>(event);
       
       QPainter painter(ui_->frameColor);
-      QColor color = config_->getColor()->getCurrentColor();
+      QColor color = config_->getColorConfig()->getCurrentColor();
       
       painter.setBrush(color);
       painter.setPen((color.lightnessF() > 0.5) ? Qt::black : Qt::white);
@@ -141,7 +144,8 @@ void CurveItemWidget::configYAxisConfigChanged() {
   ui_->labelYAxis->setText(text);
 }
 
-void CurveItemWidget::configColorCurrentColorChanged(const QColor& color) {
+void CurveItemWidget::configColorConfigCurrentColorChanged(const QColor&
+    color) {
   ui_->frameColor->repaint();
 }
 

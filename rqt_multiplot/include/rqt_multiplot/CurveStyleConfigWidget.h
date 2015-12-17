@@ -16,47 +16,47 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_STYLE_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_STYLE_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_STYLE_CONFIG_WIDGET_H
+#define RQT_MULTIPLOT_CURVE_STYLE_CONFIG_WIDGET_H
 
 #include <QButtonGroup>
 #include <QWidget>
 
-#include <rqt_multiplot/CurveStyle.h>
+#include <rqt_multiplot/CurveStyleConfig.h>
 
 namespace Ui {
-  class CurveStyleWidget;
+  class CurveStyleConfigWidget;
 };
 
 namespace rqt_multiplot {
-  class CurveStyleWidget :
+  class CurveStyleConfigWidget :
     public QWidget {
   Q_OBJECT
   public:
-    CurveStyleWidget(QWidget* parent = 0);
-    virtual ~CurveStyleWidget();
+    CurveStyleConfigWidget(QWidget* parent = 0);
+    virtual ~CurveStyleConfigWidget();
 
-    void setStyle(CurveStyle* style);
-    CurveStyle* getStyle() const;
+    void setConfig(CurveStyleConfig* config);
+    CurveStyleConfig* getConfig() const;
     
   private:
-    Ui::CurveStyleWidget* ui_;
+    Ui::CurveStyleConfigWidget* ui_;
     
     QButtonGroup* buttonGroupSticksOrientation_;
     
-    CurveStyle* style_;
+    CurveStyleConfig* config_;
     
   private slots:
-    void styleTypeChanged(int type);
+    void configTypeChanged(int type);
     
-    void styleLinesInterpolateChanged(bool interpolate);
-    void styleSticksOrientationChanged(int orientation);
-    void styleSticksBaselineChanged(double baseline);
-    void styleStepsInvertChanged(bool invert);
+    void configLinesInterpolateChanged(bool interpolate);
+    void configSticksOrientationChanged(int orientation);
+    void configSticksBaselineChanged(double baseline);
+    void configStepsInvertChanged(bool invert);
     
-    void stylePenWidthChanged(size_t width);
-    void stylePenStyleChanged(int style);
-    void styleRenderAntialiasChanged(bool antialias);
+    void configPenWidthChanged(size_t width);
+    void configPenStyleChanged(int style);
+    void configRenderAntialiasChanged(bool antialias);
     
     void radioButtonLinesToggled(bool checked);
     void radioButtonSticksToggled(bool checked);

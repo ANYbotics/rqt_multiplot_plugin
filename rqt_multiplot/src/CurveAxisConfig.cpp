@@ -26,13 +26,13 @@ namespace rqt_multiplot {
 
 CurveAxisConfig::CurveAxisConfig(QObject* parent, const QString& topic,
     const QString& type, FieldType fieldType, const QString& field) :
-  QObject(parent),
+  Config(parent),
   topic_(topic),
   type_(type),
   fieldType_(fieldType),
   field_(field),
-  scale_(new CurveAxisScale(this)) {
-  connect(scale_, SIGNAL(changed()), this, SLOT(scaleChanged()));
+  scaleConfig_(new CurveAxisScaleConfig(this)) {
+  connect(scaleConfig_, SIGNAL(changed()), this, SLOT(scaleChanged()));
 }
 
 CurveAxisConfig::~CurveAxisConfig() {
@@ -94,8 +94,8 @@ const QString& CurveAxisConfig::getField() const {
   return field_;
 }
 
-CurveAxisScale* CurveAxisConfig::getScale() const {
-  return scale_;
+CurveAxisScaleConfig* CurveAxisConfig::getScaleConfig() const {
+  return scaleConfig_;
 }
 
 /*****************************************************************************/
@@ -109,7 +109,7 @@ void CurveAxisConfig::save(QSettings& settings) const {
   settings.setValue("field", field_);
   
   settings.beginGroup("scale");
-  scale_->save(settings);
+  scaleConfig_->save(settings);
   settings.endGroup();
 }
 
@@ -120,8 +120,42 @@ void CurveAxisConfig::load(QSettings& settings) {
   setField(settings.value("field").toString());
   
   settings.beginGroup("scale");
-  scale_->load(settings);
+  scaleConfig_->load(settings);
   settings.endGroup();
+}
+
+void CurveAxisConfig::reset() {
+  setTopic(QString());
+  setType(QString());
+  setFieldType(MessageData);
+  setField(QString());
+  
+  scaleConfig_->reset();
+}
+
+void CurveAxisConfig::write(QDataStream& stream) const {
+  stream << topic_;
+  stream << type_;
+  stream << (int)fieldType_;
+  stream << field_;
+  
+  scaleConfig_->write(stream);
+}
+
+void CurveAxisConfig::read(QDataStream& stream) {
+  QString topic, type, field;
+  int fieldType;
+  
+  stream >> topic;
+  setTopic(topic);
+  stream >> type;
+  setType(type);
+  stream >> fieldType;
+  setFieldType(static_cast<FieldType>(fieldType));
+  stream >> field;
+  setField(field);  
+  
+  scaleConfig_->read(stream);
 }
 
 /*****************************************************************************/
@@ -134,7 +168,7 @@ CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
   setFieldType(src.fieldType_);
   setField(src.field_);
   
-  *scale_ = *src.scale_;
+  *scaleConfig_ = *src.scaleConfig_;
   
   return *this;
 }

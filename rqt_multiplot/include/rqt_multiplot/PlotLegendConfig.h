@@ -19,12 +19,11 @@
 #ifndef RQT_MULTIPLOT_PLOT_LEGEND_CONFIG_H
 #define RQT_MULTIPLOT_PLOT_LEGEND_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
+#include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
   class PlotLegendConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     PlotLegendConfig(QObject* parent = 0, bool visible = true);
@@ -37,11 +36,13 @@ namespace rqt_multiplot {
     void load(QSettings& settings);
     void reset();
     
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
     PlotLegendConfig& operator=(const PlotLegendConfig& src);
     
   signals:
     void visibleChanged(bool visible);
-    void changed();
     
   private:
     bool visible_;

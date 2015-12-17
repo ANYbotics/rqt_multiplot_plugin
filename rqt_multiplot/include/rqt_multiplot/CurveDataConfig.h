@@ -19,12 +19,11 @@
 #ifndef RQT_MULTIPLOT_CURVE_DATA_CONFIG_H
 #define RQT_MULTIPLOT_CURVE_DATA_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
+#include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
   class CurveDataConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     enum Type {
@@ -44,13 +43,16 @@ namespace rqt_multiplot {
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
+    
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
     
     CurveDataConfig& operator=(const CurveDataConfig& src);
     
   signals:
     void typeChanged(int type);
     void circularBufferCapacityChanged(size_t capacity);
-    void changed();
     
   private:
     Type type_;

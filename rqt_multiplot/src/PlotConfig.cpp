@@ -26,7 +26,7 @@ namespace rqt_multiplot {
 
 PlotConfig::PlotConfig(QObject* parent, const QString& title, double
     plotRate) :
-  QObject(parent),
+  Config(parent),
   title_(title),
   axesConfig_(new PlotAxesConfig(this)),
   legendConfig_(new PlotLegendConfig(this)),
@@ -55,6 +55,14 @@ void PlotConfig::setTitle(const QString& title) {
 
 const QString& PlotConfig::getTitle() const {
   return title_;
+}
+
+void PlotConfig::setNumCurves(size_t numCurves) {
+  while (curveConfig_.count() > numCurves)
+    removeCurve(curveConfig_.count()-1);
+  
+  while (curveConfig_.count() < numCurves)
+    addCurve();
 }
 
 size_t PlotConfig::getNumCurves() const {
@@ -95,10 +103,14 @@ double PlotConfig::getPlotRate() const {
 
 CurveConfig* PlotConfig::addCurve() {
   CurveConfig* curveConfig = new CurveConfig(this);
-  curveConfig->getColor()->setAutoColorIndex(curveConfig_.count());
+  curveConfig->getColorConfig()->setAutoColorIndex(curveConfig_.count());
   
   curveConfig_.append(curveConfig);
-  connect(curveConfig, SIGNAL(changed()), this, SLOT(curveConfigChanged()));
+  
+  connect(curveConfig, SIGNAL(changed()), this,
+    SLOT(curveConfigChanged()));
+  connect(curveConfig, SIGNAL(destroyed()), this,
+    SLOT(curveConfigDestroyed()));
   
   emit curveAdded(curveConfig_.count()-1);
   emit changed();
@@ -120,7 +132,7 @@ void PlotConfig::removeCurve(size_t index) {
     curveConfig_.remove(index);
     
     for (size_t i = 0; i < curveConfig_.count(); ++i)
-      curveConfig_[i]->getColor()->setAutoColorIndex(i);
+      curveConfig_[i]->getColorConfig()->setAutoColorIndex(i);
     
     emit curveRemoved(index);
     emit changed();
@@ -204,10 +216,46 @@ void PlotConfig::load(QSettings& settings) {
 
 void PlotConfig::reset() {
   setTitle("Untitled Plot");
+  
   clearCurves();
+  
   axesConfig_->reset();
   legendConfig_->reset();
+  
   setPlotRate(30.0);
+}
+
+void PlotConfig::write(QDataStream& stream) const {
+  stream << title_;
+  
+  stream << (quint64)getNumCurves();  
+  for (size_t index = 0; index < curveConfig_.count(); ++index)
+    curveConfig_[index]->write(stream);
+  
+  axesConfig_->write(stream);
+  legendConfig_->write(stream);
+  
+  stream << plotRate_;
+}
+
+void PlotConfig::read(QDataStream& stream) {
+  QString title;
+  quint64 numCurves;
+  double plotRate;
+  
+  stream >> title;
+  setTitle(title);
+  
+  stream >> numCurves;
+  setNumCurves(numCurves);  
+  for (size_t index = 0; index < curveConfig_.count(); ++index)
+    curveConfig_[index]->read(stream);
+  
+  axesConfig_->write(stream);
+  legendConfig_->write(stream);
+  
+  stream >> plotRate;
+  setPlotRate(plotRate);
 }
 
 /*****************************************************************************/
@@ -247,6 +295,20 @@ void PlotConfig::curveConfigChanged() {
   }
   
   emit changed();
+}
+
+void PlotConfig::curveConfigDestroyed() {
+  int index = curveConfig_.indexOf(static_cast<CurveConfig*>(sender()));
+
+  if (index >= 0) {
+    curveConfig_.remove(index);
+    
+    for (size_t i = 0; i < curveConfig_.count(); ++i)
+      curveConfig_[i]->getColorConfig()->setAutoColorIndex(i);
+    
+    emit curveRemoved(index);
+    emit changed();
+  }
 }
 
 void PlotConfig::axesConfigChanged() {

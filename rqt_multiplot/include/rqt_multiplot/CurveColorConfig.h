@@ -16,44 +16,54 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_COLOR_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_COLOR_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_COLOR_CONFIG_H
+#define RQT_MULTIPLOT_CURVE_COLOR_CONFIG_H
 
-#include <QWidget>
+#include <QColor>
 
-#include <rqt_multiplot/CurveColor.h>
-
-namespace Ui {
-  class CurveColorWidget;
-};
+#include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class CurveColorWidget :
-    public QWidget {
+  class CurveColorConfig :
+    public Config {
   Q_OBJECT
   public:
-    CurveColorWidget(QWidget* parent = 0);
-    virtual ~CurveColorWidget();
+    enum Type {
+      Auto,
+      Custom
+    };
     
-    void setColor(CurveColor* color);
-    CurveColor* getColor() const;
+    CurveColorConfig(QObject* parent = 0, Type type = Auto, unsigned char
+      autoColorIndex = 0, const QColor& customColor = Qt::black);
+    ~CurveColorConfig();
+    
+    void setType(Type type);
+    Type getType() const;
+    void setAutoColorIndex(unsigned char index);
+    unsigned char getAutoColorIndex() const;
+    void setCustomColor(const QColor& color);
+    const QColor& getCustomColor() const;
+    QColor getCurrentColor() const;
   
-  signals:
-    void currentColorChanged(const QColor& color);  
+    void save(QSettings& settings) const;
+    void load(QSettings& settings);
+    void reset();
     
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
+    CurveColorConfig& operator=(const CurveColorConfig& src);
+    
+  signals:
+    void typeChanged(int type);
+    void autoColorIndexChanged(unsigned char index);
+    void customColorChanged(const QColor& color);
+    void currentColorChanged(const QColor& color);
     
   private:
-    Ui::CurveColorWidget* ui_;
-    
-    CurveColor* color_;
-    
-  private slots:
-    void colorTypeChanged(int type);
-    void colorCurrentColorChanged(const QColor& color);
-    
-    void checkBoxAutoStateChanged(int state);
+    Type type_;
+    unsigned char autoColorIndex_;
+    QColor customColor_;
   };
 };
 

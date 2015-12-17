@@ -18,9 +18,9 @@
 
 #include <QDoubleValidator>
 
-#include <ui_CurveStyleWidget.h>
+#include <ui_CurveStyleConfigWidget.h>
 
-#include "rqt_multiplot/CurveStyleWidget.h"
+#include "rqt_multiplot/CurveStyleConfigWidget.h"
 
 namespace rqt_multiplot {
 
@@ -28,11 +28,11 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveStyleWidget::CurveStyleWidget(QWidget* parent) :
+CurveStyleConfigWidget::CurveStyleConfigWidget(QWidget* parent) :
   QWidget(parent),
-  ui_(new Ui::CurveStyleWidget()),
+  ui_(new Ui::CurveStyleConfigWidget()),
   buttonGroupSticksOrientation_(new QButtonGroup(this)),
-  style_(0) {
+  config_(0) {
   ui_->setupUi(this);
   
   ui_->lineEditSticksBaseline->setValidator(new QDoubleValidator(
@@ -78,7 +78,7 @@ CurveStyleWidget::CurveStyleWidget(QWidget* parent) :
     this, SLOT(checkBoxRenderAntialiasStateChanged(int)));
 }
 
-CurveStyleWidget::~CurveStyleWidget() {
+CurveStyleConfigWidget::~CurveStyleConfigWidget() {
   delete ui_;
 }
 
@@ -86,188 +86,188 @@ CurveStyleWidget::~CurveStyleWidget() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void CurveStyleWidget::setStyle(CurveStyle* style) {
-  if (style != style_) {
-    if (style_) {
-      disconnect(style_, SIGNAL(typeChanged(int)), this,
+void CurveStyleConfigWidget::setConfig(CurveStyleConfig* config) {
+  if (config != config_) {
+    if (config_) {
+      disconnect(config_, SIGNAL(typeChanged(int)), this,
         SLOT(styleTypeChanged(int)));
       
-      disconnect(style_, SIGNAL(linesInterpolateChanged(bool)),
-        this, SLOT(styleLinesInterpolateChanged(bool)));
-      disconnect(style_, SIGNAL(sticksOrientationChanged(int)),
-        this, SLOT(styleSticksOrientationChanged(int)));
-      disconnect(style_, SIGNAL(sticksBaselineChanged(double)),
-        this, SLOT(styleSticksBaselineChanged(double)));
-      disconnect(style_, SIGNAL(stepsInvertChanged(bool)),
-        this, SLOT(styleStepsInvertChanged(bool)));
+      disconnect(config_, SIGNAL(linesInterpolateChanged(bool)),
+        this, SLOT(configLinesInterpolateChanged(bool)));
+      disconnect(config_, SIGNAL(sticksOrientationChanged(int)),
+        this, SLOT(configSticksOrientationChanged(int)));
+      disconnect(config_, SIGNAL(sticksBaselineChanged(double)),
+        this, SLOT(configSticksBaselineChanged(double)));
+      disconnect(config_, SIGNAL(stepsInvertChanged(bool)),
+        this, SLOT(configStepsInvertChanged(bool)));
       
-      disconnect(style_, SIGNAL(penWidthChanged(size_t)),
-        this, SLOT(stylePenWidthChanged(size_t)));
-      disconnect(style_, SIGNAL(penStyleChanged(int)),
-        this, SLOT(stylePenStyleChanged(int)));
-      disconnect(style_, SIGNAL(renderAntialiasChanged(bool)),
-        this, SLOT(styleRenderAntialiasChanged(bool)));
+      disconnect(config_, SIGNAL(penWidthChanged(size_t)),
+        this, SLOT(configPenWidthChanged(size_t)));
+      disconnect(config_, SIGNAL(penStyleChanged(int)),
+        this, SLOT(configPenStyleChanged(int)));
+      disconnect(config_, SIGNAL(renderAntialiasChanged(bool)),
+        this, SLOT(configRenderAntialiasChanged(bool)));
     }
     
-    style_ = style;
+    config_ = config;
     
-    if (style) {
-      connect(style, SIGNAL(typeChanged(int)), this,
-        SLOT(styleTypeChanged(int)));
+    if (config) {
+      connect(config, SIGNAL(typeChanged(int)), this,
+        SLOT(configTypeChanged(int)));
       
-      connect(style, SIGNAL(linesInterpolateChanged(bool)),
-        this, SLOT(styleLinesInterpolateChanged(bool)));
-      connect(style, SIGNAL(sticksOrientationChanged(int)),
-        this, SLOT(styleSticksOrientationChanged(int)));
-      connect(style, SIGNAL(sticksBaselineChanged(double)),
-        this, SLOT(styleSticksBaselineChanged(double)));
-      connect(style, SIGNAL(stepsInvertChanged(bool)),
-        this, SLOT(styleStepsInvertChanged(bool)));
+      connect(config, SIGNAL(linesInterpolateChanged(bool)),
+        this, SLOT(configLinesInterpolateChanged(bool)));
+      connect(config, SIGNAL(sticksOrientationChanged(int)),
+        this, SLOT(configSticksOrientationChanged(int)));
+      connect(config, SIGNAL(sticksBaselineChanged(double)),
+        this, SLOT(configSticksBaselineChanged(double)));
+      connect(config, SIGNAL(stepsInvertChanged(bool)),
+        this, SLOT(configStepsInvertChanged(bool)));
       
-      connect(style, SIGNAL(penWidthChanged(size_t)),
-        this, SLOT(stylePenWidthChanged(size_t)));
-      connect(style, SIGNAL(penStyleChanged(int)),
-        this, SLOT(stylePenStyleChanged(int)));
-      connect(style, SIGNAL(renderAntialiasChanged(bool)),
-        this, SLOT(styleRenderAntialiasChanged(bool)));
+      connect(config, SIGNAL(penWidthChanged(size_t)),
+        this, SLOT(configPenWidthChanged(size_t)));
+      connect(config, SIGNAL(penStyleChanged(int)),
+        this, SLOT(configPenStyleChanged(int)));
+      connect(config, SIGNAL(renderAntialiasChanged(bool)),
+        this, SLOT(configRenderAntialiasChanged(bool)));
       
-      styleTypeChanged(style->getType());
+      configTypeChanged(config->getType());
       
-      styleLinesInterpolateChanged(style->areLinesInterpolated());
-      styleSticksOrientationChanged(style->getSticksOrientation());
-      styleSticksBaselineChanged(style->getSticksBaseline());
-      styleStepsInvertChanged(style->areStepsInverted());
+      configLinesInterpolateChanged(config->areLinesInterpolated());
+      configSticksOrientationChanged(config->getSticksOrientation());
+      configSticksBaselineChanged(config->getSticksBaseline());
+      configStepsInvertChanged(config->areStepsInverted());
       
-      stylePenWidthChanged(style->getPenWidth());
-      stylePenStyleChanged(style->getPenStyle());
-      styleRenderAntialiasChanged(style->isRenderAntialiased());
+      configPenWidthChanged(config->getPenWidth());
+      configPenStyleChanged(config->getPenStyle());
+      configRenderAntialiasChanged(config->isRenderAntialiased());
     }
   }
 }
 
-CurveStyle* CurveStyleWidget::getStyle() const {
-  return style_;
+CurveStyleConfig* CurveStyleConfigWidget::getConfig() const {
+  return config_;
 }
  
 /*****************************************************************************/
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveStyleWidget::styleTypeChanged(int type) {
-  if (type == CurveStyle::Sticks)
+void CurveStyleConfigWidget::configTypeChanged(int type) {
+  if (type == CurveStyleConfig::Sticks)
     ui_->radioButtonSticks->setChecked(true);
-  else if (type == CurveStyle::Steps)
+  else if (type == CurveStyleConfig::Steps)
     ui_->radioButtonSteps->setChecked(true);
-  else if (type == CurveStyle::Points)
+  else if (type == CurveStyleConfig::Points)
     ui_->radioButtonPoints->setChecked(true);
   else
     ui_->radioButtonLines->setChecked(true);
 }
 
-void CurveStyleWidget::styleLinesInterpolateChanged(bool interpolate) {
+void CurveStyleConfigWidget::configLinesInterpolateChanged(bool interpolate) {
   ui_->checkBoxLinesInterpolate->setCheckState(interpolate ? Qt::Checked :
     Qt::Unchecked);
 }
 
-void CurveStyleWidget::styleSticksOrientationChanged(int orientation) {
+void CurveStyleConfigWidget::configSticksOrientationChanged(int orientation) {
   ui_->radioButtonSticksOrientationHorizontal->setChecked(
     orientation == Qt::Horizontal);
   ui_->radioButtonSticksOrientationVertical->setChecked(
     orientation == Qt::Vertical);
 }
 
-void CurveStyleWidget::styleSticksBaselineChanged(double baseline) {
+void CurveStyleConfigWidget::configSticksBaselineChanged(double baseline) {
   ui_->lineEditSticksBaseline->setText(QString::number(baseline));
 }
 
-void CurveStyleWidget::styleStepsInvertChanged(bool invert) {
+void CurveStyleConfigWidget::configStepsInvertChanged(bool invert) {
   ui_->checkBoxStepsInvert->setCheckState(invert ? Qt::Checked :
     Qt::Unchecked);
 }
 
-void CurveStyleWidget::stylePenWidthChanged(size_t width) {
+void CurveStyleConfigWidget::configPenWidthChanged(size_t width) {
   ui_->spinBoxPenWidth->setValue(width);
 }
 
-void CurveStyleWidget::stylePenStyleChanged(int style) {
+void CurveStyleConfigWidget::configPenStyleChanged(int style) {
   ui_->comboBoxPenStyle->setCurrentStyle(static_cast<Qt::PenStyle>(style));
 }
 
-void CurveStyleWidget::styleRenderAntialiasChanged(bool antialias) {
+void CurveStyleConfigWidget::configRenderAntialiasChanged(bool antialias) {
   ui_->checkBoxRenderAntialias->setCheckState(antialias ? Qt::Checked :
     Qt::Unchecked);
 }
 
-void CurveStyleWidget::radioButtonLinesToggled(bool checked) {
+void CurveStyleConfigWidget::radioButtonLinesToggled(bool checked) {
   ui_->checkBoxLinesInterpolate->setEnabled(checked);
   
-  if (style_ && checked)
-    style_->setType(CurveStyle::Lines);
+  if (config_ && checked)
+    config_->setType(CurveStyleConfig::Lines);
 }
 
-void CurveStyleWidget::radioButtonSticksToggled(bool checked) {
+void CurveStyleConfigWidget::radioButtonSticksToggled(bool checked) {
   ui_->radioButtonSticksOrientationHorizontal->setEnabled(checked);
   ui_->radioButtonSticksOrientationVertical->setEnabled(checked);
   ui_->labelSticksBaseline->setEnabled(checked);
   ui_->lineEditSticksBaseline->setEnabled(checked);
   
-  if (style_ && checked)
-    style_->setType(CurveStyle::Sticks);
+  if (config_ && checked)
+    config_->setType(CurveStyleConfig::Sticks);
 }
 
-void CurveStyleWidget::radioButtonStepsToggled(bool checked) {
+void CurveStyleConfigWidget::radioButtonStepsToggled(bool checked) {
   ui_->checkBoxStepsInvert->setEnabled(checked);
   
-  if (style_ && checked)
-    style_->setType(CurveStyle::Steps);
+  if (config_ && checked)
+    config_->setType(CurveStyleConfig::Steps);
 }
 
-void CurveStyleWidget::radioButtonPointsToggled(bool checked) {
-  if (style_ && checked)
-    style_->setType(CurveStyle::Points);
+void CurveStyleConfigWidget::radioButtonPointsToggled(bool checked) {
+  if (config_ && checked)
+    config_->setType(CurveStyleConfig::Points);
 }
 
-void CurveStyleWidget::checkBoxLinesInterpolateStateChanged(int state) {
-  if (style_)
-    style_->setLinesInterpolate(state == Qt::Checked);
+void CurveStyleConfigWidget::checkBoxLinesInterpolateStateChanged(int state) {
+  if (config_)
+    config_->setLinesInterpolate(state == Qt::Checked);
 }
 
-void CurveStyleWidget::radioButtonSticksOrientationHorizontalToggled(bool
-    checked) {
-  if (style_ && checked)
-    style_->setSticksOrientation(Qt::Horizontal);
+void CurveStyleConfigWidget::radioButtonSticksOrientationHorizontalToggled(
+    bool checked) {
+  if (config_ && checked)
+    config_->setSticksOrientation(Qt::Horizontal);
 }
 
-void CurveStyleWidget::radioButtonSticksOrientationVerticalToggled(bool
-    checked) {
-  if (style_ && checked)
-    style_->setSticksOrientation(Qt::Vertical);
+void CurveStyleConfigWidget::radioButtonSticksOrientationVerticalToggled(
+    bool checked) {
+  if (config_ && checked)
+    config_->setSticksOrientation(Qt::Vertical);
 }
 
-void CurveStyleWidget::lineEditSticksBaselineEditingFinished() {
-  if (style_)
-    style_->setSticksBaseline(ui_->lineEditSticksBaseline->text().
+void CurveStyleConfigWidget::lineEditSticksBaselineEditingFinished() {
+  if (config_)
+    config_->setSticksBaseline(ui_->lineEditSticksBaseline->text().
       toDouble());
 }
 
-void CurveStyleWidget::checkBoxStepsInvertStateChanged(int state) {
-  if (style_)
-    style_->setStepsInvert(state == Qt::Checked);
+void CurveStyleConfigWidget::checkBoxStepsInvertStateChanged(int state) {
+  if (config_)
+    config_->setStepsInvert(state == Qt::Checked);
 }
 
-void CurveStyleWidget::spinBoxPenWidthValueChanged(int value) {
-  if (style_)
-    style_->setPenWidth(value);
+void CurveStyleConfigWidget::spinBoxPenWidthValueChanged(int value) {
+  if (config_)
+    config_->setPenWidth(value);
 }
 
-void CurveStyleWidget::comboBoxPenStyleCurrentStyleChanged(int style) {
-  if (style_)
-    style_->setPenStyle(static_cast<Qt::PenStyle>(style));
+void CurveStyleConfigWidget::comboBoxPenStyleCurrentStyleChanged(int style) {
+  if (config_)
+    config_->setPenStyle(static_cast<Qt::PenStyle>(style));
 }
 
-void CurveStyleWidget::checkBoxRenderAntialiasStateChanged(int state) {
-  if (style_)
-    style_->setRenderAntialias(state == Qt::Checked);
+void CurveStyleConfigWidget::checkBoxRenderAntialiasStateChanged(int state) {
+  if (config_)
+    config_->setRenderAntialias(state == Qt::Checked);
 }
 
 }

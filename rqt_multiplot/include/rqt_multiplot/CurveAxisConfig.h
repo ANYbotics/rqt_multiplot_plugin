@@ -19,15 +19,14 @@
 #ifndef RQT_MULTIPLOT_CURVE_AXIS_CONFIG_H
 #define RQT_MULTIPLOT_CURVE_AXIS_CONFIG_H
 
-#include <QObject>
-#include <QSettings>
 #include <QString>
 
-#include <rqt_multiplot/CurveAxisScale.h>
+#include <rqt_multiplot/Config.h>
+#include <rqt_multiplot/CurveAxisScaleConfig.h>
 
 namespace rqt_multiplot {
   class CurveAxisConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     enum FieldType {
@@ -48,10 +47,14 @@ namespace rqt_multiplot {
     FieldType getFieldType() const;
     void setField(const QString& field);
     const QString& getField() const;
-    CurveAxisScale* getScale() const;
+    CurveAxisScaleConfig* getScaleConfig() const;
   
     void save(QSettings& settings) const;
     void load(QSettings& settings);
+    void reset();
+    
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
     
     CurveAxisConfig& operator=(const CurveAxisConfig& src);
     
@@ -60,7 +63,6 @@ namespace rqt_multiplot {
     void typeChanged(const QString& type);
     void fieldTypeChanged(int fieldType);
     void fieldChanged(const QString& field);
-    void changed();  
     
   private:
     QString topic_;
@@ -68,7 +70,7 @@ namespace rqt_multiplot {
     FieldType fieldType_;
     QString field_;
     
-    CurveAxisScale* scale_;
+    CurveAxisScaleConfig* scaleConfig_;
     
   private slots:
     void scaleChanged();

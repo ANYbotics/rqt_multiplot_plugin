@@ -25,7 +25,7 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 PlotAxesConfig::PlotAxesConfig(QObject* parent) :
-  QObject(parent) {
+  Config(parent) {
   axisConfig_[X] = new PlotAxisConfig(this);
   axisConfig_[Y] = new PlotAxisConfig(this);
     
@@ -78,6 +78,16 @@ void PlotAxesConfig::load(QSettings& settings) {
 void PlotAxesConfig::reset() {
   axisConfig_[X]->reset();
   axisConfig_[Y]->reset();
+}
+
+void PlotAxesConfig::write(QDataStream& stream) const {
+  axisConfig_[X]->write(stream);
+  axisConfig_[Y]->write(stream);
+}
+
+void PlotAxesConfig::read(QDataStream& stream) {
+  axisConfig_[X]->read(stream);
+  axisConfig_[Y]->read(stream);
 }
 
 /*****************************************************************************/

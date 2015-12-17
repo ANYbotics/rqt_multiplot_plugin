@@ -35,7 +35,7 @@ namespace rqt_multiplot {
 
   class PlotCurve :
     public QObject,
-    private QwtPlotCurve {
+    public QwtPlotCurve {
   Q_OBJECT
   public:
     PlotCurve(QObject* parent = 0);
@@ -75,8 +75,8 @@ namespace rqt_multiplot {
   private slots:
     void configTitleChanged(const QString& title);
     void configAxisConfigChanged();
-    void configColorCurrentColorChanged(const QColor& color);
-    void configStyleChanged();
+    void configColorConfigCurrentColorChanged(const QColor& color);
+    void configStyleConfigChanged();
     void configDataConfigChanged();
     
     void dataSequencerPointReceived(const QPointF& point);

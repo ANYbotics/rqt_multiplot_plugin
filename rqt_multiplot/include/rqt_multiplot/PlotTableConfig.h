@@ -20,15 +20,14 @@
 #define RQT_MULTIPLOT_PLOT_TABLE_CONFIG_H
 
 #include <QColor>
-#include <QObject>
-#include <QSettings>
 #include <QVector>
 
+#include <rqt_multiplot/Config.h>
 #include <rqt_multiplot/PlotConfig.h>
 
 namespace rqt_multiplot {
   class PlotTableConfig :
-    public QObject {
+    public Config {
   Q_OBJECT
   public:
     PlotTableConfig(QObject* parent, const QColor& backgroundColor =
@@ -58,6 +57,9 @@ namespace rqt_multiplot {
     void load(QSettings& settings);
     void reset();
     
+    void write(QDataStream& stream) const;
+    void read(QDataStream& stream);
+    
     PlotTableConfig& operator=(const PlotTableConfig& src);
     
   signals:
@@ -67,7 +69,6 @@ namespace rqt_multiplot {
     void linkScaleChanged(bool link);
     void linkCursorChanged(bool link);
     void trackPointsChanged(bool track);
-    void changed();
     
   private:
     QColor backgroundColor_;
