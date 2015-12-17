@@ -1,3 +1,9 @@
+ros-rqt-multiplot-plugin (0.0.1-33) unstable; urgency=low
+
+  * Fixed segmentation fault when removing curves
+
+ -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 17 Dec 2015 16:34:00 +0100
+ 
 ros-rqt-multiplot-plugin (0.0.1-32) unstable; urgency=low
 
   * Refactored configuration classes

@@ -126,17 +126,8 @@ void PlotConfig::removeCurve(CurveConfig* curveConfig) {
 }
 
 void PlotConfig::removeCurve(size_t index) {
-  if (index < curveConfig_.count()) {
+  if (index < curveConfig_.count())
     delete curveConfig_[index];
-    
-    curveConfig_.remove(index);
-    
-    for (size_t i = 0; i < curveConfig_.count(); ++i)
-      curveConfig_[i]->getColorConfig()->setAutoColorIndex(i);
-    
-    emit curveRemoved(index);
-    emit changed();
-  }
 }
 
 void PlotConfig::clearCurves() {
