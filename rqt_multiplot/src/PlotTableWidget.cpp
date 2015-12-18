@@ -375,6 +375,9 @@ void PlotTableWidget::configNumPlotsChanged(size_t numRows, size_t
       if (config_->isScaleLinked())
         plotWidgets[row][column]->setCurrentScale(plotWidgets[0][0]->
           getCurrentScale());
+        
+      plotWidgets[row][column]->getCursor()->setTrackPoints(
+        config_->arePointsTracked());
       
       layout->addWidget(plotWidgets[row][column], row, column);
     }

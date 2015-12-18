@@ -142,6 +142,16 @@ void PlotConfig::clearCurves() {
   }
 }
 
+QVector<CurveConfig*> PlotConfig::findCurves(const QString& title) const {
+  QVector<CurveConfig*> curves;
+  
+  for (size_t i = 0; i < curveConfig_.count(); ++i)
+    if (curveConfig_[i]->getTitle() == title)
+      curves.append(curveConfig_[i]);
+  
+  return curves;
+}
+
 void PlotConfig::save(QSettings& settings) const {
   settings.setValue("title", title_);
   

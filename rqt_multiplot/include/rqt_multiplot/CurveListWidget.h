@@ -35,13 +35,16 @@ namespace rqt_multiplot {
     size_t getNumCurves() const;
     CurveItemWidget* getCurveItem(size_t index) const;
     
-    void addCurve(const CurveConfig& config);
+    void addCurve(CurveConfig* config);
     void removeCurve(size_t index);
     
   signals:
     void curveAdded(size_t index);
     void curveConfigChanged(size_t index);
     void curveRemoved(size_t index);
+    
+  protected:
+    void keyPressEvent(QKeyEvent* event);
   };
 };
 

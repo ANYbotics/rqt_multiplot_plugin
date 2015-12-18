@@ -17,9 +17,14 @@
  ******************************************************************************/
 
 #include "rqt_multiplot/CurveConfig.h"
-#include <boost/concept_check.hpp>
 
 namespace rqt_multiplot {
+
+/*****************************************************************************/
+/* Static initializations                                                    */
+/*****************************************************************************/
+
+const QString CurveConfig::MimeType = "application/rqt-multiplot-curve-config";
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */

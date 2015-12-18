@@ -39,6 +39,11 @@ namespace rqt_multiplot {
     void setConfig(const PlotConfig& config);
     const PlotConfig& getConfig() const;
     
+    void copySelectedCurves();
+    void pasteCurves();
+
+    bool eventFilter(QObject* object, QEvent* event);
+    
   private:
     Ui::PlotConfigWidget* ui_;
     
@@ -52,12 +57,17 @@ namespace rqt_multiplot {
     
     void pushButtonAddCurveClicked();
     void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurveClicked();
+    void pushButtonRemoveCurvesClicked();
+    
+    void pushButtonCopyCurvesClicked();
+    void pushButtonPasteCurvesClicked();
     
     void curveListWidgetItemSelectionChanged();
     void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
     
     void doubleSpinBoxPlotRateValueChanged(double value);
+    
+    void clipboardDataChanged();
   };
 };
 

@@ -102,7 +102,7 @@ bool PlotLegend::eventFilter(QObject* object, QEvent* event) {
           stream << *curve->getConfig();
 
           QMimeData* mimeData = new QMimeData();
-          mimeData->setData("application/rqt-mplotcurveconfig", data);
+          mimeData->setData(CurveConfig::MimeType, data);
           
           QPixmap pixmap(widget->size());
           pixmap.fill(Qt::transparent);

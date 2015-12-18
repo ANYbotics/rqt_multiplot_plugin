@@ -37,6 +37,8 @@ namespace rqt_multiplot {
       X,
       Y
     };
+
+    static const QString MimeType;
     
     CurveConfig(QObject* parent = 0, const QString& title = "Untitled Curve",
       size_t subscriberQueueSize = 100);

@@ -16,6 +16,12 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QApplication>
+#include <QClipboard>
+#include <QKeyEvent>
+#include <QLayout>
+#include <QMimeData>
+
 #include <ros/package.h>
 
 #include <rqt_multiplot/CurveConfigDialog.h>
@@ -44,12 +50,24 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   ui_->pushButtonEditCurve->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/edit.png"))));
-  ui_->pushButtonRemoveCurve->setIcon(
+  ui_->pushButtonRemoveCurves->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/remove.png"))));
-  
+
   ui_->pushButtonEditCurve->setEnabled(false);
-  ui_->pushButtonRemoveCurve->setEnabled(false);
+  ui_->pushButtonRemoveCurves->setEnabled(false);
+  
+  ui_->pushButtonCopyCurves->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/copy.png"))));
+  ui_->pushButtonPasteCurves->setIcon(
+    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
+    append("/resource/16x16/paste.png"))));
+  
+  ui_->pushButtonCopyCurves->setEnabled(false);
+  ui_->pushButtonPasteCurves->setEnabled(false);
+  
+  ui_->curveListWidget->installEventFilter(this);
   
   ui_->axesConfigWidget->setConfig(config_->getAxesConfig());
   ui_->legendConfigWidget->setConfig(config_->getLegendConfig());
@@ -58,7 +76,7 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
     this, SLOT(configTitleChanged(const QString&)));
   connect(config_, SIGNAL(plotRateChanged(double)),
     this, SLOT(configPlotRateChanged(double)));
-    
+  
   connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
     SLOT(lineEditTitleEditingFinished()));
   
@@ -66,8 +84,13 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
     SLOT(pushButtonAddCurveClicked()));
   connect(ui_->pushButtonEditCurve, SIGNAL(clicked()), this,
     SLOT(pushButtonEditCurveClicked()));
-  connect(ui_->pushButtonRemoveCurve, SIGNAL(clicked()), this,
-    SLOT(pushButtonRemoveCurveClicked()));
+  connect(ui_->pushButtonRemoveCurves, SIGNAL(clicked()), this,
+    SLOT(pushButtonRemoveCurvesClicked()));
+  
+  connect(ui_->pushButtonCopyCurves, SIGNAL(clicked()), this,
+    SLOT(pushButtonCopyCurvesClicked()));
+  connect(ui_->pushButtonPasteCurves, SIGNAL(clicked()), this,
+    SLOT(pushButtonPasteCurvesClicked()));
   
   connect(ui_->curveListWidget, SIGNAL(itemSelectionChanged()),
     this, SLOT(curveListWidgetItemSelectionChanged()));
@@ -77,8 +100,13 @@ PlotConfigWidget::PlotConfigWidget(QWidget* parent) :
   connect(ui_->doubleSpinBoxPlotRate, SIGNAL(valueChanged(double)),
     this, SLOT(doubleSpinBoxPlotRateValueChanged(double)));
   
+  connect(QApplication::clipboard(), SIGNAL(dataChanged()),
+    this, SLOT(clipboardDataChanged()));
+  
   configTitleChanged(config_->getTitle());
   configPlotRateChanged(config_->getPlotRate());
+  
+  clipboardDataChanged();
 }
 
 PlotConfigWidget::~PlotConfigWidget() {
@@ -94,20 +122,79 @@ void PlotConfigWidget::setConfig(const PlotConfig& config) {
   
   *config_ = config;
   
-  for (size_t index = 0; index < config_->getNumCurves(); ++index) {
-    CurveItemWidget* widget = new CurveItemWidget(ui_->curveListWidget);
-    widget->setConfig(config_->getCurveConfig(index));
-    
-    QListWidgetItem* item = new QListWidgetItem(ui_->curveListWidget);
-    item->setSizeHint(widget->sizeHint());
-    
-    ui_->curveListWidget->addItem(item);
-    ui_->curveListWidget->setItemWidget(item, widget);
-  }
+  for (size_t index = 0; index < config_->getNumCurves(); ++index)
+    ui_->curveListWidget->addCurve(config_->getCurveConfig(index));
 }
 
 const PlotConfig& PlotConfigWidget::getConfig() const {
   return *config_;
+}
+
+/*****************************************************************************/
+/* Methods                                                                   */
+/*****************************************************************************/
+
+void PlotConfigWidget::copySelectedCurves() {
+  QList<QListWidgetItem*> items = ui_->curveListWidget->selectedItems();
+  
+  if (!items.isEmpty()) {
+    QByteArray data;
+    QDataStream stream(&data, QIODevice::WriteOnly);
+    
+    stream << (quint64)items.count();
+    
+    for (QList<QListWidgetItem*>::const_iterator it = items.begin();
+        it != items.end(); ++it) {
+      CurveItemWidget* itemWidget = static_cast<CurveItemWidget*>(
+        ui_->curveListWidget->itemWidget(*it));
+      
+      stream << *itemWidget->getConfig();
+    }
+    
+    QMimeData* mimeData = new QMimeData();
+    mimeData->setData(CurveConfig::MimeType+"-list", data);
+    
+    QApplication::clipboard()->setMimeData(mimeData);
+  }
+}
+
+void PlotConfigWidget::pasteCurves() {
+  const QMimeData* mimeData = QApplication::clipboard()->mimeData();
+  
+  if (mimeData && mimeData->hasFormat(CurveConfig::MimeType+"-list")) {
+    QByteArray data = mimeData->data(CurveConfig::MimeType+"-list");
+    QDataStream stream(&data, QIODevice::ReadOnly);
+    
+    quint64 numCurves;
+    stream >> numCurves;
+    
+    for (size_t index = 0; index < numCurves; ++index) {
+      CurveConfig* curveConfig = config_->addCurve();
+      stream >> *curveConfig;
+
+      while (config_->findCurves(curveConfig->getTitle()).count() > 1)
+        curveConfig->setTitle("Copy of "+curveConfig->getTitle());
+      
+      ui_->curveListWidget->addCurve(curveConfig);
+    }
+  }
+}
+
+bool PlotConfigWidget::eventFilter(QObject* object, QEvent* event) {
+  if (object == ui_->curveListWidget) {
+    if (event->type() == QEvent::KeyPress) {
+      QKeyEvent* keyEvent = static_cast<QKeyEvent*>(event);
+      
+      if (keyEvent->modifiers() == Qt::ControlModifier) {
+        if (keyEvent->key() == Qt::Key_C)
+          copySelectedCurves();
+        else if  (keyEvent->key() == Qt::Key_V)
+          pasteCurves();
+      }
+    }
+  }
+  
+  return false;
 }
 
 /*****************************************************************************/
@@ -139,14 +226,7 @@ void PlotConfigWidget::pushButtonAddCurveClicked() {
     CurveConfig* curveConfig = config_->addCurve();
     *curveConfig = dialog.getWidget()->getConfig();
     
-    CurveItemWidget* widget = new CurveItemWidget(ui_->curveListWidget);
-    widget->setConfig(curveConfig);
-    
-    QListWidgetItem* item = new QListWidgetItem(ui_->curveListWidget);
-    item->setSizeHint(widget->sizeHint());
-    
-    ui_->curveListWidget->addItem(item);
-    ui_->curveListWidget->setItemWidget(item, widget);
+    ui_->curveListWidget->addCurve(curveConfig);
   }
 }
 
@@ -170,25 +250,36 @@ void PlotConfigWidget::pushButtonEditCurveClicked() {
   }
 }
 
-void PlotConfigWidget::pushButtonRemoveCurveClicked() {
-  QListWidgetItem* item = ui_->curveListWidget->currentItem();
-  
-  if (item) {
+void PlotConfigWidget::pushButtonRemoveCurvesClicked() {
+  QList<QListWidgetItem*> items = ui_->curveListWidget->selectedItems();
+    
+  for (QList<QListWidgetItem*>::iterator it = items.begin();
+      it != items.end(); ++it) {
     CurveItemWidget* widget = static_cast<CurveItemWidget*>(
-      ui_->curveListWidget->itemWidget(item));
+      ui_->curveListWidget->itemWidget(*it));
     CurveConfig* curveConfig = widget->getConfig();
     
-    delete item;
+    delete *it;
     
     config_->removeCurve(curveConfig);
   }
 }
 
+void PlotConfigWidget::pushButtonCopyCurvesClicked() {
+  copySelectedCurves();
+}
+
+void PlotConfigWidget::pushButtonPasteCurvesClicked() {
+  pasteCurves();
+}
+
 void PlotConfigWidget::curveListWidgetItemSelectionChanged() {
-  QListWidgetItem* currentItem = ui_->curveListWidget->currentItem();
+  QList<QListWidgetItem*> items = ui_->curveListWidget->selectedItems();
   
-  ui_->pushButtonEditCurve->setEnabled(currentItem);
-  ui_->pushButtonRemoveCurve->setEnabled(currentItem);
+  ui_->pushButtonEditCurve->setEnabled(items.count() == 1);
+  ui_->pushButtonRemoveCurves->setEnabled(!items.isEmpty());
+  
+  ui_->pushButtonCopyCurves->setEnabled(!items.isEmpty());
 }
 
 void PlotConfigWidget::curveListWidgetItemDoubleClicked(QListWidgetItem*
@@ -198,6 +289,13 @@ void PlotConfigWidget::curveListWidgetItemDoubleClicked(QListWidgetItem*
 
 void PlotConfigWidget::doubleSpinBoxPlotRateValueChanged(double value) {
   config_->setPlotRate(value);
+}
+
+void PlotConfigWidget::clipboardDataChanged() {
+  const QMimeData* mimeData = QApplication::clipboard()->mimeData();
+  
+  ui_->pushButtonPasteCurves->setEnabled(mimeData && mimeData->hasFormat(
+    CurveConfig::MimeType+"-list"));
 }
 
 }

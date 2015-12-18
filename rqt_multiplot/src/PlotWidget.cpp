@@ -491,7 +491,7 @@ void PlotWidget::saveToTextFile(const QString& fileName) {
 }
 
 void PlotWidget::dragEnterEvent(QDragEnterEvent* event) {
-  if (event->mimeData()->hasFormat("application/rqt-mplotcurveconfig") &&
+  if (event->mimeData()->hasFormat(CurveConfig::MimeType) &&
       (event->source() != legend_) && config_)
     event->acceptProposedAction();
   else
@@ -499,15 +499,17 @@ void PlotWidget::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 void PlotWidget::dropEvent(QDropEvent* event) {
-  if (event->mimeData()->hasFormat("application/rqt-mplotcurveconfig") &&
+  if (event->mimeData()->hasFormat(CurveConfig::MimeType) &&
       (event->source() != legend_) && config_) {
-    QByteArray data = event->mimeData()->data(
-      "application/rqt-mplotcurveconfig");
+    QByteArray data = event->mimeData()->data(CurveConfig::MimeType);
     QDataStream stream(&data, QIODevice::ReadOnly);
 
     CurveConfig* curveConfig = config_->addCurve();
     stream >> *curveConfig;
 
+    while (config_->findCurves(curveConfig->getTitle()).count() > 1)
+      curveConfig->setTitle("Copy of "+curveConfig->getTitle());
+    
     event->acceptProposedAction();
   }
   else

@@ -51,6 +51,8 @@ namespace rqt_multiplot {
     void removeCurve(size_t index);
     void clearCurves();
     
+    QVector<CurveConfig*> findCurves(const QString& title) const;
+    
     void save(QSettings& settings) const;
     void load(QSettings& settings);
     void reset();

@@ -16,6 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
+#include <QKeyEvent>
+
 #include "rqt_multiplot/CurveListWidget.h"
 
 namespace rqt_multiplot {
@@ -52,13 +54,16 @@ CurveItemWidget* CurveListWidget::getCurveItem(size_t index) const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void CurveListWidget::addCurve(const CurveConfig& config) {
-  QListWidgetItem* widgetItem = new QListWidgetItem(this);
+void CurveListWidget::addCurve(CurveConfig* config) {
   CurveItemWidget* itemWidget = new CurveItemWidget(this);
+  itemWidget->setConfig(config);
   
+  QListWidgetItem* widgetItem = new QListWidgetItem(this);
+  widgetItem->setSizeHint(itemWidget->sizeHint());
+
   addItem(widgetItem);
   setItemWidget(widgetItem, itemWidget);
-  
+
   emit curveAdded(row(widgetItem));
 }
 
@@ -70,6 +75,16 @@ void CurveListWidget::removeCurve(size_t index) {
     
     emit curveRemoved(index);
   }
+}
+
+void CurveListWidget::keyPressEvent(QKeyEvent* event) {
+  if ((event->modifiers() == Qt::ControlModifier) &&
+      (event->key() == Qt::Key_A)) {
+    for (size_t index = 0; index < count(); ++index)
+      item(index)->setSelected(true);
+  }
+  
+  QListWidget::keyPressEvent(event);
 }
 
 }

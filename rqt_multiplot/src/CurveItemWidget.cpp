@@ -34,7 +34,7 @@ CurveItemWidget::CurveItemWidget(QWidget* parent) :
   ui_(new Ui::CurveItemWidget()),
   config_(0) {
   ui_->setupUi(this);
-  
+
   ui_->frameColor->installEventFilter(this);
 }
 

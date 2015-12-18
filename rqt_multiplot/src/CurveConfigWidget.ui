@@ -259,7 +259,7 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>12</width>
+       <width>0</width>
        <height>0</height>
       </size>
      </property>
@@ -268,13 +268,48 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="1" colspan="3">
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <property name="spacing">
-      <number>5</number>
+   <item row="2" column="2">
+    <widget class="QPushButton" name="pushButtonSwap">
+     <property name="minimumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
      </property>
+     <property name="maximumSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="cursor">
+      <cursorShape>PointingHandCursor</cursorShape>
+     </property>
+     <property name="toolTip">
+      <string>Swap axis configurations</string>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>../resource/22x22/arrows_right_left.png</normaloff>../resource/22x22/arrows_right_left.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>22</width>
+       <height>22</height>
+      </size>
+     </property>
+     <property name="flat">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
      <item>
-      <spacer name="horizontalSpacer_2">
+      <spacer name="horizontalSpacer_3">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -283,8 +318,8 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>33</width>
-         <height>20</height>
+         <width>22</width>
+         <height>19</height>
         </size>
        </property>
       </spacer>
@@ -312,125 +347,84 @@
       </widget>
      </item>
      <item>
-      <layout class="QHBoxLayout" name="horizontalLayout_3">
-       <property name="spacing">
-        <number>0</number>
+      <widget class="QPushButton" name="pushButtonCopyRight">
+       <property name="minimumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
        </property>
-       <item>
-        <widget class="QPushButton" name="pushButtonCopyRight">
-         <property name="minimumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="toolTip">
-          <string>Copy to y-axis configuration</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../resource/22x22/arrow_right.png</normaloff>../resource/22x22/arrow_right.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButtonSwap">
-         <property name="minimumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="toolTip">
-          <string>Swap axis configurations</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../resource/22x22/arrows_right_left.png</normaloff>../resource/22x22/arrows_right_left.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QPushButton" name="pushButtonCopyLeft">
-         <property name="minimumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="maximumSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="toolTip">
-          <string>Copy to x-axis configuration</string>
-         </property>
-         <property name="text">
-          <string/>
-         </property>
-         <property name="icon">
-          <iconset>
-           <normaloff>../resource/22x22/arrow_left.png</normaloff>../resource/22x22/arrow_left.png</iconset>
-         </property>
-         <property name="iconSize">
-          <size>
-           <width>22</width>
-           <height>22</height>
-          </size>
-         </property>
-         <property name="flat">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-      </layout>
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Copy to y-axis configuration</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../resource/22x22/arrow_right.png</normaloff>../resource/22x22/arrow_right.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="3">
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="pushButtonCopyLeft">
+       <property name="minimumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="cursor">
+        <cursorShape>PointingHandCursor</cursorShape>
+       </property>
+       <property name="toolTip">
+        <string>Copy to x-axis configuration</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>../resource/22x22/arrow_left.png</normaloff>../resource/22x22/arrow_left.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>22</width>
+         <height>22</height>
+        </size>
+       </property>
+       <property name="flat">
+        <bool>true</bool>
+       </property>
+      </widget>
      </item>
      <item>
       <widget class="QLabel" name="label_4">
@@ -455,7 +449,7 @@
       </widget>
      </item>
      <item>
-      <spacer name="horizontalSpacer_3">
+      <spacer name="horizontalSpacer_2">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -464,7 +458,7 @@
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>33</width>
+         <width>22</width>
          <height>19</height>
         </size>
        </property>
