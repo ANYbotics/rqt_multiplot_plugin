@@ -25,6 +25,8 @@
 
 #include <qwt/qwt_plot_picker.h>
 
+class QwtPlotCanvas;
+
 namespace rqt_multiplot {
   class PlotCursor :
     public QwtPlotPicker {
@@ -32,7 +34,7 @@ namespace rqt_multiplot {
   public:
     PlotCursor(QwtPlotCanvas* canvas);
     ~PlotCursor();
-    
+
     void setActive(bool active, const QPointF& position = QPointF(0.0, 0.0));
     using QwtPlotPicker::isActive;
     void setCurrentPosition(const QPointF& position);
@@ -40,43 +42,43 @@ namespace rqt_multiplot {
     void setTrackPoints(bool track);
     bool arePointsTracked() const;
     bool hasMouseControl() const;
-    
+
     void update();
-    
+
     void drawRubberBand(QPainter* painter) const;
-    
+
   signals:
     void activeChanged(bool active);
     void currentPositionChanged(const QPointF& position);
-    
+
   protected:
     QRect getTextRect(const QPointF& point, const QFont& font) const;
 
     QwtText trackerTextF(const QPointF& point) const;
-    
+
     void begin();
     void move(const QPoint& point);
     bool end(bool ok = true);
-    
+
     bool eventFilter(QObject* object, QEvent* event);
-    
+
     void updateDisplay();
     void updateTrackedPoints();
-    
+
     void drawTrackedPoints(QPainter* painter) const;
-    
+
   private:
     struct TrackedPoint {
       QPointF position;
       QColor color;
     };
-    
+
     QPointF currentPosition_;
     QVector<TrackedPoint> trackedPoints_;
-    
+
     bool trackPoints_;
     bool mouseControl_;
-    
+
   private slots:
     void plotXAxisScaleDivChanged();
     void plotYAxisScaleDivChanged();

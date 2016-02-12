@@ -19,6 +19,7 @@
 #include <QMouseEvent>
 
 #include <qwt/qwt_painter.h>
+#include <qwt/qwt_plot_canvas.h>
 
 #include <rqt_multiplot/PlotZoomerMachine.h>
 
@@ -46,18 +47,18 @@ PlotZoomer::~PlotZoomer() {
 void PlotZoomer::drawRubberBand(QPainter* painter) const {
   if (!isActive())
     return;
-  
+
   if ((stateMachine()->selectionType() == QwtPickerMachine::RectSelection) &&
       (rubberBand() == RectRubberBand)) {
     if (pickedPoints().count() < 2)
       return;
-    
+
     QPoint p1 = pickedPoints()[0];
     QPoint p2 = pickedPoints()[pickedPoints().count()-1];
-  
+
     QRect rect = QRect(p1, p2).normalized();
     rect.adjust(0, 0, -1, -1);
-  
+
     QwtPainter::drawRect(painter, rect);
   }
   else
@@ -67,7 +68,7 @@ void PlotZoomer::drawRubberBand(QPainter* painter) const {
 void PlotZoomer::widgetMousePressEvent(QMouseEvent* event) {
   if (mouseMatch(MouseSelect2, event))
     position_ = event->pos();
-  
+
   QwtPlotZoomer::widgetMousePressEvent(event);
 }
 

@@ -36,19 +36,19 @@ namespace rqt_multiplot {
   public:
     PlotPanner(QwtPlotCanvas* canvas);
     ~PlotPanner();
-    
+
   protected:
     bool eventFilter(QObject* object, QEvent* event);
-    
+
   private:
     QwtPlotCanvas* canvas_;
-    
+
     bool panning_;
-    
+
     QPoint position_;
     QCursor cursor_;
     QCursor canvasCursor_;
-    
+
     QwtScaleMap xMap_;
     QwtScaleMap yMap_;
     BoundingRectangle bounds_;

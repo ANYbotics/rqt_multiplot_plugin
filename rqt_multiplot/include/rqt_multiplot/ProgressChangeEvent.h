@@ -17,7 +17,7 @@
  ******************************************************************************/
 
 #ifndef RQT_MULTIPLOT_PROGRESS_CHANGE_EVENT_H
-#define RQT_MULTIPLOT_MESSAGE_EVENT_H
+#define RQT_MULTIPLOT_PROGRESS_CHANGE_EVENT_H
 
 #include <QEvent>
 
@@ -26,12 +26,12 @@ namespace rqt_multiplot {
     public QEvent {
   public:
     static const QEvent::Type Type;
-    
+
     ProgressChangeEvent(double progress);
     virtual ~ProgressChangeEvent();
-    
+
     double getProgress() const;
-    
+
   private:
     double progress_;
   };

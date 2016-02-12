@@ -21,6 +21,8 @@
 
 #include <qwt/qwt_plot_zoomer.h>
 
+class QwtPlotCanvas;
+
 namespace rqt_multiplot {
   class PlotZoomer :
     public QwtPlotZoomer {
@@ -28,13 +30,13 @@ namespace rqt_multiplot {
   public:
     PlotZoomer(QwtPlotCanvas* canvas, bool doReplot = true);
     ~PlotZoomer();
-    
+
     void drawRubberBand(QPainter* painter) const;
-    
+
   protected:
     void widgetMousePressEvent(QMouseEvent* event);
     void widgetMouseReleaseEvent(QMouseEvent* event);
-    
+
   private:
     QPoint position_;
   };

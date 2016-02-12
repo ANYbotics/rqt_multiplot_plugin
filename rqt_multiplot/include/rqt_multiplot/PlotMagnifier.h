@@ -23,6 +23,8 @@
 
 #include <qwt/qwt_plot_magnifier.h>
 
+class QwtPlotCanvas;
+
 namespace rqt_multiplot {
   class PlotMagnifier :
     public QwtPlotMagnifier {
@@ -30,17 +32,17 @@ namespace rqt_multiplot {
   public:
     PlotMagnifier(QwtPlotCanvas* canvas);
     ~PlotMagnifier();
-    
+
   protected:
     void rescale(double xFactor, double yFactor);
-    
+
     void widgetMousePressEvent(QMouseEvent* event);
     void widgetMouseMoveEvent(QMouseEvent* event);
     void widgetMouseReleaseEvent(QMouseEvent* event);
-    
+
   private:
     bool magnifying_;
-    
+
     QPoint position_;
   };
 };

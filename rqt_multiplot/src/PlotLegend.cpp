@@ -22,9 +22,15 @@
 #include <QMimeData>
 #include <QMouseEvent>
 
+#include <qwt/qwt.h>
 #include <qwt/qwt_dyngrid_layout.h>
-#include <qwt/qwt_legend_item.h>
-#include <qwt/qwt_legend_itemmanager.h>
+#if QWT_VERSION >= 0x060100
+  #include <qwt/qwt_legend_label.h>
+  #include <qwt/qwt_plot_legenditem.h>
+#else
+  #include <qwt/qwt_legend_item.h>
+  #include <qwt/qwt_legend_itemmanager.h>
+#endif
 
 #include <rqt_multiplot/PlotCurve.h>
 #include <rqt_multiplot/PlotWidget.h>
@@ -54,21 +60,36 @@ PlotLegend::~PlotLegend() {
 /*****************************************************************************/
 
 PlotCurve* PlotLegend::findCurve(QWidget* widget) const {
-  QwtLegendItemManager* legendItemManager = find(widget);
-  
-  if (legendItemManager)
-    return dynamic_cast<PlotCurve*>(legendItemManager);
-  else
-    return 0;
+  #if QWT_VERSION >= 0x060100
+    QVariant info = itemInfo(widget);
+
+    if (info.canConvert<QwtPlotItem*>())
+      return dynamic_cast<PlotCurve*>(info.value<QwtPlotItem*>());
+    else
+      return 0;
+  #else
+    QwtLegendItemManager* legendItemManager = find(widget);
+
+    if (legendItemManager)
+      return dynamic_cast<PlotCurve*>(legendItemManager);
+    else
+      return 0;
+  #endif
 }
 
 bool PlotLegend::eventFilter(QObject* object, QEvent* event) {
   if (object == contentsWidget()) {
     if (event->type() == QEvent::ChildAdded) {
       QChildEvent* childEvent = static_cast<QChildEvent*>(event);
-      QwtLegendItem* legendItem = qobject_cast<QwtLegendItem*>(
-        childEvent->child());
-      
+
+      #if QWT_VERSION >= 0x060100
+        QwtLegendLabel* legendItem = qobject_cast<QwtLegendLabel*>(
+          childEvent->child());
+      #else
+        QwtLegendItem* legendItem = qobject_cast<QwtLegendItem*>(
+          childEvent->child());
+      #endif
+
       if (legendItem) {
         legendItem->setCursor(Qt::PointingHandCursor);
         legendItem->installEventFilter(this);
@@ -83,18 +104,18 @@ bool PlotLegend::eventFilter(QObject* object, QEvent* event) {
       if (event->type() == QEvent::MouseButtonDblClick) {
         CurveConfig* curveConfig = curve->getConfig();
         CurveConfigDialog dialog(this);
-        
+
         dialog.setWindowTitle(curveConfig->getTitle().isEmpty() ?
           "Edit Curve" :
           "Edit \""+curveConfig->getTitle()+"\"");
         dialog.getWidget()->setConfig(*curveConfig);
-        
+
         if (dialog.exec() == QDialog::Accepted)
           *curveConfig = dialog.getWidget()->getConfig();
       }
       else if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent* mouseEvent = static_cast<QMouseEvent*>(event);
-        
+
         if ((mouseEvent->button() == Qt::LeftButton) ||
             (mouseEvent->button() == Qt::RightButton)) {
           QByteArray data;
@@ -103,34 +124,34 @@ bool PlotLegend::eventFilter(QObject* object, QEvent* event) {
 
           QMimeData* mimeData = new QMimeData();
           mimeData->setData(CurveConfig::MimeType, data);
-          
+
           QPixmap pixmap(widget->size());
           pixmap.fill(Qt::transparent);
           widget->render(&pixmap, QPoint(), QRegion(), QWidget::DrawChildren);
-          
+
           QPoint hotSpot = mouseEvent->pos();
           hotSpot.setX(0.5*pixmap.width());
           hotSpot.setY(pixmap.height()+5);
-          
+
           QDrag* drag = new QDrag(this);
           drag->setMimeData(mimeData);
           drag->setPixmap(pixmap);
           drag->setHotSpot(hotSpot);
-          
+
           Qt::DropAction defaultDropAction = Qt::CopyAction;
           if (mouseEvent->button() == Qt::RightButton)
             defaultDropAction = Qt::MoveAction;
-          
+
           Qt::DropAction dropAction = drag->exec(Qt::CopyAction |
             Qt::MoveAction, defaultDropAction);
-          
+
           if (dropAction == Qt::MoveAction)
             curve->getConfig()->deleteLater();
         }
       }
     }
   }
-  
+
   return QwtLegend::eventFilter(object, event);
 }
 

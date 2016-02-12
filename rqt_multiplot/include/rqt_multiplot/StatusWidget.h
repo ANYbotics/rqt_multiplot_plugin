@@ -38,7 +38,7 @@ namespace rqt_multiplot {
       Error,
       Busy
     };
-    
+
     StatusWidget(QWidget* parent = 0, Role role = Okay);
     virtual ~StatusWidget();
 
@@ -56,7 +56,7 @@ namespace rqt_multiplot {
 
     void pushCurrentRole();
     bool popCurrentRole();
-    
+
   signals:
     void currentRoleChanged(Role role);
 
@@ -69,18 +69,16 @@ namespace rqt_multiplot {
     QMap<Role, double> frameRates_;
     QList<Role> roleStack_;
     QList<QString> toolTipStack_;
-    
+
     Role currentRole_;
     size_t currentFrame_;
-    
+
     void start();
     void step();
     void stop();
-    
+
   private slots:
-    void timerStarted(double frameRate);
     void timerTimeout();
-    void timerStopped();
   };
 };
 

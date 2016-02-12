@@ -22,6 +22,7 @@ find_path(
   PATHS
     /usr/include/qwt-qt4
     /usr/include/qwt
+    /usr/local/include/qwt
 )
 find_library(
   QWT_LIBRARIES
@@ -263,14 +264,14 @@ include_directories(
 )
 
 add_library(rqt_multiplot
-  ${rqt_multiplot_SRCS} 
+  ${rqt_multiplot_SRCS}
   ${rqt_multiplot_MOCS}
   ${rqt_multiplot_UIS_H}
 )
 
 target_link_libraries(rqt_multiplot
   ${catkin_LIBRARIES}
-  ${QT_LIBRARIES} 
+  ${QT_LIBRARIES}
   ${QWT_LIBRARIES}
 )
 
