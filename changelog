@@ -1,22 +1,22 @@
-ros-rqt-multiplot-plugin (0.0.1-35) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-35) unstable; urgency=low
 
   * Fixes related to OS X clang compatibility and added support for Qwt >= 6.1
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 12 Feb 2016 08:42:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-34) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-34) unstable; urgency=low
 
   * Added copy and paste for curve configurations
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 18 Dec 2015 10:38:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-33) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-33) unstable; urgency=low
 
   * Fixed segmentation fault when removing curves
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 17 Dec 2015 16:34:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-32) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-32) unstable; urgency=low
 
   * Refactored configuration classes
   * Added drag and drop feature for copying and moving curves from the
@@ -26,84 +26,84 @@ ros-rqt-multiplot-plugin (0.0.1-32) unstable; urgency=low
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 17 Dec 2015 16:18:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-31) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-31) unstable; urgency=low
 
   * Fixed right-click magnification for Dario
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 16:09:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-30) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-30) unstable; urgency=low
 
   * Added axis configuration swap button for Dario
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 15:10:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-29) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-29) unstable; urgency=low
 
   * Implemented match filter combo box as class
   * Added match filter completer to type combo box
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 13:39:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-28) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-28) unstable; urgency=low
 
   * Added match filter completer to topic combo box
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 12:50:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-27) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-27) unstable; urgency=low
 
   * Curve axis topic and type are now automatically filled if initially empty
   * Added feature to copy between axes configurations
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 16 Dec 2015 08:05:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-26) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-26) unstable; urgency=low
 
   * Bag reader is now using topic queries to reduce the number of processed
     messages
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 17:02:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-25) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-25) unstable; urgency=low
 
   * Added adaptive-precision output format to tracker coordinate labels
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 16:47:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-24) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-24) unstable; urgency=low
 
   * Fixed bag reader to not block event processing
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 13:37:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-23) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-23) unstable; urgency=low
 
   * Implemented bag import feature
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 15 Dec 2015 12:34:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-22) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-22) unstable; urgency=low
 
   * Curve axis config now starts with no type selected
   * Fixed validations in curve axis config widget
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 11 Dec 2015 11:28:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-21) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-21) unstable; urgency=low
 
   * Fixed message field completer to correctly handle dynamic arrays
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 11 Dec 2015 09:33:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-20) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-20) unstable; urgency=low
 
   * Bug fixing and stability improvements on the configuration and subscriber
     backend
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Fri, 11 Dec 2015 07:17:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-19) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-19) unstable; urgency=low
 
   * Added feature for cleaning the configuration file history
   * Fixed threads to terminate on destruction
@@ -113,64 +113,64 @@ ros-rqt-multiplot-plugin (0.0.1-19) unstable; urgency=low
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 13:23:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-18) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-18) unstable; urgency=low
 
   * Added feature to specify custom axis titles
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 08:04:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-17) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-17) unstable; urgency=low
 
   * Fixed configuration file loading/saving bug, now producing ROS console
     output
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 06:20:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-16) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-16) unstable; urgency=low
 
   * Plot widgets cannot change state anymore if only one plot is available
     in the plot table
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 04:50:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-15) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-15) unstable; urgency=low
 
   * Fixed a graphical bug which was caused by bad masks for the plot cursor
     tracked point labels
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 04:37:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-14) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-14) unstable; urgency=low
 
   * Implemented topic interpolation feature
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 10 Dec 2015 04:32:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-13) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-13) unstable; urgency=low
 
   * About to get topic interpolation right
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 09 Dec 2015 14:49:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-12) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-12) unstable; urgency=low
 
   * Added feature to export plots
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 08 Dec 2015 15:39:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-11) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-11) unstable; urgency=low
 
   * Added feature to maximize/restore a plot
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 08 Dec 2015 12:14:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-10) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-10) unstable; urgency=low
 
   * Added axis titles and legend
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 08 Dec 2015 10:54:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-9) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-9) unstable; urgency=low
 
   * Added curve styles
   * Revised plot controls
@@ -178,49 +178,49 @@ ros-rqt-multiplot-plugin (0.0.1-9) unstable; urgency=low
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Sat, 05 Dec 2015 05:47:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-8) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-8) unstable; urgency=low
 
   * Plot scaling works
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Mon, 30 Nov 2015 12:35:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-7) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-7) unstable; urgency=low
 
   * Enhanced plot table configuration and widget
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 26 Nov 2015 08:43:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-6) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-6) unstable; urgency=low
 
   * Added configuration file handling
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Wed, 25 Nov 2015 17:02:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-5) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-5) unstable; urgency=low
 
   * Yet another progress commit
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 24 Nov 2015 16:11:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-4) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-4) unstable; urgency=low
 
   * Another progress commit
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Thu, 19 Nov 2015 15:05:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-3) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-3) unstable; urgency=low
 
   * Progress commit
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Mon, 16 Nov 2015 06:56:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-2) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-2) unstable; urgency=low
 
   * Progress commit
 
  -- Ralf Kaestner <ralf.kaestner@gmail.com>  Tue, 03 Nov 2015 16:02:00 +0100
 
-ros-rqt-multiplot-plugin (0.0.1-1) unstable; urgency=low
+rqt_multiplot_plugin (0.0.1-1) unstable; urgency=low
 
   * Initial commit
 

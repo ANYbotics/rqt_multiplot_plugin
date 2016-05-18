@@ -38,7 +38,7 @@ This project provides a GUI plugin for visualizing numeric values in multiple
 Create a symlink in your catkin source folder, e.g.:
 
   ```shell
-  ln -s ~/git/ros-rqt-multiplot-plugin ~/catkin_ws/src
+  ln -s ~/git/rqt_multiplot_plugin ~/catkin_ws/src
   ```
 
 ## Usage
@@ -66,4 +66,4 @@ To delete the default configuration files (in case of problems):
 ## Bugs & Feature Requests
 
 Please report bugs and feature requests on the
-[Issue Tracker](https://github.com/ethz-asl/ros-rqt-multiplot-plugin).
+[Issue Tracker](https://github.com/ethz-asl/rqt_multiplot_plugin).
