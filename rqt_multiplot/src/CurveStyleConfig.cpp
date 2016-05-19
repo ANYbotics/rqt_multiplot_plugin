@@ -163,7 +163,7 @@ void CurveStyleConfig::save(QSettings& settings) const {
   settings.setValue("steps_invert", stepsInvert_);
   
   settings.setValue("pen_width", QVariant::fromValue<qulonglong>(penWidth_));
-  settings.setValue("pen_style", penStyle_);
+  settings.setValue("pen_style", (int)penStyle_);
   settings.setValue("render_antialias", renderAntialias_);
 }
 
@@ -178,7 +178,7 @@ void CurveStyleConfig::load(QSettings& settings) {
   
   setPenWidth(settings.value("pen_width", 1).toULongLong());
   setPenStyle(static_cast<Qt::PenStyle>(settings.value(
-    "pen_style", Qt::SolidLine).toInt()));
+    "pen_style", (int)Qt::SolidLine).toInt()));
   setRenderAntialias(settings.value("render_antialias", false).toBool());
 }
 

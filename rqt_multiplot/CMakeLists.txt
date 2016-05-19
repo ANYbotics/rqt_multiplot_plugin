@@ -13,7 +13,12 @@ find_package(catkin REQUIRED
     variant_topic_tools
 )
 
-find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
+  find_package(Qt5Widgets REQUIRED)
+else()
+  find_package(Qt4 COMPONENTS QtCore QtGui REQUIRED)
+  include(${QT_USE_FILE})
+endif()
 
 find_path(
   QWT_INCLUDE_DIRS
@@ -24,14 +29,21 @@ find_path(
     /usr/include/qwt
     /usr/local/include/qwt
 )
-find_library(
-  QWT_LIBRARIES
-  NAMES
-    qwt-qt4
-    qwt
-)
 
-include(${QT_USE_FILE})
+if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
+  find_library(
+    QWT_LIBRARIES
+    NAMES
+      qwt-qt5
+  )
+else()
+  find_library(
+    QWT_LIBRARIES
+    NAMES
+      qwt-qt4
+      qwt
+  )
+endif()
 
 catkin_python_setup()
 
@@ -253,13 +265,17 @@ catkin_package(
     variant_topic_tools
 )
 
-qt4_wrap_cpp(rqt_multiplot_MOCS ${rqt_multiplot_HDRS})
-qt4_wrap_ui(rqt_multiplot_UIS_H ${rqt_multiplot_UIS})
+if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
+  qt5_wrap_cpp(rqt_multiplot_MOCS ${rqt_multiplot_HDRS})
+  qt5_wrap_ui(rqt_multiplot_UIS_H ${rqt_multiplot_UIS})
+else()
+  qt4_wrap_cpp(rqt_multiplot_MOCS ${rqt_multiplot_HDRS})
+  qt4_wrap_ui(rqt_multiplot_UIS_H ${rqt_multiplot_UIS})
+endif()
 
 include_directories(
   ${rqt_multiplot_INCLUDE_DIRECTORIES}
   ${catkin_INCLUDE_DIRS}
-  ${QT_INCLUDE_DIRS}
   ${QWT_INCLUDE_DIRS}
 )
 
@@ -271,9 +287,15 @@ add_library(rqt_multiplot
 
 target_link_libraries(rqt_multiplot
   ${catkin_LIBRARIES}
-  ${QT_LIBRARIES}
   ${QWT_LIBRARIES}
 )
+
+if("${qt_gui_cpp_USE_QT_MAJOR_VERSION} " STREQUAL "5 ")
+  qt5_use_modules(${PROJECT_NAME} Widgets)
+  target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+else()
+  target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
+endif()
 
 find_package(class_loader)
 class_loader_hide_library_symbols(rqt_multiplot)

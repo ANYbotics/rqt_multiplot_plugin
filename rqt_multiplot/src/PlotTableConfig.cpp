@@ -218,9 +218,9 @@ void PlotTableConfig::save(QSettings& settings) const {
 }
 
 void PlotTableConfig::load(QSettings& settings) {
-  setBackgroundColor(settings.value("background_color", Qt::white).
+  setBackgroundColor(settings.value("background_color", (QColor)Qt::white).
     value<QColor>());
-  setForegroundColor(settings.value("foreground_color", Qt::black).
+  setForegroundColor(settings.value("foreground_color", (QColor)Qt::black).
     value<QColor>());
   
   settings.beginGroup("plots");
