@@ -2,8 +2,8 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.2 (2016-05-20)
+------------------
 * Fixes related to OS X clang compatibility and added support for Qwt >= 6.1
 * Added copy and paste for curve configurations
 * Fixed segmentation fault when removing curves
