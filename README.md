@@ -27,10 +27,10 @@ This project provides a GUI plugin for visualizing numeric values in multiple
   sudo apt-get install ros-indigo-rqt
   ```
 
-- [variant_topic_tools](https://github.com/ethz-asl/ros-variant)
+- [variant_topic_tools](https://github.com/ethz-asl/variant)
 
   Consult the [installation instructions]
-  (https://github.com/ethz-asl/ros-variant/blob/master/README.md#installation)
+  (https://github.com/ethz-asl/variant/blob/master/README.md#installation)
   provided by this project.
 
 ### Building
