@@ -67,3 +67,17 @@ To delete the default configuration files (in case of problems):
 
 Please report bugs and feature requests on the
 [Issue Tracker](https://github.com/ethz-asl/rqt_multiplot_plugin).
+
+## Build Status
+
+### Devel Job Status
+
+| | Indigo  |
+| --- | --- |
+| rqt_multiplot_plugin | [![Build Status](http://build.ros.org/buildStatus/icon?job=Idev__rqt_multiplot_plugin__ubuntu_trusty_amd64)](http://build.ros.org/job/Idev__rqt_multiplot_plugin__ubuntu_trusty_amd64/) |
+
+### Release Job Status
+
+| | Indigo |
+| --- | --- |
+| rqt_multiplot | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ibin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary)](http://build.ros.org/job/Ibin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary/) |
