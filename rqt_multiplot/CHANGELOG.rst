@@ -2,6 +2,11 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* add install command for resource icons
+* Contributors: Samuel Bachmann
+
 0.0.3 (2016-05-22)
 ------------------
 * fixes for release
