@@ -318,7 +318,7 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="toolTip">
-        <string>Add curve</string>
+        <string>Copy curve</string>
        </property>
        <property name="text">
         <string/>
@@ -356,7 +356,7 @@
         <cursorShape>PointingHandCursor</cursorShape>
        </property>
        <property name="toolTip">
-        <string>Add curve</string>
+        <string>Paste curve</string>
        </property>
        <property name="text">
         <string/>
