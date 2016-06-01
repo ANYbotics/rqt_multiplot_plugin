@@ -48,93 +48,93 @@ endif()
 catkin_python_setup()
 
 set(rqt_multiplot_SRCS
-  src/BagQuery.cpp
-  src/BagReader.cpp
-  src/BitOperations.cpp
-  src/BoundingRectangle.cpp
-  src/ColorOperations.cpp
-  src/Config.cpp
-  src/ConfigComboBox.cpp
-  src/CurveAxisConfig.cpp
-  src/CurveAxisConfigWidget.cpp
-  src/CurveAxisScaleConfig.cpp
-  src/CurveAxisScaleConfigWidget.cpp
-  src/CurveColorConfig.cpp
-  src/CurveColorConfigWidget.cpp
-  src/CurveConfig.cpp
-  src/CurveConfigDialog.cpp
-  src/CurveConfigWidget.cpp
-  src/CurveData.cpp
-  src/CurveDataCircularBuffer.cpp
-  src/CurveDataConfig.cpp
-  src/CurveDataConfigWidget.cpp
-  src/CurveDataList.cpp
-  src/CurveDataSequencer.cpp
-  src/CurveDataVector.cpp
-  src/CurveItemWidget.cpp
-  src/CurveListWidget.cpp
-  src/CurveStyleConfig.cpp
-  src/CurveStyleConfigWidget.cpp
-  src/DataTypeRegistry.cpp
-  src/FileScheme.cpp
-  src/MatchFilterComboBox.cpp
-  src/MatchFilterCompleter.cpp
-  src/MatchFilterCompleterModel.cpp
-  src/Message.cpp
-  src/MessageBroker.cpp
-  src/MessageDefinitionLoader.cpp
-  src/MessageEvent.cpp
-  src/MessageFieldCompleter.cpp
-  src/MessageFieldItem.cpp
-  src/MessageFieldItemModel.cpp
-  src/MessageFieldLineEdit.cpp
-  src/MessageFieldTreeWidget.cpp
-  src/MessageFieldWidget.cpp
-  src/MessageSubscriber.cpp
-  src/MessageSubscriberRegistry.cpp
-  src/MessageTopicComboBox.cpp
-  src/MessageTopicRegistry.cpp
-  src/MessageTypeComboBox.cpp
-  src/MessageTypeRegistry.cpp
-  src/MultiplotConfig.cpp
-  src/MultiplotConfigWidget.cpp
-  src/MultiplotPlugin.cpp
-  src/MultiplotWidget.cpp
-  src/PackageRegistry.cpp
-  src/PackageScheme.cpp
-  src/PenStyleComboBox.cpp
-  src/PenStyleItemDelegate.cpp
-  src/PlotAxesConfig.cpp
-  src/PlotAxesConfigWidget.cpp
-  src/PlotAxisConfig.cpp
-  src/PlotAxisConfigWidget.cpp
-  src/PlotConfig.cpp
-  src/PlotConfigDialog.cpp
-  src/PlotConfigWidget.cpp
-  src/PlotCursor.cpp
-  src/PlotCursorMachine.cpp
-  src/PlotCurve.cpp
-  src/PlotLegend.cpp
-  src/PlotLegendConfig.cpp
-  src/PlotLegendConfigWidget.cpp
-  src/PlotMagnifier.cpp
-  src/PlotPanner.cpp
-  src/PlotTableConfig.cpp
-  src/PlotTableConfigWidget.cpp
-  src/PlotTableWidget.cpp
-  src/PlotWidget.cpp
-  src/PlotZoomer.cpp
-  src/PlotZoomerMachine.cpp
-  src/ProgressChangeEvent.cpp
-  src/ProgressWidget.cpp
-  src/StatusWidget.cpp
-  src/ThreadedTimer.cpp
-  src/UrlComboBox.cpp
-  src/UrlCompleter.cpp
-  src/UrlItem.cpp
-  src/UrlItemModel.cpp
-  src/UrlScheme.cpp
-  src/XmlSettings.cpp
+  src/rqt_multiplot/BagQuery.cpp
+  src/rqt_multiplot/BagReader.cpp
+  src/rqt_multiplot/BitOperations.cpp
+  src/rqt_multiplot/BoundingRectangle.cpp
+  src/rqt_multiplot/ColorOperations.cpp
+  src/rqt_multiplot/Config.cpp
+  src/rqt_multiplot/ConfigComboBox.cpp
+  src/rqt_multiplot/CurveAxisConfig.cpp
+  src/rqt_multiplot/CurveAxisConfigWidget.cpp
+  src/rqt_multiplot/CurveAxisScaleConfig.cpp
+  src/rqt_multiplot/CurveAxisScaleConfigWidget.cpp
+  src/rqt_multiplot/CurveColorConfig.cpp
+  src/rqt_multiplot/CurveColorConfigWidget.cpp
+  src/rqt_multiplot/CurveConfig.cpp
+  src/rqt_multiplot/CurveConfigDialog.cpp
+  src/rqt_multiplot/CurveConfigWidget.cpp
+  src/rqt_multiplot/CurveData.cpp
+  src/rqt_multiplot/CurveDataCircularBuffer.cpp
+  src/rqt_multiplot/CurveDataConfig.cpp
+  src/rqt_multiplot/CurveDataConfigWidget.cpp
+  src/rqt_multiplot/CurveDataList.cpp
+  src/rqt_multiplot/CurveDataSequencer.cpp
+  src/rqt_multiplot/CurveDataVector.cpp
+  src/rqt_multiplot/CurveItemWidget.cpp
+  src/rqt_multiplot/CurveListWidget.cpp
+  src/rqt_multiplot/CurveStyleConfig.cpp
+  src/rqt_multiplot/CurveStyleConfigWidget.cpp
+  src/rqt_multiplot/DataTypeRegistry.cpp
+  src/rqt_multiplot/FileScheme.cpp
+  src/rqt_multiplot/MatchFilterComboBox.cpp
+  src/rqt_multiplot/MatchFilterCompleter.cpp
+  src/rqt_multiplot/MatchFilterCompleterModel.cpp
+  src/rqt_multiplot/Message.cpp
+  src/rqt_multiplot/MessageBroker.cpp
+  src/rqt_multiplot/MessageDefinitionLoader.cpp
+  src/rqt_multiplot/MessageEvent.cpp
+  src/rqt_multiplot/MessageFieldCompleter.cpp
+  src/rqt_multiplot/MessageFieldItem.cpp
+  src/rqt_multiplot/MessageFieldItemModel.cpp
+  src/rqt_multiplot/MessageFieldLineEdit.cpp
+  src/rqt_multiplot/MessageFieldTreeWidget.cpp
+  src/rqt_multiplot/MessageFieldWidget.cpp
+  src/rqt_multiplot/MessageSubscriber.cpp
+  src/rqt_multiplot/MessageSubscriberRegistry.cpp
+  src/rqt_multiplot/MessageTopicComboBox.cpp
+  src/rqt_multiplot/MessageTopicRegistry.cpp
+  src/rqt_multiplot/MessageTypeComboBox.cpp
+  src/rqt_multiplot/MessageTypeRegistry.cpp
+  src/rqt_multiplot/MultiplotConfig.cpp
+  src/rqt_multiplot/MultiplotConfigWidget.cpp
+  src/rqt_multiplot/MultiplotPlugin.cpp
+  src/rqt_multiplot/MultiplotWidget.cpp
+  src/rqt_multiplot/PackageRegistry.cpp
+  src/rqt_multiplot/PackageScheme.cpp
+  src/rqt_multiplot/PenStyleComboBox.cpp
+  src/rqt_multiplot/PenStyleItemDelegate.cpp
+  src/rqt_multiplot/PlotAxesConfig.cpp
+  src/rqt_multiplot/PlotAxesConfigWidget.cpp
+  src/rqt_multiplot/PlotAxisConfig.cpp
+  src/rqt_multiplot/PlotAxisConfigWidget.cpp
+  src/rqt_multiplot/PlotConfig.cpp
+  src/rqt_multiplot/PlotConfigDialog.cpp
+  src/rqt_multiplot/PlotConfigWidget.cpp
+  src/rqt_multiplot/PlotCursor.cpp
+  src/rqt_multiplot/PlotCursorMachine.cpp
+  src/rqt_multiplot/PlotCurve.cpp
+  src/rqt_multiplot/PlotLegend.cpp
+  src/rqt_multiplot/PlotLegendConfig.cpp
+  src/rqt_multiplot/PlotLegendConfigWidget.cpp
+  src/rqt_multiplot/PlotMagnifier.cpp
+  src/rqt_multiplot/PlotPanner.cpp
+  src/rqt_multiplot/PlotTableConfig.cpp
+  src/rqt_multiplot/PlotTableConfigWidget.cpp
+  src/rqt_multiplot/PlotTableWidget.cpp
+  src/rqt_multiplot/PlotWidget.cpp
+  src/rqt_multiplot/PlotZoomer.cpp
+  src/rqt_multiplot/PlotZoomerMachine.cpp
+  src/rqt_multiplot/ProgressChangeEvent.cpp
+  src/rqt_multiplot/ProgressWidget.cpp
+  src/rqt_multiplot/StatusWidget.cpp
+  src/rqt_multiplot/ThreadedTimer.cpp
+  src/rqt_multiplot/UrlComboBox.cpp
+  src/rqt_multiplot/UrlCompleter.cpp
+  src/rqt_multiplot/UrlItem.cpp
+  src/rqt_multiplot/UrlItemModel.cpp
+  src/rqt_multiplot/UrlScheme.cpp
+  src/rqt_multiplot/XmlSettings.cpp
 )
 
 set(rqt_multiplot_HDRS
@@ -228,25 +228,25 @@ set(rqt_multiplot_HDRS
 )
 
 set(rqt_multiplot_UIS
-  src/CurveAxisConfigWidget.ui
-  src/CurveAxisScaleConfigWidget.ui
-  src/CurveColorConfigWidget.ui
-  src/CurveConfigDialog.ui
-  src/CurveConfigWidget.ui
-  src/CurveDataConfigWidget.ui
-  src/CurveItemWidget.ui
-  src/CurveStyleConfigWidget.ui
-  src/MessageFieldWidget.ui
-  src/MultiplotConfigWidget.ui
-  src/MultiplotWidget.ui
-  src/PlotAxesConfigWidget.ui
-  src/PlotAxisConfigWidget.ui
-  src/PlotConfigDialog.ui
-  src/PlotConfigWidget.ui
-  src/PlotLegendConfigWidget.ui
-  src/PlotTableConfigWidget.ui
-  src/PlotWidget.ui
-  src/ProgressWidget.ui
+  src/rqt_multiplot/CurveAxisConfigWidget.ui
+  src/rqt_multiplot/CurveAxisScaleConfigWidget.ui
+  src/rqt_multiplot/CurveColorConfigWidget.ui
+  src/rqt_multiplot/CurveConfigDialog.ui
+  src/rqt_multiplot/CurveConfigWidget.ui
+  src/rqt_multiplot/CurveDataConfigWidget.ui
+  src/rqt_multiplot/CurveItemWidget.ui
+  src/rqt_multiplot/CurveStyleConfigWidget.ui
+  src/rqt_multiplot/MessageFieldWidget.ui
+  src/rqt_multiplot/MultiplotConfigWidget.ui
+  src/rqt_multiplot/MultiplotWidget.ui
+  src/rqt_multiplot/PlotAxesConfigWidget.ui
+  src/rqt_multiplot/PlotAxisConfigWidget.ui
+  src/rqt_multiplot/PlotConfigDialog.ui
+  src/rqt_multiplot/PlotConfigWidget.ui
+  src/rqt_multiplot/PlotLegendConfigWidget.ui
+  src/rqt_multiplot/PlotTableConfigWidget.ui
+  src/rqt_multiplot/PlotWidget.ui
+  src/rqt_multiplot/ProgressWidget.ui
 )
 
 set(rqt_multiplot_INCLUDE_DIRECTORIES
@@ -302,6 +302,13 @@ class_loader_hide_library_symbols(rqt_multiplot)
 
 install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+)
+
+install(
+  DIRECTORY resource
+  DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+  FILES_MATCHING
+  PATTERN "*.png"
 )
 
 install(TARGETS rqt_multiplot
