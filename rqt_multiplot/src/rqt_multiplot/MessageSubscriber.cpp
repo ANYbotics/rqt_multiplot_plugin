@@ -135,6 +135,25 @@ void MessageSubscriber::callback(const variant_topic_tools::MessageVariant&
   QApplication::postEvent(this, messageEvent);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+void MessageSubscriber::connectNotify(const QMetaMethod& signal) {
+  if (signal == QMetaMethod::fromSignal(&MessageSubscriber::messageReceived) &&
+      !subscriber_)
+    subscribe();
+}
+
+void MessageSubscriber::disconnectNotify(const QMetaMethod& signal) {
+  if (!receivers(QMetaObject::normalizedSignature(
+      SIGNAL(messageReceived(const QString&, const Message&))))) {
+    if (subscriber_)
+      unsubscribe();
+
+    emit aboutToBeDestroyed();
+
+    deleteLater();
+  }
+}
+#else
 void MessageSubscriber::connectNotify(const char* signal) {
   if ((QByteArray(signal) == QMetaObject::normalizedSignature(
       SIGNAL(messageReceived(const QString&, const Message&)))) &&
@@ -153,5 +172,6 @@ void MessageSubscriber::disconnectNotify(const char* signal) {
     deleteLater();
   }
 }
+#endif
 
 }
