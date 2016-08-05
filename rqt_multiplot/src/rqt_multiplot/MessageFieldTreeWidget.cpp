@@ -38,8 +38,13 @@ MessageFieldTreeWidget::MessageFieldTreeWidget(QWidget* parent) :
   setColumnCount(2);
   headerItem()->setText(0, "Name");
   headerItem()->setText(1, "Type");
+
+#if QT_VERSION >= 0x050000
+  header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
   header()->setResizeMode(QHeaderView::ResizeToContents);
-    
+#endif
+
   connect(this, SIGNAL(currentItemChanged(QTreeWidgetItem*,
     QTreeWidgetItem*)), this, SLOT(currentItemChanged(QTreeWidgetItem*,
     QTreeWidgetItem*)));

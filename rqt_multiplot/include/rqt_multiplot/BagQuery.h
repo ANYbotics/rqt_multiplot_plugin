@@ -51,8 +51,12 @@ namespace rqt_multiplot {
     variant_topic_tools::MessageSerializer serializer_;
     
     void callback(const rosbag::MessageInstance& instance);
-    
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    void disconnectNotify(const QMetaMethod& signal);
+#else
     void disconnectNotify(const char* signal);
+#endif
   };
 };
 

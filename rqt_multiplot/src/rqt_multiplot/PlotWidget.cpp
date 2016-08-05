@@ -23,6 +23,7 @@
 #include <QFontMetrics>
 #include <QPainter>
 #include <QTextStream>
+#include <QMimeData>
 
 #include <qwt/qwt_plot_canvas.h>
 #include <qwt/qwt_plot_curve.h>

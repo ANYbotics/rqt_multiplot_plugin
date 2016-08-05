@@ -22,6 +22,7 @@
 #include <QMap>
 #include <QObject>
 #include <QString>
+#include <QMetaMethod>
 
 #include <ros/node_handle.h>
 
@@ -71,9 +72,14 @@ namespace rqt_multiplot {
 
     void callback(const variant_topic_tools::MessageVariant& variant,
       const ros::Time& receiptTime);
-    
+
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+    void connectNotify(const QMetaMethod& signal);
+    void disconnectNotify(const QMetaMethod& signal);
+#else
     void connectNotify(const char* signal);
     void disconnectNotify(const char* signal);
+#endif
   };
 };
 

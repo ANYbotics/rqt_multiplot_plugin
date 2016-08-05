@@ -104,6 +104,16 @@ void BagQuery::callback(const rosbag::MessageInstance& instance) {
   QApplication::postEvent(this, messageEvent);
 }
 
+#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+void BagQuery::disconnectNotify(const QMetaMethod& signal) {
+  if (!receivers(QMetaObject::normalizedSignature(
+      SIGNAL(messageReceived(const QString&, const Message&))))) {
+    emit aboutToBeDestroyed();
+
+    deleteLater();
+  }
+}
+#else
 void BagQuery::disconnectNotify(const char* signal) {
   if (!receivers(QMetaObject::normalizedSignature(
       SIGNAL(messageReceived(const QString&, const Message&))))) {
@@ -112,5 +122,6 @@ void BagQuery::disconnectNotify(const char* signal) {
     deleteLater();
   }
 }
+#endif
 
 }
