@@ -2,8 +2,8 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.5 (2016-08-05)
+------------------
 * fixes `#2 <https://github.com/ethz-asl/rqt_multiplot_plugin/issues/2>`_ a QT API change
 * rename two tooltips (copy and past curve) in PlotConfigWidget
 * qt5 ready
