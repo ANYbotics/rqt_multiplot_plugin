@@ -127,6 +127,7 @@ set(rqt_multiplot_SRCS
   src/rqt_multiplot/PlotZoomerMachine.cpp
   src/rqt_multiplot/ProgressChangeEvent.cpp
   src/rqt_multiplot/ProgressWidget.cpp
+  src/rqt_multiplot/QwtPlotCustom.cpp
   src/rqt_multiplot/StatusWidget.cpp
   src/rqt_multiplot/ThreadedTimer.cpp
   src/rqt_multiplot/UrlComboBox.cpp
@@ -135,7 +136,6 @@ set(rqt_multiplot_SRCS
   src/rqt_multiplot/UrlItemModel.cpp
   src/rqt_multiplot/UrlScheme.cpp
   src/rqt_multiplot/XmlSettings.cpp
-  src/rqt_multiplot/QwtPlotCustom.cpp
 )
 
 set(rqt_multiplot_HDRS
@@ -218,6 +218,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/PlotZoomerMachine.h
   include/rqt_multiplot/ProgressChangeEvent.h
   include/rqt_multiplot/ProgressWidget.h
+  include/rqt_multiplot/QwtPlotCustom.h
   include/rqt_multiplot/StatusWidget.h
   include/rqt_multiplot/ThreadedTimer.h
   include/rqt_multiplot/UrlComboBox.h
@@ -226,7 +227,6 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/UrlItemModel.h
   include/rqt_multiplot/UrlScheme.h
   include/rqt_multiplot/XmlSettings.h
-  include/rqt_multiplot/QwtPlotCustom.h
 )
 
 set(rqt_multiplot_UIS
