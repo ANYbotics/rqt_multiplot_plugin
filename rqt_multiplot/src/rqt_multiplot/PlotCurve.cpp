@@ -175,9 +175,14 @@ void PlotCurve::detach() {
 }
 
 void PlotCurve::run() {
-  if (paused_) {
+  CurveAxisConfig* xAxisConfig = config_->getAxisConfig(CurveConfig::X);
+  CurveAxisConfig* yAxisConfig = config_->getAxisConfig(CurveConfig::Y);
+
+  if (paused_ &&
+      !xAxisConfig->getField().isEmpty() &&
+      !yAxisConfig->getField().isEmpty()) {
     dataSequencer_->subscribe();
-    
+
     paused_ = false;
   }
 }
@@ -185,7 +190,7 @@ void PlotCurve::run() {
 void PlotCurve::pause() {
   if (!paused_) {
     dataSequencer_->unsubscribe();
-    
+
     paused_ = true;
   }
 }
