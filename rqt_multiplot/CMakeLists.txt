@@ -69,6 +69,7 @@ set(rqt_multiplot_SRCS
   src/rqt_multiplot/CurveDataConfig.cpp
   src/rqt_multiplot/CurveDataConfigWidget.cpp
   src/rqt_multiplot/CurveDataList.cpp
+  src/rqt_multiplot/CurveDataListTimeFrame.cpp
   src/rqt_multiplot/CurveDataSequencer.cpp
   src/rqt_multiplot/CurveDataVector.cpp
   src/rqt_multiplot/CurveItemWidget.cpp
@@ -159,6 +160,7 @@ set(rqt_multiplot_HDRS
   include/rqt_multiplot/CurveDataConfig.h
   include/rqt_multiplot/CurveDataConfigWidget.h
   include/rqt_multiplot/CurveDataList.h
+  include/rqt_multiplot/CurveDataListTimeFrame.h
   include/rqt_multiplot/CurveDataSequencer.h
   include/rqt_multiplot/CurveDataVector.h
   include/rqt_multiplot/CurveItemWidget.h

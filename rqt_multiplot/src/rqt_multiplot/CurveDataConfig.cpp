@@ -25,10 +25,11 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 CurveDataConfig::CurveDataConfig(QObject* parent, Type type, size_t
-    circularBufferCapacity) :
+    circularBufferCapacity, double timeFrameLength) :
   Config(parent),
   type_(type),
-  circularBufferCapacity_(circularBufferCapacity) {
+  circularBufferCapacity_(circularBufferCapacity),
+  timeFrameLength_(timeFrameLength) {
 }
 
 CurveDataConfig::~CurveDataConfig() {
@@ -64,6 +65,19 @@ size_t CurveDataConfig::getCircularBufferCapacity() const {
   return circularBufferCapacity_;
 }
 
+void CurveDataConfig::setTimeFrameLength(double length) {
+  if (length != timeFrameLength_) {
+    timeFrameLength_ = length;
+
+    emit timeFrameLengthChanged(length);
+    emit changed();
+  }
+}
+
+double CurveDataConfig::getTimeFrameLength() const {
+  return timeFrameLength_;
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -72,32 +86,40 @@ void CurveDataConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
   settings.setValue("circular_buffer_capacity", QVariant::
     fromValue<qulonglong>(circularBufferCapacity_));
+  settings.setValue("time_frame_length", QVariant::
+    fromValue<qreal>(timeFrameLength_));
 }
 
 void CurveDataConfig::load(QSettings& settings) {
   setType(static_cast<Type>(settings.value("type", Vector).toInt()));
   setCircularBufferCapacity(settings.value("circular_buffer_capacity",
     10000).toULongLong());
+  setTimeFrameLength(settings.value("time_frame_length", 10.0).toReal());
 }
 
 void CurveDataConfig::reset() {
   setType(Vector);
   setCircularBufferCapacity(10000);
+  setTimeFrameLength(10.0);
 }
 
 void CurveDataConfig::write(QDataStream& stream) const {
   stream << (int)type_;
   stream << (quint64)circularBufferCapacity_;
+  stream << (qreal)timeFrameLength_;
 }
 
 void CurveDataConfig::read(QDataStream& stream) {
   int type;
   quint64 circularBufferCapacity;
+  qreal timeFrameLength;
   
   stream >> type;
   setType(static_cast<Type>(type));
   stream >> circularBufferCapacity;
   setCircularBufferCapacity(circularBufferCapacity);
+  stream >> timeFrameLength;
+  setTimeFrameLength(timeFrameLength);
 }
 
 /*****************************************************************************/
@@ -107,6 +129,7 @@ void CurveDataConfig::read(QDataStream& stream) {
 CurveDataConfig& CurveDataConfig::operator=(const CurveDataConfig& src) {
   setType(src.type_);
   setCircularBufferCapacity(src.circularBufferCapacity_);
+  setTimeFrameLength(src.timeFrameLength_);
   
   return *this;
 }
