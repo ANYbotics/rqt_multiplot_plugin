@@ -21,6 +21,7 @@
 
 #include <QByteArray>
 #include <QCloseEvent>
+#include <QUrl>
 
 #include <boost/program_options.hpp>
 
@@ -122,9 +123,11 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
       argc+1, argv, options), variables);
     boost::program_options::notify(variables);
 
-    if (variables.count("multiplot-config"))
-      widget_->loadConfig(QString::fromStdString(
+    if (variables.count("multiplot-config")) {
+      QUrl url = QUrl::fromUserInput(QString::fromStdString(
         variables["multiplot-config"].as<std::string>()));
+      widget_->loadConfig(url.toString());
+    }
     if (variables.count("multiplot-bag"))
       widget_->readBag(QString::fromStdString(
         variables["multiplot-bag"].as<std::string>()));
