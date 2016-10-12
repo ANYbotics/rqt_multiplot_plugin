@@ -25,24 +25,25 @@
 
 namespace rqt_multiplot {
   class MultiplotWidget;
-    
+
   class MultiplotPlugin :
     public rqt_gui_cpp::Plugin {
   Q_OBJECT
   public:
     MultiplotPlugin();
     virtual ~MultiplotPlugin();
-    
+
     void initPlugin(qt_gui_cpp::PluginContext& context);
     void shutdownPlugin();
     void saveSettings(qt_gui_cpp::Settings& pluginSettings,
       qt_gui_cpp::Settings& instanceSettings) const;
     void restoreSettings(const qt_gui_cpp::Settings& pluginSettings,
       const qt_gui_cpp::Settings& instanceSettings);
-    
+
   private:
     MultiplotWidget* widget_;
-    
+    bool runAllPlotsOnStart_;
+
     void parseArguments(const QStringList& arguments);
   };
 };
