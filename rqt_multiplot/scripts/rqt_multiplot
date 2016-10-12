@@ -12,11 +12,12 @@ def add_arguments(parser):
         default="",
         action='store',
         help='Load an xml plot configuration')
-    group.add_argument(
-        '--multiplot-bag',
-        default="",
-        action='store',
-        help='Load a bag into multiplot')
+    # needs more tlc (i.e. doesn't actually work) - see https://github.com/ethz-asl/rqt_multiplot_plugin/pull/10
+    # group.add_argument(
+    #     '--multiplot-bag',
+    #     default="",
+    #     action='store',
+    #     help='Load a bag into multiplot')
 
 main = Main()
 sys.exit(main.main(sys.argv, standalone='MultiplotPlugin', plugin_argument_provider=add_arguments))
