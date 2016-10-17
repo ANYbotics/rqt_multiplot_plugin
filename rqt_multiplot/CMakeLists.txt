@@ -318,9 +318,6 @@ install(TARGETS rqt_multiplot
 )
 
 install(PROGRAMS scripts/rqt_multiplot
-  DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-)
-install(PROGRAMS scripts/rqt_multiplot
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
 )
 install(DIRECTORY include/${PROJECT_NAME}/
