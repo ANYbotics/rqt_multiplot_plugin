@@ -18,6 +18,7 @@
 
 #include <rqt_multiplot/CurveDataCircularBuffer.h>
 #include <rqt_multiplot/CurveDataList.h>
+#include <rqt_multiplot/CurveDataListTimeFrame.h>
 #include <rqt_multiplot/CurveDataSequencer.h>
 #include <rqt_multiplot/CurveDataVector.h>
 #include <rqt_multiplot/PlotWidget.h>
@@ -266,6 +267,8 @@ void PlotCurve::configDataConfigChanged() {
     data_ = new CurveDataList();
   if (config->getType() == CurveDataConfig::CircularBuffer)
     data_ = new CurveDataCircularBuffer(config->getCircularBufferCapacity());
+  if (config->getType() == CurveDataConfig::TimeFrame)
+    data_ = new CurveDataListTimeFrame(config->getTimeFrameLength());
   else
     data_ = new CurveDataVector();
   

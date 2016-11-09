@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 by Ralf Kaestner                                        *
+ * Copyright (C) 2015 by Ralf Kaestner, Samuel Bachmann                       *
  * ralf.kaestner@gmail.com                                                    *
  *                                                                            *
  * This program is free software; you can redistribute it and/or modify       *
@@ -16,45 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_CURVE_DATA_CONFIG_WIDGET_H
-#define RQT_MULTIPLOT_CURVE_DATA_CONFIG_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_LIST_TIME_FRAME_H
+#define RQT_MULTIPLOT_CURVE_DATA_LIST_TIME_FRAME_H
 
-#include <QWidget>
+#include <QList>
 
-#include <rqt_multiplot/CurveDataConfig.h>
-
-namespace Ui {
-  class CurveDataConfigWidget;
-};
+#include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class CurveDataConfigWidget :
-    public QWidget {
-  Q_OBJECT
+  class CurveDataListTimeFrame :
+    public CurveData {
   public:
-    CurveDataConfigWidget(QWidget* parent = 0);
-    virtual ~CurveDataConfigWidget();
+    CurveDataListTimeFrame(double length = 10.0);
+    ~CurveDataListTimeFrame();
+
+    size_t getNumPoints() const;
+    QPointF getPoint(size_t index) const;
+    BoundingRectangle getBounds() const;
     
-    void setConfig(CurveDataConfig* range);
-    CurveDataConfig* getConfig() const;
+    void appendPoint(const QPointF& point);
+    void clearPoints();
     
   private:
-    Ui::CurveDataConfigWidget* ui_;
-    
-    CurveDataConfig* config_;
-    
-  private slots:
-    void configTypeChanged(int type);
-    void configCircularBufferCapacityChanged(size_t capacity);
-    void configTimeFrameLengthChanged(double length);
-    
-    void radioButtonVectorToggled(bool checked);
-    void radioButtonListToggled(bool checked);
-    void radioButtonCircularBufferToggled(bool checked);
-    void radioButtonTimeFrameToggled(bool checked);
-    
-    void spinBoxCircularBufferCapacityValueChanged(int value);
-    void doubleSpinBoxTimeFrameLengthValueChanged(double value);
+    double timeFrameLength_;
+    QList<QPointF> points_;
+    BoundingRectangle bounds_;
   };
 };
 

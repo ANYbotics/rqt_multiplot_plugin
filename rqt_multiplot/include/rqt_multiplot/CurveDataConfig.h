@@ -29,17 +29,20 @@ namespace rqt_multiplot {
     enum Type {
       Vector,
       List,
-      CircularBuffer
+      CircularBuffer,
+      TimeFrame
     };
     
     CurveDataConfig(QObject* parent = 0, Type type = Vector, size_t
-      circularBufferCapacity = 1000);
+      circularBufferCapacity = 1000, double timeFrameLength = 10.0);
     ~CurveDataConfig();
     
     void setType(Type type);
     Type getType() const;
     void setCircularBufferCapacity(size_t capacity);
     size_t getCircularBufferCapacity() const;
+    void setTimeFrameLength(double length);
+    double getTimeFrameLength() const;
     
     void save(QSettings& settings) const;
     void load(QSettings& settings);
@@ -53,10 +56,12 @@ namespace rqt_multiplot {
   signals:
     void typeChanged(int type);
     void circularBufferCapacityChanged(size_t capacity);
+    void timeFrameLengthChanged(double length);
     
   private:
     Type type_;
     size_t circularBufferCapacity_;
+    double timeFrameLength_;
   };
 };
 
