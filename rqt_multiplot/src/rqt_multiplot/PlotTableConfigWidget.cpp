@@ -189,7 +189,9 @@ PlotTableWidget* PlotTableConfigWidget::getPlotTableWidget() const {
 }
 
 void PlotTableConfigWidget::runPlots() {
-  if (plotTable_) { plotTable_->runPlots(); }
+  if (plotTable_) {
+    plotTable_->runPlots();
+  }
 }
 
 /*****************************************************************************/
