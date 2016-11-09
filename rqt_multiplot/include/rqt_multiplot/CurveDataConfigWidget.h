@@ -46,12 +46,15 @@ namespace rqt_multiplot {
   private slots:
     void configTypeChanged(int type);
     void configCircularBufferCapacityChanged(size_t capacity);
+    void configTimeFrameLengthChanged(double length);
     
     void radioButtonVectorToggled(bool checked);
     void radioButtonListToggled(bool checked);
     void radioButtonCircularBufferToggled(bool checked);
+    void radioButtonTimeFrameToggled(bool checked);
     
     void spinBoxCircularBufferCapacityValueChanged(int value);
+    void doubleSpinBoxTimeFrameLengthValueChanged(double value);
   };
 };
 

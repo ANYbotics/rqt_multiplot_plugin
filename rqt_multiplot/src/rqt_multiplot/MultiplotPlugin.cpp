@@ -21,6 +21,7 @@
 
 #include <QByteArray>
 #include <QCloseEvent>
+#include <QUrl>
 
 #include <boost/program_options.hpp>
 
@@ -39,7 +40,8 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 MultiplotPlugin::MultiplotPlugin() :
-  widget_(0) {
+  widget_(0),
+  runAllPlotsOnStart_(false) {
   setObjectName("MultiplotPlugin");
 }
 
@@ -52,9 +54,9 @@ MultiplotPlugin::~MultiplotPlugin() {
 
 void MultiplotPlugin::initPlugin(qt_gui_cpp::PluginContext& context) {
   widget_ = new MultiplotWidget();
-  
+
   context.addWidget(widget_);
-  
+
   parseArguments(context.argv());
 }
 
@@ -65,12 +67,12 @@ void MultiplotPlugin::saveSettings(qt_gui_cpp::Settings& pluginSettings,
     qt_gui_cpp::Settings& instanceSettings) const {
   size_t maxConfigHistoryLength = widget_->getMaxConfigHistoryLength();
   QStringList configHistory = widget_->getConfigHistory();
-  
+
   instanceSettings.remove("history");
-  
+
   instanceSettings.setValue("history/max_length",
     (unsigned int)maxConfigHistoryLength);
-  
+
   for (size_t i = 0; i < configHistory.count(); ++i)
     instanceSettings.setValue("history/config_"+QString::number(i),
       configHistory[i]);
@@ -79,8 +81,12 @@ void MultiplotPlugin::saveSettings(qt_gui_cpp::Settings& pluginSettings,
 void MultiplotPlugin::restoreSettings(const qt_gui_cpp::Settings&
     pluginSettings, const qt_gui_cpp::Settings& instanceSettings) {
   size_t maxConfigHistoryLength = widget_->getMaxConfigHistoryLength();
-  QStringList configHistory;
-  
+
+  // the config history may already be populated with one element
+  // loaded from the command line, make sure that is kept before
+  // appending more.
+  QStringList configHistory = widget_->getConfigHistory();
+
   maxConfigHistoryLength = instanceSettings.value("history/max_length",
     (unsigned int)maxConfigHistoryLength).toUInt();
 
@@ -88,15 +94,18 @@ void MultiplotPlugin::restoreSettings(const qt_gui_cpp::Settings&
       number(configHistory.count())))
     configHistory.append(instanceSettings.value("history/config_"+
       QString::number(configHistory.count())).toString());
-    
+
   widget_->setMaxConfigHistoryLength(maxConfigHistoryLength);
   widget_->setConfigHistory(configHistory);
+  if (runAllPlotsOnStart_) {
+    widget_->runPlots();
+  }
 }
 
 void MultiplotPlugin::parseArguments(const QStringList& arguments) {
   size_t argc = arguments.count();
   std::vector<QByteArray> args;
-  
+
   const char *argv[argc+1];
   argv[0] = "rqt_multiplot";
 
@@ -107,20 +116,26 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
 
   boost::program_options::variables_map variables;
   boost::program_options::options_description options;
-  
+
   options.add_options()
     ("multiplot-config,c", boost::program_options::value<std::string>(), "");
   options.add_options()
     ("multiplot-bag,b", boost::program_options::value<std::string>(), "");
+  options.add_options()
+    ("multiplot-run-all,r", boost::program_options::bool_switch(
+      &runAllPlotsOnStart_), "");
+
 
   try {
     boost::program_options::store(boost::program_options::parse_command_line(
       argc+1, argv, options), variables);
     boost::program_options::notify(variables);
 
-    if (variables.count("multiplot-config"))
-      widget_->loadConfig(QString::fromStdString(
+    if (variables.count("multiplot-config")) {
+      QUrl url = QUrl::fromUserInput(QString::fromStdString(
         variables["multiplot-config"].as<std::string>()));
+      widget_->loadConfig(url.toString());
+    }
     if (variables.count("multiplot-bag"))
       widget_->readBag(QString::fromStdString(
         variables["multiplot-bag"].as<std::string>()));

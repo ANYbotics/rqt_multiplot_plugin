@@ -35,26 +35,26 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
   messageTypeRegistry_(new MessageTypeRegistry(this)),
   packageRegistry_(new PackageRegistry(this)) {
   ui_->setupUi(this);
-  
+
   ui_->configWidget->setConfig(config_);
   ui_->plotTableConfigWidget->setConfig(config_->getTableConfig());
   ui_->plotTableConfigWidget->setPlotTable(ui_->plotTableWidget);
   ui_->plotTableWidget->setConfig(config_->getTableConfig());
-  
+
   connect(ui_->configWidget, SIGNAL(currentConfigModifiedChanged(bool)),
     this, SLOT(configWidgetCurrentConfigModifiedChanged(bool)));
   connect(ui_->configWidget, SIGNAL(currentConfigUrlChanged(const QString&)),
     this, SLOT(configWidgetCurrentConfigUrlChanged(const QString&)));
-  
+
   configWidgetCurrentConfigUrlChanged(QString());
-  
+
   messageTypeRegistry_->update();
   packageRegistry_->update();
 }
 
 MultiplotWidget::~MultiplotWidget() {
   confirmClose();
-  
+
   delete ui_;
 }
 
@@ -69,16 +69,16 @@ MultiplotConfig* MultiplotWidget::getConfig() const {
 QDockWidget* MultiplotWidget::getDockWidget() const {
   QDockWidget* dockWidget = 0;
   QObject* currentParent = parent();
-  
+
   while (currentParent) {
     dockWidget = qobject_cast<QDockWidget*>(currentParent);
-    
+
     if (dockWidget)
       break;
-    
+
     currentParent = currentParent->parent();
   }
-  
+
   return dockWidget;
 }
 
@@ -98,6 +98,10 @@ QStringList MultiplotWidget::getConfigHistory() const {
   return ui_->configWidget->getConfigUrlHistory();
 }
 
+void MultiplotWidget::runPlots() {
+  ui_->plotTableConfigWidget->runPlots();
+}
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
@@ -105,6 +109,7 @@ QStringList MultiplotWidget::getConfigHistory() const {
 void MultiplotWidget::loadConfig(const QString& url) {
   ui_->configWidget->loadConfig(url);
 }
+
 
 void MultiplotWidget::readBag(const QString& url) {
 //   ui_->bagReaderWidget->readBag(url);
@@ -127,15 +132,15 @@ void MultiplotWidget::configWidgetCurrentConfigModifiedChanged(bool
 void MultiplotWidget::configWidgetCurrentConfigUrlChanged(const QString&
     url) {
   QString windowTitle = "Multiplot";
-  
+
   if (!url.isEmpty())
     windowTitle += " - ["+url+"]";
-  else 
+  else
     windowTitle += " - [untitled]";
-    
+
   if (ui_->configWidget->isCurrentConfigModified())
     windowTitle += "*";
-    
+
   setWindowTitle(windowTitle);
 }
 

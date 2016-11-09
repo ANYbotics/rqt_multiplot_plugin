@@ -14,11 +14,11 @@ QwtPlotCustom::QwtPlotCustom(const QwtText &title, QWidget *p)
 }
 
 QSize QwtPlotCustom::sizeHint() const {
-  return QSize(100, 100);
+  return QSize(50, 50);
 }
 
 QSize QwtPlotCustom::minimumSizeHint() const {
-  return QSize(100, 100);
+  return QSize(50, 50);
 }
 
 }

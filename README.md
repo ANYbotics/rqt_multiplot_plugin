@@ -35,17 +35,28 @@ This project provides a GUI plugin for visualizing numeric values in multiple 2D
     sudo apt-get install libqwt-dev
     ```
 
-### Building
+### ROS Distribution
+
+The package is in the ROS (indigo, jade, kinetic) distribution.
+
+```shell
+sudo apt-get update
+sudo apt-get install ros-indigo-rqt-multiplot
+sudo apt-get install ros-jade-rqt-multiplot
+sudo apt-get install ros-kinetic-rqt-multiplot
+```
+
+### Building from Source
 
 Create a symlink in your catkin source folder, e.g.:
 
 ```shell
 ln -s ~/git/rqt_multiplot_plugin ~/catkin_ws/src
 cd ~/catkin_ws
-catkin_make
+catkin build rqt_multiplot
 ```
 
-###Debian Package
+### Debian Package
 
 ```shell
 sudo add-apt-repository ppa:ethz-asl/ros
@@ -75,15 +86,20 @@ To delete the default configuration files (in case of problems):
 rqt --clear-config
 ```
 
+### Import ROS Bag
+
+To plot an imported ROS bag, the desired curves have to be configured before 
+importing the bag.
+
 ### Example Views
 
 ![enter image description here](https://lh3.googleusercontent.com/-EF4aCvEV3ZU/V0Vku40VueI/AAAAAAAAajg/rdRvc-YWkPw50gPOGbGrtMtzMjgmBANfACLcB/s700/multiplot_1_legend.png "Overview")
 
-####Configure Plot
+#### Configure Plot
 
 ![enter image description here](https://lh3.googleusercontent.com/-E14yRrgKars/V0VlFJdDX5I/AAAAAAAAajo/2Nfo_ovj5dABrF7OQPExlMJY1gMAKK43QCLcB/s700/multiplot_configure_plot.png "Configure plot")
 
-####Edit Curve
+#### Edit Curve
 
 ![enter image description here](https://lh3.googleusercontent.com/-Ei_j84gwJ7U/V0VlWrjUumI/AAAAAAAAaj0/dEB0dkE2YJ8rCWpmql6ZW4f6iMlJgxv8ACLcB/s700/multiplot_edit_curve.png "Edit curve")
 

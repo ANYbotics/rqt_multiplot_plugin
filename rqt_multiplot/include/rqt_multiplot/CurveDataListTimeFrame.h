@@ -1,5 +1,5 @@
 /******************************************************************************
- * Copyright (C) 2015 by Ralf Kaestner                                        *
+ * Copyright (C) 2015 by Ralf Kaestner, Samuel Bachmann                       *
  * ralf.kaestner@gmail.com                                                    *
  *                                                                            *
  * This program is free software; you can redistribute it and/or modify       *
@@ -16,54 +16,31 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#ifndef RQT_MULTIPLOT_MULTIPLOT_WIDGET_H
-#define RQT_MULTIPLOT_MULTIPLOT_WIDGET_H
+#ifndef RQT_MULTIPLOT_CURVE_DATA_LIST_TIME_FRAME_H
+#define RQT_MULTIPLOT_CURVE_DATA_LIST_TIME_FRAME_H
 
-#include <QDockWidget>
-#include <QStringList>
-#include <QWidget>
+#include <QList>
 
-#include <rqt_multiplot/MessageTypeRegistry.h>
-#include <rqt_multiplot/MultiplotConfig.h>
-#include <rqt_multiplot/PackageRegistry.h>
-
-namespace Ui {
-  class MultiplotWidget;
-};
+#include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class MultiplotWidget :
-    public QWidget {
-  Q_OBJECT
+  class CurveDataListTimeFrame :
+    public CurveData {
   public:
-    MultiplotWidget(QWidget* parent = 0);
-    virtual ~MultiplotWidget();
+    CurveDataListTimeFrame(double length = 10.0);
+    ~CurveDataListTimeFrame();
 
-    MultiplotConfig* getConfig() const;
-    QDockWidget* getDockWidget() const;
-
-    void setMaxConfigHistoryLength(size_t length);
-    size_t getMaxConfigHistoryLength() const;
-    void setConfigHistory(const QStringList& history);
-    QStringList getConfigHistory() const;
-    void runPlots();
-
-    void loadConfig(const QString& url);
-    void readBag(const QString& url);
-
-    bool confirmClose();
-
+    size_t getNumPoints() const;
+    QPointF getPoint(size_t index) const;
+    BoundingRectangle getBounds() const;
+    
+    void appendPoint(const QPointF& point);
+    void clearPoints();
+    
   private:
-    Ui::MultiplotWidget* ui_;
-
-    MultiplotConfig* config_;
-
-    MessageTypeRegistry* messageTypeRegistry_;
-    PackageRegistry* packageRegistry_;
-
-  private slots:
-    void configWidgetCurrentConfigModifiedChanged(bool modified);
-    void configWidgetCurrentConfigUrlChanged(const QString& url);
+    double timeFrameLength_;
+    QList<QPointF> points_;
+    BoundingRectangle bounds_;
   };
 };
 

@@ -18,6 +18,7 @@
 
 #include <rqt_multiplot/CurveDataCircularBuffer.h>
 #include <rqt_multiplot/CurveDataList.h>
+#include <rqt_multiplot/CurveDataListTimeFrame.h>
 #include <rqt_multiplot/CurveDataSequencer.h>
 #include <rqt_multiplot/CurveDataVector.h>
 #include <rqt_multiplot/PlotWidget.h>
@@ -175,9 +176,14 @@ void PlotCurve::detach() {
 }
 
 void PlotCurve::run() {
-  if (paused_) {
+  CurveAxisConfig* xAxisConfig = config_->getAxisConfig(CurveConfig::X);
+  CurveAxisConfig* yAxisConfig = config_->getAxisConfig(CurveConfig::Y);
+
+  if (paused_ &&
+      !xAxisConfig->getField().isEmpty() &&
+      !yAxisConfig->getField().isEmpty()) {
     dataSequencer_->subscribe();
-    
+
     paused_ = false;
   }
 }
@@ -185,7 +191,7 @@ void PlotCurve::run() {
 void PlotCurve::pause() {
   if (!paused_) {
     dataSequencer_->unsubscribe();
-    
+
     paused_ = true;
   }
 }
@@ -261,6 +267,8 @@ void PlotCurve::configDataConfigChanged() {
     data_ = new CurveDataList();
   if (config->getType() == CurveDataConfig::CircularBuffer)
     data_ = new CurveDataCircularBuffer(config->getCircularBufferCapacity());
+  if (config->getType() == CurveDataConfig::TimeFrame)
+    data_ = new CurveDataListTimeFrame(config->getTimeFrameLength());
   else
     data_ = new CurveDataVector();
   

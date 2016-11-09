@@ -30,7 +30,7 @@ namespace Ui {
 
 namespace rqt_multiplot {
   class PlotTableWidget;
-  
+
   class PlotTableConfigWidget :
     public QWidget {
   Q_OBJECT
@@ -42,18 +42,19 @@ namespace rqt_multiplot {
     PlotTableConfig* getConfig() const;
     void setPlotTable(PlotTableWidget* plotTable);
     PlotTableWidget* getPlotTableWidget() const;
-    
+    void runPlots();
+
   protected:
     bool eventFilter(QObject* object, QEvent* event);
-  
+
   private:
     Ui::PlotTableConfigWidget* ui_;
 
     QMenu* menuImportExport_;
-    
+
     PlotTableConfig* config_;
     PlotTableWidget* plotTable_;
-    
+
   private slots:
     void configBackgroundColorChanged(const QColor& color);
     void configForegroundColorChanged(const QColor& color);
@@ -61,14 +62,14 @@ namespace rqt_multiplot {
     void configLinkScaleChanged(bool link);
     void configLinkCursorChanged(bool link);
     void configTrackPointsChanged(bool track);
-    
+
     void spinBoxRowsValueChanged(int value);
     void spinBoxColumnsValueChanged(int value);
 
     void checkBoxLinkScaleStateChanged(int state);
     void checkBoxLinkCursorStateChanged(int state);
     void checkBoxTrackPointsStateChanged(int state);
-    
+
     void pushButtonRunClicked();
     void pushButtonPauseClicked();
     void pushButtonClearClicked();
@@ -76,12 +77,12 @@ namespace rqt_multiplot {
     void menuImportBagFileTriggered();
     void menuExportImageFileTriggered();
     void menuExportTextFileTriggered();
-    
+
     void plotTablePlotPausedChanged();
     void plotTableJobStarted(const QString& toolTip);
     void plotTableJobProgressChanged(double progress);
     void plotTableJobFinished(const QString& toolTip);
-    void plotTableJobFailed(const QString& toolTip);    
+    void plotTableJobFailed(const QString& toolTip);
   };
 };
 
