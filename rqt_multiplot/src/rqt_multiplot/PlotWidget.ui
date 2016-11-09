@@ -214,7 +214,7 @@
     </spacer>
    </item>
    <item row="1" column="0" colspan="8">
-    <widget class="QwtPlot" name="plot">
+    <widget class="rqt_multiplot::QwtPlotCustom" name="plot">
      <property name="sizePolicy">
       <sizepolicy hsizetype="MinimumExpanding" vsizetype="MinimumExpanding">
        <horstretch>0</horstretch>
@@ -312,9 +312,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QwtPlot</class>
-   <extends>QFrame</extends>
-   <header>qwt_plot.h</header>
+   <class>rqt_multiplot::QwtPlotCustom</class>
+   <extends>QwtPlot</extends>
+   <header>rqt_multiplot/QwtPlotCustom.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
