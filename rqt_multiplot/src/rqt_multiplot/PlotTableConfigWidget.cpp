@@ -41,12 +41,12 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   config_(0),
   plotTable_(0) {
   ui_->setupUi(this);
-  
+
   ui_->labelBackgroundColor->setAutoFillBackground(true);
   ui_->labelForegroundColor->setAutoFillBackground(true);
 
   ui_->widgetProgress->setEnabled(false);
-  
+
   ui_->pushButtonRun->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/run.png"))));
@@ -59,9 +59,9 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
   ui_->pushButtonImportExport->setIcon(
     QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
     append("/resource/16x16/eject.png"))));
-  
+
   ui_->pushButtonPause->setEnabled(false);
-  
+
   menuImportExport_->addAction("Import from bag file...", this,
     SLOT(menuImportBagFileTriggered()));
   menuImportExport_->addSeparator();
@@ -69,7 +69,7 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     SLOT(menuExportImageFileTriggered()));
   menuImportExport_->addAction("Export to text file...", this,
     SLOT(menuExportTextFileTriggered()));
-  
+
   connect(ui_->spinBoxRows, SIGNAL(valueChanged(int)), this,
     SLOT(spinBoxRowsValueChanged(int)));
   connect(ui_->spinBoxColumns, SIGNAL(valueChanged(int)), this,
@@ -81,7 +81,7 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     SLOT(checkBoxLinkCursorStateChanged(int)));
   connect(ui_->checkBoxTrackPoints, SIGNAL(stateChanged(int)), this,
     SLOT(checkBoxTrackPointsStateChanged(int)));
-  
+
   connect(ui_->pushButtonRun, SIGNAL(clicked()), this,
     SLOT(pushButtonRunClicked()));
   connect(ui_->pushButtonPause, SIGNAL(clicked()), this,
@@ -90,7 +90,7 @@ PlotTableConfigWidget::PlotTableConfigWidget(QWidget* parent) :
     SLOT(pushButtonClearClicked()));
   connect(ui_->pushButtonImportExport, SIGNAL(clicked()), this,
     SLOT(pushButtonImportExportClicked()));
-  
+
   ui_->labelBackgroundColor->installEventFilter(this);
   ui_->labelForegroundColor->installEventFilter(this);
 }
@@ -106,36 +106,36 @@ PlotTableConfigWidget::~PlotTableConfigWidget() {
 void PlotTableConfigWidget::setConfig(PlotTableConfig* config) {
   if (config != config_) {
     if (config_) {
-      disconnect(config_, SIGNAL(backgroundColorChanged(const QColor&)), 
+      disconnect(config_, SIGNAL(backgroundColorChanged(const QColor&)),
         this, SLOT(configBackgroundColorChanged(const QColor&)));
-      disconnect(config_, SIGNAL(foregroundColorChanged(const QColor&)), 
+      disconnect(config_, SIGNAL(foregroundColorChanged(const QColor&)),
         this, SLOT(configForegroundColorChanged(const QColor&)));
-      disconnect(config_, SIGNAL(numPlotsChanged(size_t, size_t)), 
+      disconnect(config_, SIGNAL(numPlotsChanged(size_t, size_t)),
         this, SLOT(configNumPlotsChanged(size_t, size_t)));
-      disconnect(config_, SIGNAL(linkScaleChanged(bool)), 
+      disconnect(config_, SIGNAL(linkScaleChanged(bool)),
         this, SLOT(configLinkScaleChanged(bool)));
-      disconnect(config_, SIGNAL(linkCursorChanged(bool)), 
+      disconnect(config_, SIGNAL(linkCursorChanged(bool)),
         this, SLOT(configLinkCursorChanged(bool)));
-      disconnect(config_, SIGNAL(trackPointsChanged(bool)), 
+      disconnect(config_, SIGNAL(trackPointsChanged(bool)),
         this, SLOT(configTrackPointsChanged(bool)));
     }
-    
+
     config_ = config;
-    
+
     if (config) {
-      connect(config, SIGNAL(backgroundColorChanged(const QColor&)), 
+      connect(config, SIGNAL(backgroundColorChanged(const QColor&)),
         this, SLOT(configBackgroundColorChanged(const QColor&)));
-      connect(config, SIGNAL(foregroundColorChanged(const QColor&)), 
+      connect(config, SIGNAL(foregroundColorChanged(const QColor&)),
         this, SLOT(configForegroundColorChanged(const QColor&)));
-      connect(config, SIGNAL(numPlotsChanged(size_t, size_t)), 
+      connect(config, SIGNAL(numPlotsChanged(size_t, size_t)),
         this, SLOT(configNumPlotsChanged(size_t, size_t)));
-      connect(config, SIGNAL(linkScaleChanged(bool)), 
+      connect(config, SIGNAL(linkScaleChanged(bool)),
         this, SLOT(configLinkScaleChanged(bool)));
-      connect(config, SIGNAL(linkCursorChanged(bool)), 
+      connect(config, SIGNAL(linkCursorChanged(bool)),
         this, SLOT(configLinkCursorChanged(bool)));
-      connect(config, SIGNAL(trackPointsChanged(bool)), 
+      connect(config, SIGNAL(trackPointsChanged(bool)),
         this, SLOT(configTrackPointsChanged(bool)));
-      
+
       configBackgroundColorChanged(config->getBackgroundColor());
       configForegroundColorChanged(config->getForegroundColor());
       configNumPlotsChanged(config->getNumRows(), config->getNumColumns());
@@ -154,7 +154,7 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
   if (plotTable != plotTable_) {
     if (plotTable_) {
       disconnect(plotTable_, SIGNAL(plotPausedChanged()),
-        this, SLOT(plotTablePlotPausedChanged()));  
+        this, SLOT(plotTablePlotPausedChanged()));
       disconnect(plotTable_, SIGNAL(jobStarted(const QString&)),
         this, SLOT(plotTableJobStarted(const QString&)));
       disconnect(plotTable_, SIGNAL(jobProgressChanged(double)),
@@ -164,9 +164,9 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
       disconnect(plotTable_, SIGNAL(jobFailed(const QString&)),
         this, SLOT(plotTableJobFailed(const QString&)));
     }
-    
+
     plotTable_ = plotTable;
-    
+
     if (plotTable) {
       connect(plotTable, SIGNAL(plotPausedChanged()),
         this, SLOT(plotTablePlotPausedChanged()));
@@ -178,7 +178,7 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
         this, SLOT(plotTableJobFinished(const QString&)));
       connect(plotTable, SIGNAL(jobFailed(const QString&)),
         this, SLOT(plotTableJobFailed(const QString&)));
-      
+
       plotTablePlotPausedChanged();
     }
   }
@@ -186,6 +186,10 @@ void PlotTableConfigWidget::setPlotTable(PlotTableWidget* plotTable) {
 
 PlotTableWidget* PlotTableConfigWidget::getPlotTableWidget() const {
   return plotTable_;
+}
+
+void PlotTableConfigWidget::runPlots() {
+  if (plotTable_) { plotTable_->runPlots(); }
 }
 
 /*****************************************************************************/
@@ -198,10 +202,10 @@ bool PlotTableConfigWidget::eventFilter(QObject* object, QEvent* event) {
         (object == ui_->labelForegroundColor)) &&
         (event->type() == QEvent::MouseButtonPress)) {
       QColorDialog dialog(this);
-    
+
       dialog.setCurrentColor((object == ui_->labelBackgroundColor) ?
         config_->getBackgroundColor() : config_->getForegroundColor());
-    
+
       if (dialog.exec() == QDialog::Accepted) {
         if (object == ui_->labelBackgroundColor)
           config_->setBackgroundColor(dialog.currentColor());
@@ -210,7 +214,7 @@ bool PlotTableConfigWidget::eventFilter(QObject* object, QEvent* event) {
       }
     }
   }
-  
+
   return false;
 }
 
@@ -222,7 +226,7 @@ void PlotTableConfigWidget::configBackgroundColorChanged(const QColor&
     color) {
   QPalette palette = ui_->labelBackgroundColor->palette();
   palette.setColor(QPalette::Window, color);
-  
+
   ui_->labelBackgroundColor->setPalette(palette);
 }
 
@@ -230,7 +234,7 @@ void PlotTableConfigWidget::configForegroundColorChanged(const QColor&
     color) {
   QPalette palette = ui_->labelForegroundColor->palette();
   palette.setColor(QPalette::Window, color);
-  
+
   ui_->labelForegroundColor->setPalette(palette);
 }
 
@@ -300,10 +304,10 @@ void PlotTableConfigWidget::pushButtonImportExportClicked() {
 void PlotTableConfigWidget::menuImportBagFileTriggered() {
   QFileDialog dialog(this, "Open Bag", QDir::homePath(),
     "ROS Bag (*.bag)");
-  
+
   dialog.setAcceptMode(QFileDialog::AcceptOpen);
   dialog.setFileMode(QFileDialog::ExistingFile);
-  
+
   if (dialog.exec() == QDialog::Accepted)
     plotTable_->loadFromBagFile(dialog.selectedFiles().first());
 }
@@ -311,11 +315,11 @@ void PlotTableConfigWidget::menuImportBagFileTriggered() {
 void PlotTableConfigWidget::menuExportImageFileTriggered() {
   QFileDialog dialog(this, "Save Image File", QDir::homePath(),
     "Portable Network Graphics (*.png)");
-  
+
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setFileMode(QFileDialog::AnyFile);
   dialog.selectFile("rqt_multiplot.png");
-  
+
   if (dialog.exec() == QDialog::Accepted)
     plotTable_->saveToImageFile(dialog.selectedFiles().first());
 }
@@ -323,11 +327,11 @@ void PlotTableConfigWidget::menuExportImageFileTriggered() {
 void PlotTableConfigWidget::menuExportTextFileTriggered() {
   QFileDialog dialog(this, "Save Text File", QDir::homePath(),
     "Text file (*.txt)");
-  
+
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setFileMode(QFileDialog::AnyFile);
   dialog.selectFile("rqt_multiplot.txt");
-  
+
   if (dialog.exec() == QDialog::Accepted)
     plotTable_->saveToTextFile(dialog.selectedFiles().first());
 }
@@ -336,7 +340,7 @@ void PlotTableConfigWidget::plotTablePlotPausedChanged() {
   if (plotTable_) {
     bool allPlotsPaused = true;
     bool anyPlotPaused = false;
-    
+
     for (size_t row = 0; row < plotTable_->getNumRows(); ++row) {
       for (size_t column = 0; column < plotTable_->getNumColumns();
           ++column) {
@@ -344,7 +348,7 @@ void PlotTableConfigWidget::plotTablePlotPausedChanged() {
         anyPlotPaused |= plotTable_->getPlotWidget(row, column)->isPaused();
       }
     }
-    
+
     ui_->pushButtonRun->setEnabled(anyPlotPaused);
     ui_->pushButtonPause->setEnabled(!allPlotsPaused);
   }
@@ -352,7 +356,7 @@ void PlotTableConfigWidget::plotTablePlotPausedChanged() {
 
 void PlotTableConfigWidget::plotTableJobStarted(const QString& toolTip) {
   ui_->widgetProgress->setEnabled(true);
-  
+
   ui_->widgetProgress->start(toolTip);
 }
 

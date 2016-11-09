@@ -40,7 +40,9 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 MultiplotPlugin::MultiplotPlugin() :
-  widget_(0) {
+  widget_(0),
+  runAllPlotsOnStart_(false)
+{
   setObjectName("MultiplotPlugin");
 }
 
@@ -96,6 +98,9 @@ void MultiplotPlugin::restoreSettings(const qt_gui_cpp::Settings&
 
   widget_->setMaxConfigHistoryLength(maxConfigHistoryLength);
   widget_->setConfigHistory(configHistory);
+  if ( runAllPlotsOnStart_ ) {
+    widget_->runPlots();
+  }
 }
 
 void MultiplotPlugin::parseArguments(const QStringList& arguments) {
@@ -117,6 +122,9 @@ void MultiplotPlugin::parseArguments(const QStringList& arguments) {
     ("multiplot-config,c", boost::program_options::value<std::string>(), "");
   options.add_options()
     ("multiplot-bag,b", boost::program_options::value<std::string>(), "");
+  options.add_options()
+    ("multiplot-run-all,r", boost::program_options::bool_switch(&runAllPlotsOnStart_), "");
+
 
   try {
     boost::program_options::store(boost::program_options::parse_command_line(

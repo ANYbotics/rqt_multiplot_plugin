@@ -38,28 +38,29 @@ namespace rqt_multiplot {
   public:
     MultiplotWidget(QWidget* parent = 0);
     virtual ~MultiplotWidget();
-    
+
     MultiplotConfig* getConfig() const;
     QDockWidget* getDockWidget() const;
-    
+
     void setMaxConfigHistoryLength(size_t length);
     size_t getMaxConfigHistoryLength() const;
     void setConfigHistory(const QStringList& history);
     QStringList getConfigHistory() const;
-    
+    void runPlots();
+
     void loadConfig(const QString& url);
     void readBag(const QString& url);
-    
+
     bool confirmClose();
-    
+
   private:
     Ui::MultiplotWidget* ui_;
-    
+
     MultiplotConfig* config_;
-    
+
     MessageTypeRegistry* messageTypeRegistry_;
     PackageRegistry* packageRegistry_;
-    
+
   private slots:
     void configWidgetCurrentConfigModifiedChanged(bool modified);
     void configWidgetCurrentConfigUrlChanged(const QString& url);
