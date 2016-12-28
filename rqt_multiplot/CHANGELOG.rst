@@ -2,6 +2,18 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* reduce min plot size
+* run all plots on startup
+* flexible command line url input for config files
+* arg parsing for the command line script
+* add time frame as a new curve data type
+  This gives the option to plot e.g. only the last 10 seconds and
+  remove older data.
+* fix plot resizing
+* Contributors: Daniel Stonier, Samuel Bachmann
+
 0.0.5 (2016-08-05)
 ------------------
 * fixes `#2 <https://github.com/ethz-asl/rqt_multiplot_plugin/issues/2>`_ a QT API change
