@@ -2,8 +2,8 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.6 (2016-12-28)
+------------------
 * reduce min plot size
 * run all plots on startup
 * flexible command line url input for config files
