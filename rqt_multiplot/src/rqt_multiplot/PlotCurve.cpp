@@ -180,8 +180,10 @@ void PlotCurve::run() {
   CurveAxisConfig* yAxisConfig = config_->getAxisConfig(CurveConfig::Y);
 
   if (paused_ &&
-      !xAxisConfig->getField().isEmpty() &&
-      !yAxisConfig->getField().isEmpty()) {
+      (!xAxisConfig->getField().isEmpty() ||
+          xAxisConfig->getFieldType() == CurveAxisConfig::MessageReceiptTime) &&
+      (!yAxisConfig->getField().isEmpty() ||
+          yAxisConfig->getFieldType() == CurveAxisConfig::MessageReceiptTime)) {
     dataSequencer_->subscribe();
 
     paused_ = false;
