@@ -277,10 +277,16 @@ BoundingRectangle PlotWidget::getPreferredScale() const {
 
 void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
   if (bounds != currentBounds_) {
-    if (bounds.getMaximum().x() >= bounds.getMinimum().x())
+    if (bounds.getMaximum().x() == bounds.getMinimum().x())
+      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x() - 0.1,
+                              bounds.getMaximum().x() + 0.1);
+    else if (bounds.getMaximum().x() > bounds.getMinimum().x())
       ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(),
         bounds.getMaximum().x());
-    if (bounds.getMaximum().y() >= bounds.getMinimum().y())
+    if (bounds.getMaximum().y() == bounds.getMinimum().y())
+      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y() - 0.1,
+                              bounds.getMaximum().y() + 0.1);
+    else if (bounds.getMaximum().y() > bounds.getMinimum().y())
       ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(),
         bounds.getMaximum().y());
 
