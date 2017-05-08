@@ -48,7 +48,17 @@ BoundingRectangle::~BoundingRectangle() {
 /*****************************************************************************/
 
 void BoundingRectangle::setMinimum(const QPointF& minimum) {
-  minimum_ = minimum;
+  if (minimum.y() == maximum_.y()) {
+    minimum_.setX(minimum.x());
+    minimum_.setY(minimum.y() - 0.1);
+  }
+  else if (minimum.x() == maximum_.x()) {
+    minimum_.setX(minimum.x() - 0.1);
+    minimum_.setY(minimum.y());
+  }
+  else {
+    minimum_ = minimum;
+  }
 }
 
 QPointF& BoundingRectangle::getMinimum() {
@@ -60,7 +70,17 @@ const QPointF& BoundingRectangle::getMinimum() const {
 }
 
 void BoundingRectangle::setMaximum(const QPointF& maximum) {
-  maximum_ = maximum;
+  if (maximum.y() == minimum_.y()) {
+    maximum_.setX(maximum.x());
+    maximum_.setY(maximum.y() + 0.1);
+  }
+  else if (maximum.x() == minimum_.x()) {
+    maximum_.setX(maximum.x() + 0.1);
+    maximum_.setY(maximum.y());
+  }
+  else {
+    maximum_ = maximum;
+  }
 }
 
 QPointF& BoundingRectangle::getMaximum() {
@@ -115,22 +135,30 @@ bool BoundingRectangle::operator!=(const BoundingRectangle& rectangle) const {
 }
 
 BoundingRectangle& BoundingRectangle::operator+=(const QPointF& point) {
-  if (maximum_.x() >= minimum_.x()) {
+  if (maximum_.x() == minimum_.x()) {
+    minimum_.setX(std::min(minimum_.x(), point.x()) - 0.1);
+    maximum_.setX(std::max(maximum_.x(), point.x()) + 0.1);
+  }
+  else if (maximum_.x() > minimum_.x()) {
     minimum_.setX(std::min(minimum_.x(), point.x()));
     maximum_.setX(std::max(maximum_.x(), point.x()));
   }
   else {
-    minimum_.setX(point.x());
-    maximum_.setX(point.x());
+    minimum_.setX(point.x() - 0.1);
+    maximum_.setX(point.x() + 0.1);
   }
-        
-  if (maximum_.y() >= minimum_.y()) {
+
+  if (maximum_.y() == minimum_.y()) {
+    minimum_.setY(std::min(minimum_.y(), point.y()) - 0.1);
+    maximum_.setY(std::max(maximum_.y(), point.y()) + 0.1);
+  }
+  else if (maximum_.y() > minimum_.y()) {
     minimum_.setY(std::min(minimum_.y(), point.y()));
     maximum_.setY(std::max(maximum_.y(), point.y()));
   }
   else {
-    minimum_.setY(point.y());
-    maximum_.setY(point.y());
+    minimum_.setY(point.y() - 0.1);
+    maximum_.setY(point.y() + 0.1);
   }
   
   return *this;
