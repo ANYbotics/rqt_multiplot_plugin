@@ -301,8 +301,8 @@ else()
   target_link_libraries(${PROJECT_NAME} ${QT_QTCORE_LIBRARY} ${QT_QTGUI_LIBRARY})
 endif()
 
-find_package(class_loader)
-class_loader_hide_library_symbols(rqt_multiplot)
+#find_package(class_loader)
+#class_loader_hide_library_symbols(rqt_multiplot)
 
 install(FILES plugin.xml
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
