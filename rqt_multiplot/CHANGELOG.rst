@@ -2,8 +2,8 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.8 (2018-11-21)
+------------------
 * Make your library usable
 * Contributors: Adriano Henrique Rossette Leite, Samuel Bachmann
 
