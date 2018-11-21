@@ -2,6 +2,11 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+Forthcoming
+-----------
+* Make your library usable
+* Contributors: Adriano Henrique Rossette Leite, Samuel Bachmann
+
 0.0.7 (2017-05-08)
 ------------------
 * fix issues when plotting constant values
