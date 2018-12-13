@@ -2,8 +2,8 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Forthcoming
------------
+0.0.10 (2018-12-13)
+-------------------
 * add missing dependency and use format 2 in package.xml
 * Contributors: Samuel Bachmann
 
