@@ -16,7 +16,7 @@ def add_arguments(parser):
         '--multiplot-run-all',
         action='store_true',
         help='Run all plots on startup')
-    # needs more tlc (i.e. doesn't actually work) - see https://github.com/anybotics/rqt_multiplot_plugin/pull/10
+    # needs more tlc (i.e. doesn't actually work) - see https://github.com/ethz-asl/rqt_multiplot_plugin/pull/10
     # group.add_argument(
     #     '--multiplot-bag',
     #     default="",

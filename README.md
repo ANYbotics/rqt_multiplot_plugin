@@ -10,7 +10,7 @@
 
 **Operating system(s):** Debian-based Linux, Mac OS X
 
-**Package PPA:** ppa:anybotics/ros
+**Package PPA:** ppa:ethz-asl/ros
 
 ## Content
 
@@ -25,9 +25,9 @@ This project provides a GUI plugin for visualizing numeric values in multiple 2D
     sudo apt-get install ros-indigo-rqt
     ```
 
-- [variant_topic_tools](https://github.com/anybotics/variant)
+- [variant_topic_tools](https://github.com/ethz-asl/variant)
 
-  Consult the [installation instructions](https://github.com/anybotics/variant/blob/master/README.md#installation) provided by this project.
+  Consult the [installation instructions](https://github.com/ethz-asl/variant/blob/master/README.md#installation) provided by this project.
 
 - [qwt](http://qwt.sourceforge.net/)
 
@@ -59,7 +59,7 @@ catkin build rqt_multiplot
 ### Debian Package
 
 ```shell
-sudo add-apt-repository ppa:anybotics/ros
+sudo add-apt-repository ppa:ethz-asl/ros
 sudo apt-get update
 sudo apt-get install ros-indigo-rqt-multiplot
 ```
@@ -88,7 +88,7 @@ rqt --clear-config
 
 ### Import ROS Bag
 
-To plot an imported ROS bag, the desired curves have to be configured before
+To plot an imported ROS bag, the desired curves have to be configured before 
 importing the bag.
 
 ### Example Views
@@ -105,7 +105,7 @@ importing the bag.
 
 ## Bugs & Feature Requests
 
-Please report bugs and feature requests on the [Issue Tracker](https://github.com/anybotics/rqt_multiplot_plugin).
+Please report bugs and feature requests on the [Issue Tracker](https://github.com/ethz-asl/rqt_multiplot_plugin).
 
 ## Build Status
 
