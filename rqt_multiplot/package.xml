@@ -8,11 +8,11 @@
   </description>
   <author>Ralf Kaestner</author>
   <maintainer email="ralf.kaestner@gmail.com">Ralf Kaestner</maintainer>
-  <maintainer email="samuel.bachmann@gmail.com">Samuel Bachmann</maintainer>
+  <maintainer email="sbachmann@anybotics.com">Samuel Bachmann</maintainer>
   <license>GNU Lesser General Public License (LGPL)</license>
 
   <buildtool_depend>catkin</buildtool_depend>
-  
+
   <depend>rosbag</depend>
   <depend>roscpp</depend>
   <depend>rqt_gui</depend>
@@ -20,7 +20,7 @@
   <depend>variant_topic_tools</depend>
   <depend>libqwt-qt5-dev</depend>
   <depend>qtbase5-dev</depend>
-  
+
   <export>
     <architecture_independent/>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
