@@ -47,6 +47,7 @@ namespace rqt_multiplot {
     void aboutToBeDestroyed();
   
   private:
+    ros::Time startTime_;
     variant_topic_tools::MessageDataType dataType_;
     variant_topic_tools::MessageSerializer serializer_;
     
