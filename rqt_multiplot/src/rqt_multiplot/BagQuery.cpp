@@ -40,7 +40,8 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 BagQuery::BagQuery(QObject* parent) :
-  QObject(parent) {
+  QObject(parent),
+  startTime_(ros::Time::now()) {
 }
 
 BagQuery::~BagQuery() {
@@ -95,7 +96,10 @@ void BagQuery::callback(const rosbag::MessageInstance& instance) {
   
   serializer_.deserialize(inputStream, variant);
   
-  message.setReceiptTime(instance.getTime());
+  ros::Time tmp;
+  tmp.sec = (instance.getTime() - startTime_).sec;
+  tmp.nsec = (instance.getTime() - startTime_).nsec;
+  message.setReceiptTime(tmp);
   message.setVariant(variant);
   
   MessageEvent* messageEvent = new MessageEvent(QString::fromStdString(

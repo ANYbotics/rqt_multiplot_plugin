@@ -61,6 +61,7 @@ namespace rqt_multiplot {
   
   private:
     ros::NodeHandle nodeHandle_;
+    ros::Time startTime_;
     
     QString topic_;
     size_t queueSize_;

@@ -34,7 +34,8 @@ MessageSubscriber::MessageSubscriber(QObject* parent, const ros::NodeHandle&
     nodeHandle) :
   QObject(parent),
   nodeHandle_(nodeHandle),
-  queueSize_(100) {
+  queueSize_(100)
+  startTime_(ros::Time::now()) {
 }
 
 MessageSubscriber::~MessageSubscriber() {
@@ -127,7 +128,10 @@ void MessageSubscriber::callback(const variant_topic_tools::MessageVariant&
     variant, const ros::Time& receiptTime) {
   Message message;
   
-  message.setReceiptTime(receiptTime);
+  ros::Time tmp;
+  tmp.sec = (receiptTime - startTime_).sec;
+  tmp.nsec = (receiptTime - startTime_).nsec;
+  message.setReceiptTime(tmp);
   message.setVariant(variant);
 
   MessageEvent* messageEvent = new MessageEvent(topic_, message);
