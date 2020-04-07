@@ -37,13 +37,15 @@ This project provides a GUI plugin for visualizing numeric values in multiple 2D
 
 ### ROS Distribution
 
-The package is in the ROS (indigo, jade, kinetic) distribution.
+The package is in the ROS (indigo, jade, kinetic, melodic) distribution.
 
 ```shell
 sudo apt-get update
 sudo apt-get install ros-indigo-rqt-multiplot
 sudo apt-get install ros-jade-rqt-multiplot
 sudo apt-get install ros-kinetic-rqt-multiplot
+sudo apt-get install ros-melodic-rqt-multiplot
+
 ```
 
 ### Building from Source
