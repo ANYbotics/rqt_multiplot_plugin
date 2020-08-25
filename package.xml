@@ -18,6 +18,9 @@
   <depend>libqwt-qt5-dev</depend>
   <depend>qtbase5-dev</depend>
 
+  <test_depend>gtest</test_depend>
+<!--   <test_depend>cmake_code_coverage</test_depend> -->
+
   <export>
     <architecture_independent/>
     <rqt_gui plugin="${prefix}/plugin.xml"/>
