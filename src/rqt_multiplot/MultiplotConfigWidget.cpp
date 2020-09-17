@@ -133,6 +133,7 @@ bool MultiplotConfigWidget::setCurrentConfigModified(bool modified) {
     
     emit currentConfigModifiedChanged(modified);
   }
+  return true;
 }
 
 bool MultiplotConfigWidget::isCurrentConfigModified() const {
