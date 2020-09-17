@@ -65,6 +65,7 @@ void ProgressWidget::setCurrentProgress(double progress) {
 double ProgressWidget::getCurrentProgress() const {
   if (started_)
     return ui_->progressBar->value()*1e-2;
+  return 0.0;
 }
 
 bool ProgressWidget::isStarted() const {
