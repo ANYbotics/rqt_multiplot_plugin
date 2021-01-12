@@ -37,13 +37,13 @@ This project provides a GUI plugin for visualizing numeric values in multiple 2D
 
 ### ROS Distribution
 
-The package is in the ROS (indigo, jade, kinetic) distribution.
+The package is in the ROS (melodic, noetic) distribution.
 
 ```shell
 sudo apt-get update
-sudo apt-get install ros-indigo-rqt-multiplot
-sudo apt-get install ros-jade-rqt-multiplot
-sudo apt-get install ros-kinetic-rqt-multiplot
+sudo apt-get install ros-melodic-rqt-multiplot
+sudo apt-get install ros-noetic-rqt-multiplot
+
 ```
 
 ### Building from Source
@@ -111,12 +111,12 @@ Please report bugs and feature requests on the [Issue Tracker](https://github.co
 
 ### Devel Job Status
 
-| | Indigo  | Jade | Kinetic |
-| --- | --- | --- | --- |
-| rqt_multiplot_plugin | [![Build Status](http://build.ros.org/buildStatus/icon?job=Idev__rqt_multiplot_plugin__ubuntu_trusty_amd64)](http://build.ros.org/job/Idev__rqt_multiplot_plugin__ubuntu_trusty_amd64/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Jdev__rqt_multiplot_plugin__ubuntu_trusty_amd64)](http://build.ros.org/job/Jdev__rqt_multiplot_plugin__ubuntu_trusty_amd64/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Kdev__rqt_multiplot_plugin__ubuntu_xenial_amd64)](http://build.ros.org/job/Kdev__rqt_multiplot_plugin__ubuntu_xenial_amd64/) |
+| | Melodic  | Noetic |
+| --- | --- | --- |
+| rqt_multiplot_plugin | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mdev__rqt_multiplot_plugin__ubuntu_bionic_amd64)](http://build.ros.org/job/Mdev__rqt_multiplot_plugin__ubuntu_bionic_amd64/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ndev__rqt_multiplot_plugin__ubuntu_focal_amd64)](http://build.ros.org/job/Ndev__rqt_multiplot_plugin__ubuntu_focal_amd64/) |
 
 ### Release Job Status
 
-| | Indigo | Jade | Kinetic |
-| --- | --- | --- | --- |
-| rqt_multiplot | [![Build Status](http://build.ros.org/buildStatus/icon?job=Ibin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary)](http://build.ros.org/job/Ibin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Jbin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary)](http://build.ros.org/job/Jbin_uT64__rqt_multiplot__ubuntu_trusty_amd64__binary/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Kbin_uX64__rqt_multiplot__ubuntu_xenial_amd64__binary)](http://build.ros.org/job/Kbin_uX64__rqt_multiplot__ubuntu_xenial_amd64__binary/) |
+| | Melodic | Noetic |
+| --- | --- | --- |
+| rqt_multiplot | [![Build Status](http://build.ros.org/buildStatus/icon?job=Mbin_uB64__rqt_multiplot__ubuntu_bionic_amd64__binary)](http://build.ros.org/job/Mbin_uB64__rqt_multiplot__ubuntu_bionic_amd64__binary/) | [![Build Status](http://build.ros.org/buildStatus/icon?job=Nbin_uF64__rqt_multiplot__ubuntu_focal_amd64__binary)](http://build.ros.org/job/Nbin_uF64__rqt_multiplot__ubuntu_focal_amd64__binary/) |
