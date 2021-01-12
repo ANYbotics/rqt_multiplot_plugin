@@ -179,10 +179,16 @@ void CurveDataSequencer::processMessage(const Message& message) {
     point.setX(message.getReceiptTime().toSec());
   
   if (yAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
-    variant_topic_tools::BuiltinVariant variant = message.getVariant().
-      getMember(yAxisConfig->getField().toStdString());
-      
-    point.setY(variant.getNumericValue());
+    try {
+      variant_topic_tools::BuiltinVariant variant = message.getVariant().
+        getMember(yAxisConfig->getField().toStdString());
+
+      point.setY(variant.getNumericValue());
+    } catch (const variant_topic_tools::NoSuchMemberException& e) {
+      ROS_WARN_STREAM_ONCE("Exception in processMessage while retrieving"
+        " member '" << yAxisConfig->getField().toStdString() << "': " <<
+        e.what());
+    }
   }
   else
     point.setY(message.getReceiptTime().toSec());
