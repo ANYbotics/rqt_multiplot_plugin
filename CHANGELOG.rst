@@ -2,6 +2,13 @@
 Changelog for package rqt_multiplot
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
+0.0.12 (2021-01-13)
+-------------------
+* CurveDataSequence::processMessage: Catch variant_topic_tools exception
+* Mogrify all png to get rid of libpng warning
+* update the readme for melodic and noetic
+* Contributors: Wolfgang Merkt, tkazik, ConstGemm
+
 0.0.11 (2021-01-06)
 -------------------
 * update for Ros noetic
