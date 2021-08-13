@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="2">
   <name>rqt_multiplot</name>
-  <version>0.0.12</version>
+  <version>0.0.13</version>
   <description>rqt_multiplot provides a GUI plugin for visualizing numeric values in multiple 2D plots using the Qwt plotting backend.</description>
   <author email="ralf.kaestner@gmail.com">Ralf Kaestner</author>
   <maintainer email="sbachmann@anybotics.com">Samuel Bachmann</maintainer>
