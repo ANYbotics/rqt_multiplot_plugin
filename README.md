@@ -93,15 +93,15 @@ importing the bag.
 
 ### Example Views
 
-![enter image description here](https://lh3.googleusercontent.com/-EF4aCvEV3ZU/V0Vku40VueI/AAAAAAAAajg/rdRvc-YWkPw50gPOGbGrtMtzMjgmBANfACLcB/s700/multiplot_1_legend.png "Overview")
+![Example views](http://wiki.ros.org/rqt_multiplot?action=AttachFile&do=get&target=multiplot_1_legend.png "Overview")
 
 #### Configure Plot
 
-![enter image description here](https://lh3.googleusercontent.com/-E14yRrgKars/V0VlFJdDX5I/AAAAAAAAajo/2Nfo_ovj5dABrF7OQPExlMJY1gMAKK43QCLcB/s700/multiplot_configure_plot.png "Configure plot")
+![Configure plot](http://wiki.ros.org/rqt_multiplot?action=AttachFile&do=get&target=multiplot_configure_plot.png "Configure plot")
 
 #### Edit Curve
 
-![enter image description here](https://lh3.googleusercontent.com/-Ei_j84gwJ7U/V0VlWrjUumI/AAAAAAAAaj0/dEB0dkE2YJ8rCWpmql6ZW4f6iMlJgxv8ACLcB/s700/multiplot_edit_curve.png "Edit curve")
+![Edit curve](http://wiki.ros.org/rqt_multiplot?action=AttachFile&do=get&target=multiplot_edit_curve.png "Edit curve")
 
 ## Bugs & Feature Requests
 
