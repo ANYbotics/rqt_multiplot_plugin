@@ -24,16 +24,11 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-Message::Message() {
-}
+Message::Message() = default;
 
-Message::Message(const Message& src) :
-  receiptTime_(src.receiptTime_),
-  variant_(src.variant_) {
-}
+Message::Message(const Message& src) = default;
 
-Message::~Message() {
-}
+Message::~Message() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -54,9 +49,9 @@ void Message::setVariant(const variant_topic_tools::MessageVariant& variant) {
 const variant_topic_tools::MessageVariant& Message::getVariant() const {
   return variant_;
 }
-  
+
 bool Message::isEmpty() const {
   return variant_.isEmpty();
 }
 
-}
+}  // namespace rqt_multiplot

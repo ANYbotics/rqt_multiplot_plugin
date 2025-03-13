@@ -26,16 +26,12 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-UrlComboBox::UrlComboBox(QWidget* parent) :
-  QComboBox(parent),
-  completer_(new UrlCompleter(this)) {
+UrlComboBox::UrlComboBox(QWidget* parent) : QComboBox(parent), completer_(new UrlCompleter(this)) {
   connect(this, SIGNAL(activated(int)), this, SLOT(activated(int)));
-  connect(this, SIGNAL(currentIndexChanged(const QString&)), this,
-    SLOT(currentIndexChanged(const QString&)));
+  connect(this, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(currentIndexChanged(const QString&)));
 }
 
-UrlComboBox::~UrlComboBox() {
-}
+UrlComboBox::~UrlComboBox() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -44,12 +40,11 @@ UrlComboBox::~UrlComboBox() {
 void UrlComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
     QComboBox::setEditable(editable);
-    
-    if (lineEdit()) {
+
+    if (lineEdit() != nullptr) {
       lineEdit()->setCompleter(completer_);
 
-      connect(lineEdit(), SIGNAL(editingFinished()), this,
-        SLOT(lineEditEditingFinished()));
+      connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
     }
   }
 }
@@ -60,13 +55,13 @@ UrlCompleter* UrlComboBox::getCompleter() const {
 
 void UrlComboBox::setCurrentUrl(const QString& url) {
   int index = findText(url);
-  
+
   if (index < 0) {
     setEditText(url);
     lineEditEditingFinished();
-  }
-  else
+  } else {
     setCurrentIndex(index);
+  }
 }
 
 QString UrlComboBox::getCurrentUrl() const {
@@ -84,7 +79,7 @@ bool UrlComboBox::isCurrentUrlSelectable() const {
 void UrlComboBox::activated(int index) {
   if (currentUrl_ != itemText(index)) {
     currentUrl_ = itemText(index);
-    
+
     emit currentUrlChanged(currentUrl_);
   }
 }
@@ -92,7 +87,7 @@ void UrlComboBox::activated(int index) {
 void UrlComboBox::currentIndexChanged(const QString& text) {
   if (currentUrl_ != text) {
     currentUrl_ = text;
-    
+
     emit currentUrlChanged(currentUrl_);
   }
 }
@@ -100,9 +95,9 @@ void UrlComboBox::currentIndexChanged(const QString& text) {
 void UrlComboBox::lineEditEditingFinished() {
   if (currentUrl_ != currentText()) {
     currentUrl_ = currentText();
-    
+
     emit currentUrlChanged(currentUrl_);
   }
 }
 
-}
+}  // namespace rqt_multiplot

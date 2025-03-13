@@ -28,12 +28,12 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MultiplotWidget::MultiplotWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::MultiplotWidget()),
-  config_(new MultiplotConfig(this)),
-  messageTypeRegistry_(new MessageTypeRegistry(this)),
-  packageRegistry_(new PackageRegistry(this)) {
+MultiplotWidget::MultiplotWidget(QWidget* parent)
+    : QWidget(parent),
+      ui_(new Ui::MultiplotWidget()),
+      config_(new MultiplotConfig(this)),
+      messageTypeRegistry_(new MessageTypeRegistry(this)),
+      packageRegistry_(new PackageRegistry(this)) {
   ui_->setupUi(this);
 
   ui_->configWidget->setConfig(config_);
@@ -41,15 +41,14 @@ MultiplotWidget::MultiplotWidget(QWidget* parent) :
   ui_->plotTableConfigWidget->setPlotTable(ui_->plotTableWidget);
   ui_->plotTableWidget->setConfig(config_->getTableConfig());
 
-  connect(ui_->configWidget, SIGNAL(currentConfigModifiedChanged(bool)),
-    this, SLOT(configWidgetCurrentConfigModifiedChanged(bool)));
-  connect(ui_->configWidget, SIGNAL(currentConfigUrlChanged(const QString&)),
-    this, SLOT(configWidgetCurrentConfigUrlChanged(const QString&)));
+  connect(ui_->configWidget, SIGNAL(currentConfigModifiedChanged(bool)), this, SLOT(configWidgetCurrentConfigModifiedChanged(bool)));
+  connect(ui_->configWidget, SIGNAL(currentConfigUrlChanged(const QString&)), this,
+          SLOT(configWidgetCurrentConfigUrlChanged(const QString&)));
 
   configWidgetCurrentConfigUrlChanged(QString());
 
-  messageTypeRegistry_->update();
-  packageRegistry_->update();
+  rqt_multiplot::MessageTypeRegistry::update();
+  rqt_multiplot::PackageRegistry::update();
 }
 
 MultiplotWidget::~MultiplotWidget() {
@@ -67,14 +66,15 @@ MultiplotConfig* MultiplotWidget::getConfig() const {
 }
 
 QDockWidget* MultiplotWidget::getDockWidget() const {
-  QDockWidget* dockWidget = 0;
+  QDockWidget* dockWidget = nullptr;
   QObject* currentParent = parent();
 
-  while (currentParent) {
+  while (currentParent != nullptr) {
     dockWidget = qobject_cast<QDockWidget*>(currentParent);
 
-    if (dockWidget)
+    if (dockWidget != nullptr) {
       break;
+    }
 
     currentParent = currentParent->parent();
   }
@@ -110,9 +110,8 @@ void MultiplotWidget::loadConfig(const QString& url) {
   ui_->configWidget->loadConfig(url);
 }
 
-
 void MultiplotWidget::readBag(const QString& url) {
-//   ui_->bagReaderWidget->readBag(url);
+  //   ui_->bagReaderWidget->readBag(url);
 }
 
 bool MultiplotWidget::confirmClose() {
@@ -124,24 +123,24 @@ bool MultiplotWidget::confirmClose() {
 /*****************************************************************************/
 
 void MultiplotWidget::configWidgetCurrentConfigModifiedChanged(bool
-    modified) {
-  configWidgetCurrentConfigUrlChanged(ui_->configWidget->
-    getCurrentConfigUrl());
+                                                               /*modified*/) {
+  configWidgetCurrentConfigUrlChanged(ui_->configWidget->getCurrentConfigUrl());
 }
 
-void MultiplotWidget::configWidgetCurrentConfigUrlChanged(const QString&
-    url) {
+void MultiplotWidget::configWidgetCurrentConfigUrlChanged(const QString& url) {
   QString windowTitle = "Multiplot";
 
-  if (!url.isEmpty())
-    windowTitle += " - ["+url+"]";
-  else
+  if (!url.isEmpty()) {
+    windowTitle += " - [" + url + "]";
+  } else {
     windowTitle += " - [untitled]";
+  }
 
-  if (ui_->configWidget->isCurrentConfigModified())
+  if (ui_->configWidget->isCurrentConfigModified()) {
     windowTitle += "*";
+  }
 
   setWindowTitle(windowTitle);
 }
 
-}
+}  // namespace rqt_multiplot

@@ -26,31 +26,27 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PackageScheme::PackageScheme(QObject* parent, const QString& prefix,
-    QDir::Filters filter) :
-  UrlScheme(prefix),
-  registry_(new PackageRegistry(this)),
-  fileSystemModel_(new QFileSystemModel(this)),
-  packageListModel_(new QStringListModel(this)) {
+PackageScheme::PackageScheme(QObject* /*parent*/, const QString& prefix, QDir::Filters filter)
+    : UrlScheme(prefix),
+      registry_(new PackageRegistry(this)),
+      fileSystemModel_(new QFileSystemModel(this)),
+      packageListModel_(new QStringListModel(this)) {
   fileSystemModel_->setRootPath("/");
   fileSystemModel_->setFilter(filter);
-  
-  connect(registry_, SIGNAL(updateStarted()), this,
-    SLOT(registryUpdateStarted()));
-  connect(registry_, SIGNAL(updateFinished()), this,
-    SLOT(registryUpdateFinished()));
-  
-  connect(fileSystemModel_, SIGNAL(directoryLoaded(const QString&)),
-    this, SLOT(modelDirectoryLoaded(const QString&)));
-  
-  if (registry_->isUpdating())
+
+  connect(registry_, SIGNAL(updateStarted()), this, SLOT(registryUpdateStarted()));
+  connect(registry_, SIGNAL(updateFinished()), this, SLOT(registryUpdateFinished()));
+
+  connect(fileSystemModel_, SIGNAL(directoryLoaded(const QString&)), this, SLOT(modelDirectoryLoaded(const QString&)));
+
+  if (rqt_multiplot::PackageRegistry::isUpdating()) {
     registryUpdateStarted();
-  else if (registry_->isEmpty())
-    registry_->update();
+  } else if (rqt_multiplot::PackageRegistry::isEmpty()) {
+    rqt_multiplot::PackageRegistry::update();
+  }
 }
 
-PackageScheme::~PackageScheme() {
-}
+PackageScheme::~PackageScheme() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -72,107 +68,104 @@ QModelIndex PackageScheme::getHostIndex(size_t row) const {
   return packageListModel_->index(row);
 }
 
-QVariant PackageScheme::getHostData(const QModelIndex& index, int role)
-  const {
+QVariant PackageScheme::getHostData(const QModelIndex& index, int role) const {
   return packageListModel_->data(index, role);
 }
-  
-size_t PackageScheme::getNumPaths(const QModelIndex& hostIndex, const
-    QModelIndex& parent) const {
+
+size_t PackageScheme::getNumPaths(const QModelIndex& hostIndex, const QModelIndex& parent) const {
   if (!parent.isValid()) {
     if (hostIndex.isValid()) {
       QString packagePath = packagePaths_[packages_[hostIndex.row()]];
       QModelIndex packagePathIndex = fileSystemModel_->index(packagePath);
-      
-      if (fileSystemModel_->canFetchMore(packagePathIndex))
+
+      if (fileSystemModel_->canFetchMore(packagePathIndex)) {
         fileSystemModel_->fetchMore(packagePathIndex);
-      
+      }
+
       return fileSystemModel_->rowCount(packagePathIndex);
     }
-  }
-  else {
-    if (fileSystemModel_->canFetchMore(parent))
+  } else {
+    if (fileSystemModel_->canFetchMore(parent)) {
       fileSystemModel_->fetchMore(parent);
-    
+    }
+
     return fileSystemModel_->rowCount(parent);
   }
-  
+
   return 0;
 }
 
-QModelIndex PackageScheme::getPathIndex(const QModelIndex& hostIndex, size_t
-    row, const QModelIndex& parent) const {
+QModelIndex PackageScheme::getPathIndex(const QModelIndex& hostIndex, size_t row, const QModelIndex& parent) const {
   if (!parent.isValid()) {
     if (hostIndex.isValid()) {
       QString packagePath = packagePaths_[packages_[hostIndex.row()]];
       QModelIndex packagePathIndex = fileSystemModel_->index(packagePath);
-      
+
       return fileSystemModel_->index(row, 0, packagePathIndex);
     }
-  }
-  else
+  } else {
     return fileSystemModel_->index(row, 0, parent);
-  
+  }
+
   return QModelIndex();
 }
 
-QVariant PackageScheme::getPathData(const QModelIndex& index, int role)
-    const {
+QVariant PackageScheme::getPathData(const QModelIndex& index, int role) const {
   return fileSystemModel_->data(index, role);
 }
 
 QString PackageScheme::getHost(const QModelIndex& hostIndex) const {
-  if (hostIndex.isValid())
+  if (hostIndex.isValid()) {
     return packages_[hostIndex.row()];
+  }
 
   return QString();
 }
 
-QString PackageScheme::getPath(const QModelIndex& hostIndex, const
-    QModelIndex& pathIndex) const {
+QString PackageScheme::getPath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const {
   if (hostIndex.isValid()) {
     QString packagePath = packagePaths_[packages_[hostIndex.row()]];
     QString path = fileSystemModel_->filePath(pathIndex);
-    
+
     return QDir(packagePath).relativeFilePath(path);
   }
-  
+
   return QString();
 }
 
-QString PackageScheme::getFilePath(const QModelIndex& hostIndex, const
-    QModelIndex& pathIndex) const {
+QString PackageScheme::getFilePath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const {
   if (hostIndex.isValid()) {
-    if (pathIndex.isValid())
+    if (pathIndex.isValid()) {
       return fileSystemModel_->filePath(pathIndex);
-    else
+    } else {
       return packagePaths_[packages_[hostIndex.row()]];
+    }
   }
-  
+
   return QString();
 }
 
-QString PackageScheme::getFilePath(const QString& host, const QString& path)
-    const {
+QString PackageScheme::getFilePath(const QString& host, const QString& path) const {
   QString packagePath;
-  
+
   if (!packagePaths_.isEmpty()) {
     QMap<QString, QString>::const_iterator it = packagePaths_.find(host);
-    
-    if (it != packagePaths_.end())
+
+    if (it != packagePaths_.end()) {
       packagePath = it.value();
+    }
+  } else {
+    packagePath = QString::fromStdString(ros::package::getPath(host.toStdString()));
   }
-  else
-    packagePath = QString::fromStdString(ros::package::getPath(
-      host.toStdString()));
-    
-  if (!packagePath.isEmpty())  {
+
+  if (!packagePath.isEmpty()) {
     QDir packageDir(packagePath);
-    
-    if (packageDir.exists())
+
+    if (packageDir.exists()) {
       return packageDir.absoluteFilePath(path);
+    }
   }
-  
+
   return QString();
 }
 
@@ -185,20 +178,20 @@ void PackageScheme::registryUpdateStarted() {
 }
 
 void PackageScheme::registryUpdateFinished() {
-  packagePaths_ = registry_->getPackages();
+  packagePaths_ = rqt_multiplot::PackageRegistry::getPackages();
   packages_ = packagePaths_.keys();
-  
+
   packageListModel_->setStringList(packages_);
-  
+
   emit resetFinished();
 }
 
 void PackageScheme::modelDirectoryLoaded(const QString& path) {
-  for (QMap<QString, QString>::const_iterator it = packagePaths_.begin();
-      it != packagePaths_.end(); ++it) {
-    if (path.startsWith(it.value()))
+  for (QMap<QString, QString>::const_iterator it = packagePaths_.begin(); it != packagePaths_.end(); ++it) {
+    if (path.startsWith(it.value())) {
       emit pathLoaded(it.key(), QDir(it.value()).relativeFilePath(path));
+    }
   }
 }
 
-}
+}  // namespace rqt_multiplot

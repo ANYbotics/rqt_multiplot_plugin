@@ -20,12 +20,12 @@
 #define RQT_MULTIPLOT_BIT_OPERATIONS_H
 
 namespace rqt_multiplot {
-  class BitOperations {
-  public:
-    static unsigned int revertInt(unsigned int val);
-    static unsigned short revertShort(unsigned short val);
-    static unsigned char revertByte(unsigned char val);
-  };
+class BitOperations {
+ public:
+  static unsigned int revertInt(unsigned int val);
+  static unsigned short revertShort(unsigned short val);
+  static unsigned char revertByte(unsigned char val);
 };
+}  // namespace rqt_multiplot
 
 #endif

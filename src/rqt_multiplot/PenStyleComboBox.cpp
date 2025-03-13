@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QPainter>
 #include <QPaintEvent>
+#include <QPainter>
 #include <QPen>
 
 #include <rqt_multiplot/PenStyleItemDelegate.h>
@@ -30,30 +30,28 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PenStyleComboBox::PenStyleComboBox(QWidget* parent) :
-  QComboBox(parent) {
+PenStyleComboBox::PenStyleComboBox(QWidget* parent) : QComboBox(parent) {
   setItemDelegate(new PenStyleItemDelegate(this));
-    
-  for (int style = Qt::SolidLine; style < Qt::CustomDashLine; ++style)
-    addItem("", style);    
-  
-  connect(this, SIGNAL(currentIndexChanged(int)), this,
-    SLOT(currentIndexChanged(int)));
+
+  for (int style = Qt::SolidLine; style < Qt::CustomDashLine; ++style) {
+    addItem("", style);
+  }
+
+  connect(this, SIGNAL(currentIndexChanged(int)), this, SLOT(currentIndexChanged(int)));
 }
 
-PenStyleComboBox::~PenStyleComboBox() {
-}
+PenStyleComboBox::~PenStyleComboBox() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
 void PenStyleComboBox::setCurrentStyle(Qt::PenStyle style) {
-  setCurrentIndex(style-Qt::SolidLine);
+  setCurrentIndex(style - Qt::SolidLine);
 }
 
 Qt::PenStyle PenStyleComboBox::getCurrentStyle() const {
-  return static_cast<Qt::PenStyle>(Qt::SolidLine+currentIndex());
+  return static_cast<Qt::PenStyle>(Qt::SolidLine + currentIndex());
 }
 
 /*****************************************************************************/
@@ -62,20 +60,19 @@ Qt::PenStyle PenStyleComboBox::getCurrentStyle() const {
 
 void PenStyleComboBox::paintEvent(QPaintEvent* event) {
   QComboBox::paintEvent(event);
-  
+
   QVariant data = itemData(currentIndex(), Qt::UserRole);
-  
+
   if (data.isValid()) {
     QPainter painter(this);
     QPen pen;
-    
+
     pen.setColor(palette().color(QPalette::Text));
     pen.setWidth(1);
     pen.setStyle(static_cast<Qt::PenStyle>(data.toInt()));
-    
+
     painter.setPen(pen);
-    painter.drawLine(event->rect().left()+5, event->rect().center().y(),
-      event->rect().right()-20, event->rect().center().y());
+    painter.drawLine(event->rect().left() + 5, event->rect().center().y(), event->rect().right() - 20, event->rect().center().y());
   }
 }
 
@@ -84,8 +81,9 @@ void PenStyleComboBox::paintEvent(QPaintEvent* event) {
 /*****************************************************************************/
 
 void PenStyleComboBox::currentIndexChanged(int index) {
-  if (index >= 0)
-    emit currentStyleChanged(static_cast<Qt::PenStyle>(Qt::SolidLine+index));
+  if (index >= 0) {
+    emit currentStyleChanged(static_cast<Qt::PenStyle>(Qt::SolidLine + index));
+  }
 }
 
-}
+}  // namespace rqt_multiplot

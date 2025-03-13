@@ -27,33 +27,31 @@
 #include <variant_topic_tools/MessageDataType.h>
 
 namespace rqt_multiplot {
-  class MessageFieldLineEdit :
-    public QLineEdit {
+class MessageFieldLineEdit : public QLineEdit {
   Q_OBJECT
-  public:
-    MessageFieldLineEdit(QWidget* parent = 0);
-    virtual ~MessageFieldLineEdit();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    void setCurrentField(const QString& field);
-    QString getCurrentField() const;
-    variant_topic_tools::DataType getCurrentFieldDataType() const;
-    bool isCurrentFieldDefined() const;
-    
-  signals:
-    void currentFieldChanged(const QString& field);
-    
-  private:
-    QString currentField_;
-    
-    MessageFieldCompleter* completer_;
-    MessageFieldItemModel* completerModel_;
-    
-  private slots:
-    void editingFinished();
-  };
+ public:
+  explicit MessageFieldLineEdit(QWidget* parent = nullptr);
+  ~MessageFieldLineEdit() override;
+
+  void setMessageDataType(const variant_topic_tools::MessageDataType& dataType);
+  variant_topic_tools::MessageDataType getMessageDataType() const;
+  void setCurrentField(const QString& field);
+  QString getCurrentField() const;
+  variant_topic_tools::DataType getCurrentFieldDataType() const;
+  bool isCurrentFieldDefined() const;
+
+ signals:
+  void currentFieldChanged(const QString& field);
+
+ private:
+  QString currentField_;
+
+  MessageFieldCompleter* completer_;
+  MessageFieldItemModel* completerModel_;
+
+ private slots:
+  void editingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

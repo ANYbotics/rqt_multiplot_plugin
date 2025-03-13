@@ -24,24 +24,14 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-BoundingRectangle::BoundingRectangle(const QPointF& minimum, const QPointF&
-    maximum) :
-  minimum_(minimum),
-  maximum_(maximum) {
-}
+BoundingRectangle::BoundingRectangle(const QPointF& minimum, const QPointF& maximum) : minimum_(minimum), maximum_(maximum) {}
 
-BoundingRectangle::BoundingRectangle(const QRectF& rectangle) :
-  minimum_(rectangle.left(), rectangle.top()),
-  maximum_(rectangle.right(), rectangle.bottom()) {
-}
+BoundingRectangle::BoundingRectangle(const QRectF& rectangle)
+    : minimum_(rectangle.left(), rectangle.top()), maximum_(rectangle.right(), rectangle.bottom()) {}
 
-BoundingRectangle::BoundingRectangle(const BoundingRectangle& src) :
-  minimum_(src.minimum_),
-  maximum_(src.maximum_) {
-}
+BoundingRectangle::BoundingRectangle(const BoundingRectangle& src) = default;
 
-BoundingRectangle::~BoundingRectangle() {
-}
+BoundingRectangle::~BoundingRectangle() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -76,16 +66,15 @@ QRectF BoundingRectangle::getRectangle() const {
 }
 
 bool BoundingRectangle::isValid() const {
-  return (maximum_.x() >= minimum_.x()) && (maximum_.y() >= minimum_.y()); 
+  return (maximum_.x() >= minimum_.x()) && (maximum_.y() >= minimum_.y());
 }
 
 bool BoundingRectangle::isEmpty() const {
-  return (maximum_.x() <= minimum_.x()) || (maximum_.y() <= minimum_.y()); 
+  return (maximum_.x() <= minimum_.x()) || (maximum_.y() <= minimum_.y());
 }
 
 bool BoundingRectangle::contains(const QPointF& point) const {
-  return (point.x() >= minimum_.x()) && (point.y() >= minimum_.y()) &&
-    (point.x() <= maximum_.x()) && (point.y() <= maximum_.y());
+  return (point.x() >= minimum_.x()) && (point.y() >= minimum_.y()) && (point.x() <= maximum_.x()) && (point.y() <= maximum_.y());
 }
 
 /*****************************************************************************/
@@ -118,49 +107,44 @@ BoundingRectangle& BoundingRectangle::operator+=(const QPointF& point) {
   if (maximum_.x() >= minimum_.x()) {
     minimum_.setX(std::min(minimum_.x(), point.x()));
     maximum_.setX(std::max(maximum_.x(), point.x()));
-  }
-  else {
+  } else {
     minimum_.setX(point.x());
     maximum_.setX(point.x());
   }
-        
+
   if (maximum_.y() >= minimum_.y()) {
     minimum_.setY(std::min(minimum_.y(), point.y()));
     maximum_.setY(std::max(maximum_.y(), point.y()));
-  }
-  else {
+  } else {
     minimum_.setY(point.y());
     maximum_.setY(point.y());
   }
-  
+
   return *this;
 }
 
-BoundingRectangle& BoundingRectangle::operator+=(const BoundingRectangle&
-    rectangle) {
+BoundingRectangle& BoundingRectangle::operator+=(const BoundingRectangle& rectangle) {
   if (rectangle.maximum_.x() >= rectangle.minimum_.x()) {
     if (maximum_.x() >= minimum_.x()) {
       minimum_.setX(std::min(minimum_.x(), rectangle.minimum_.x()));
       maximum_.setX(std::max(maximum_.x(), rectangle.maximum_.x()));
-    }
-    else {
+    } else {
       minimum_.setX(rectangle.minimum_.x());
       maximum_.setX(rectangle.maximum_.x());
     }
   }
-  
+
   if (rectangle.maximum_.y() >= rectangle.minimum_.y()) {
     if (maximum_.y() >= minimum_.y()) {
       minimum_.setY(std::min(minimum_.y(), rectangle.minimum_.y()));
       maximum_.setY(std::max(maximum_.y(), rectangle.maximum_.y()));
-    }
-    else {
+    } else {
       minimum_.setY(rectangle.minimum_.y());
       maximum_.setY(rectangle.maximum_.y());
     }
   }
-  
+
   return *this;
 }
 
-}
+}  // namespace rqt_multiplot

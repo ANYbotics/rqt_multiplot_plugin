@@ -22,45 +22,41 @@
 #include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class PlotAxisConfig :
-    public Config {
+class PlotAxisConfig : public Config {
   Q_OBJECT
-  public:
-    enum TitleType {
-      AutoTitle,
-      CustomTitle
-    };
-    
-    PlotAxisConfig(QObject* parent = 0, TitleType titleType = AutoTitle,
-      const QString& customTitle = "Untitled Axis", bool titleVisible = true);
-    ~PlotAxisConfig();
-    
-    void setTitleType(TitleType type);
-    TitleType getTitleType() const;
-    void setCustomTitle(const QString& title);
-    const QString& getCustomTitle() const;
-    void setTitleVisible(bool visible);
-    bool isTitleVisible() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    PlotAxisConfig& operator=(const PlotAxisConfig& src);
-    
-  signals:
-    void titleTypeChanged(int type);
-    void customTitleChanged(const QString& title);
-    void titleVisibleChanged(bool visible);
-    
-  private:
-    TitleType titleType_;
-    QString customTitle_;
-    bool titleVisible_;
-  };
+ public:
+  enum TitleType { AutoTitle, CustomTitle };
+
+  explicit PlotAxisConfig(QObject* parent = nullptr, TitleType titleType = AutoTitle, QString customTitle = "Untitled Axis",
+                          bool titleVisible = true);
+  ~PlotAxisConfig() override;
+
+  void setTitleType(TitleType type);
+  TitleType getTitleType() const;
+  void setCustomTitle(const QString& title);
+  const QString& getCustomTitle() const;
+  void setTitleVisible(bool visible);
+  bool isTitleVisible() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  PlotAxisConfig& operator=(const PlotAxisConfig& src);
+
+ signals:
+  void titleTypeChanged(int type);
+  void customTitleChanged(const QString& title);
+  void titleVisibleChanged(bool visible);
+
+ private:
+  TitleType titleType_;
+  QString customTitle_;
+  bool titleVisible_;
 };
+}  // namespace rqt_multiplot
 
 #endif

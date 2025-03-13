@@ -24,17 +24,16 @@
 #include <rqt_multiplot/MessageFieldItemModel.h>
 
 namespace rqt_multiplot {
-  class MessageFieldCompleter :
-    public QCompleter {
+class MessageFieldCompleter : public QCompleter {
   Q_OBJECT
-  public:
-    MessageFieldCompleter(QObject* parent = 0);
-    MessageFieldCompleter(MessageFieldItemModel* model, QObject* parent = 0);
-    virtual ~MessageFieldCompleter();
-  
-    QStringList splitPath(const QString& path) const;
-    QString pathFromIndex(const QModelIndex& index) const;
-  };
+ public:
+  explicit MessageFieldCompleter(QObject* parent = nullptr);
+  explicit MessageFieldCompleter(MessageFieldItemModel* model, QObject* parent = nullptr);
+  ~MessageFieldCompleter() override;
+
+  QStringList splitPath(const QString& path) const override;
+  QString pathFromIndex(const QModelIndex& index) const override;
 };
+}  // namespace rqt_multiplot
 
 #endif

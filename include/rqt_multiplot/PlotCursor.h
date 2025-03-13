@@ -28,61 +28,60 @@
 class QwtPlotCanvas;
 
 namespace rqt_multiplot {
-  class PlotCursor :
-    public QwtPlotPicker {
+class PlotCursor : public QwtPlotPicker {
   Q_OBJECT
-  public:
-    PlotCursor(QwtPlotCanvas* canvas);
-    ~PlotCursor();
+ public:
+  explicit PlotCursor(QwtPlotCanvas* canvas);
+  ~PlotCursor() override;
 
-    void setActive(bool active, const QPointF& position = QPointF(0.0, 0.0));
-    using QwtPlotPicker::isActive;
-    void setCurrentPosition(const QPointF& position);
-    const QPointF& getCurrentPosition() const;
-    void setTrackPoints(bool track);
-    bool arePointsTracked() const;
-    bool hasMouseControl() const;
+  void setActive(bool active, const QPointF& position = QPointF(0.0, 0.0));
+  using QwtPlotPicker::isActive;
+  void setCurrentPosition(const QPointF& position);
+  const QPointF& getCurrentPosition() const;
+  void setTrackPoints(bool track);
+  bool arePointsTracked() const;
+  bool hasMouseControl() const;
 
-    void update();
+  void update();
 
-    void drawRubberBand(QPainter* painter) const;
+  void drawRubberBand(QPainter* painter) const override;
 
-  signals:
-    void activeChanged(bool active);
-    void currentPositionChanged(const QPointF& position);
+ signals:
+  void activeChanged(bool active);
+  void currentPositionChanged(const QPointF& position);
 
-  protected:
-    QRect getTextRect(const QPointF& point, const QFont& font) const;
+ protected:
+  QRect getTextRect(const QPointF& point, const QFont& font) const;
 
-    QwtText trackerTextF(const QPointF& point) const;
+  QwtText trackerTextF(const QPointF& point) const override;
 
-    void begin();
-    void move(const QPoint& point);
-    bool end(bool ok = true);
+  void begin() override;
+  void move(const QPoint& point) override;
+  bool end(bool ok = true) override;
 
-    bool eventFilter(QObject* object, QEvent* event);
+  bool eventFilter(QObject* object, QEvent* event) override;
 
-    void updateDisplay();
-    void updateTrackedPoints();
+  void updateDisplay() override;
+  void updateTrackedPoints();
 
-    void drawTrackedPoints(QPainter* painter) const;
+  void drawTrackedPoints(QPainter* painter) const;
 
-  private:
-    struct TrackedPoint {
-      QPointF position;
-      QColor color;
-    };
-
-    QPointF currentPosition_;
-    QVector<TrackedPoint> trackedPoints_;
-
-    bool trackPoints_;
-    bool mouseControl_;
-
-  private slots:
-    void plotXAxisScaleDivChanged();
-    void plotYAxisScaleDivChanged();
+ private:
+  struct TrackedPoint {
+    QPointF position;
+    QColor color;
   };
+
+  QPointF currentPosition_;
+  QVector<TrackedPoint> trackedPoints_;
+
+  bool trackPoints_;
+  bool mouseControl_;
+
+ private slots:
+  void plotXAxisScaleDivChanged();
+  void plotYAxisScaleDivChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -26,14 +26,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataSequencer::CurveDataSequencer(QObject* parent) :
-  QObject(parent),
-  config_(0),
-  broker_(0) {
-}
+CurveDataSequencer::CurveDataSequencer(QObject* parent) : QObject(parent), config_(nullptr), broker_(nullptr) {}
 
-CurveDataSequencer::~CurveDataSequencer() {
-}
+CurveDataSequencer::~CurveDataSequencer() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -42,30 +37,25 @@ CurveDataSequencer::~CurveDataSequencer() {
 void CurveDataSequencer::setConfig(CurveConfig* config) {
   if (config != config_) {
     bool wasSubscribed = isSubscribed();
-    
-    if (config_) {
-      disconnect(config_->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      disconnect(config_->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      disconnect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)),
-        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
-      
+
+    if (config_ != nullptr) {
+      disconnect(config_->getAxisConfig(CurveConfig::X), SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      disconnect(config_->getAxisConfig(CurveConfig::Y), SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      disconnect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)), this, SLOT(configSubscriberQueueSizeChanged(size_t)));
+
       unsubscribe();
     }
-    
+
     config_ = config;
-    
-    if (config) {
-      connect(config->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      connect(config->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
-      connect(config, SIGNAL(subscriberQueueSizeChanged(size_t)),
-        this, SLOT(configSubscriberQueueSizeChanged(size_t)));
-      
-      if (wasSubscribed)
+
+    if (config != nullptr) {
+      connect(config->getAxisConfig(CurveConfig::X), SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      connect(config->getAxisConfig(CurveConfig::Y), SIGNAL(changed()), this, SLOT(configAxisConfigChanged()));
+      connect(config, SIGNAL(subscriberQueueSizeChanged(size_t)), this, SLOT(configSubscriberQueueSizeChanged(size_t)));
+
+      if (wasSubscribed) {
         subscribe();
+      }
     }
   }
 }
@@ -77,14 +67,16 @@ CurveConfig* CurveDataSequencer::getConfig() const {
 void CurveDataSequencer::setBroker(MessageBroker* broker) {
   if (broker != broker_) {
     bool wasSubscribed = isSubscribed();
-    
-    if (broker_)
+
+    if (broker_ != nullptr) {
       unsubscribe();
-    
+    }
+
     broker_ = broker;
-    
-    if (broker && wasSubscribed)
+
+    if ((broker != nullptr) && wasSubscribed) {
       subscribe();
+    }
   }
 }
 
@@ -95,137 +87,132 @@ MessageBroker* CurveDataSequencer::getBroker() const {
 bool CurveDataSequencer::isSubscribed() const {
   return !subscribedTopics_.isEmpty();
 }
-    
+
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
 void CurveDataSequencer::subscribe() {
-  if (isSubscribed())
+  if (isSubscribed()) {
     unsubscribe();
-  
-  if (config_ && broker_) {
+  }
+
+  if ((config_ != nullptr) && (broker_ != nullptr)) {
     CurveAxisConfig* xAxisConfig = config_->getAxisConfig(CurveConfig::X);
     CurveAxisConfig* yAxisConfig = config_->getAxisConfig(CurveConfig::Y);
-    
+
     if (xAxisConfig->getTopic() == yAxisConfig->getTopic()) {
       QString topic = xAxisConfig->getTopic();
-      
+
       MessageBroker::PropertyMap properties;
-      properties[MessageSubscriber::QueueSize] = QVariant::
-        fromValue<qulonglong>(config_->getSubscriberQueueSize());
-      
-      if (broker_->subscribe(topic, this,
-          SLOT(subscriberMessageReceived(const QString&,
-          const Message&)), properties)) {
+      properties[MessageSubscriber::QueueSize] = QVariant::fromValue<qulonglong>(config_->getSubscriberQueueSize());
+
+      if (broker_->subscribe(topic, this, SLOT(subscriberMessageReceived(const QString&, const Message&)), properties)) {
         subscribedTopics_[CurveConfig::X] = topic;
         subscribedTopics_[CurveConfig::Y] = topic;
       }
-    }
-    else {
+    } else {
       QString xTopic = xAxisConfig->getTopic();
       QString yTopic = yAxisConfig->getTopic();
-      
+
       MessageBroker::PropertyMap properties;
-      properties[MessageSubscriber::QueueSize] = QVariant::
-        fromValue<qulonglong>(config_->getSubscriberQueueSize());
-      
-      if (broker_->subscribe(xTopic, this,
-          SLOT(subscriberXAxisMessageReceived(const QString&,
-          const Message&)), properties))
+      properties[MessageSubscriber::QueueSize] = QVariant::fromValue<qulonglong>(config_->getSubscriberQueueSize());
+
+      if (broker_->subscribe(xTopic, this, SLOT(subscriberXAxisMessageReceived(const QString&, const Message&)), properties)) {
         subscribedTopics_[CurveConfig::X] = xTopic;
-      
-      if (broker_->subscribe(yTopic, this,
-          SLOT(subscriberYAxisMessageReceived(const QString&,
-          const Message&)), properties))
+      }
+
+      if (broker_->subscribe(yTopic, this, SLOT(subscriberYAxisMessageReceived(const QString&, const Message&)), properties)) {
         subscribedTopics_[CurveConfig::Y] = yTopic;
+      }
     }
   }
-  
-  if (!subscribedTopics_.isEmpty())
+
+  if (!subscribedTopics_.isEmpty()) {
     emit subscribed();
+  }
 }
 
 void CurveDataSequencer::unsubscribe() {
   if (isSubscribed()) {
-    for (QMap<CurveConfig::Axis, QString>::iterator it = subscribedTopics_.
-        begin(); it != subscribedTopics_.end(); ++it)
+    for (QMap<CurveConfig::Axis, QString>::iterator it = subscribedTopics_.begin(); it != subscribedTopics_.end(); ++it) {
       broker_->unsubscribe(it.value(), this);
-      
+    }
+
     subscribedTopics_.clear();
     timeFields_.clear();
     timeValues_.clear();
-    
+
     emit unsubscribed();
   }
 }
 
 void CurveDataSequencer::processMessage(const Message& message) {
-  if (!config_)
+  if (config_ == nullptr) {
     return;
-  
+  }
+
   CurveAxisConfig* xAxisConfig = config_->getAxisConfig(CurveConfig::X);
   CurveAxisConfig* yAxisConfig = config_->getAxisConfig(CurveConfig::Y);
-  
+
   QPointF point;
-  
+
   if (xAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
-    variant_topic_tools::BuiltinVariant variant = message.getVariant().
-      getMember(xAxisConfig->getField().toStdString());
-      
+    variant_topic_tools::BuiltinVariant variant = message.getVariant().getMember(xAxisConfig->getField().toStdString());
+
     point.setX(variant.getNumericValue());
-  }
-  else
+  } else {
     point.setX(message.getReceiptTime().toSec());
-  
+  }
+
   if (yAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
     try {
-      variant_topic_tools::BuiltinVariant variant = message.getVariant().
-        getMember(yAxisConfig->getField().toStdString());
+      variant_topic_tools::BuiltinVariant variant = message.getVariant().getMember(yAxisConfig->getField().toStdString());
 
       point.setY(variant.getNumericValue());
     } catch (const variant_topic_tools::NoSuchMemberException& e) {
-      ROS_WARN_STREAM_ONCE("Exception in processMessage while retrieving"
-        " member '" << yAxisConfig->getField().toStdString() << "': " <<
-        e.what());
+      ROS_WARN_STREAM_ONCE(
+          "Exception in processMessage while retrieving"
+          " member '"
+          << yAxisConfig->getField().toStdString() << "': " << e.what());
     }
-  }
-  else
+  } else {
     point.setY(message.getReceiptTime().toSec());
-  
+  }
+
   emit pointReceived(point);
 }
 
-void CurveDataSequencer::processMessage(CurveConfig::Axis axis, const
-    Message& message) {
-  if (!config_)
+void CurveDataSequencer::processMessage(CurveConfig::Axis axis, const Message& message) {
+  if (config_ == nullptr) {
     return;
-  
+  }
+
   CurveAxisConfig* axisConfig = config_->getAxisConfig(axis);
-  
-  if (axisConfig) {
+
+  if (axisConfig != nullptr) {
     if (!timeFields_.contains(axis)) {
       timeFields_[axis] = QString();
-      
+
       if (axisConfig->getFieldType() == CurveAxisConfig::MessageData) {
         QStringList fieldParts = axisConfig->getField().split("/");
-        
+
         while (!fieldParts.isEmpty()) {
           fieldParts.removeLast();
-          
+
           QString parentField = fieldParts.join("/");
           variant_topic_tools::MessageVariant variant;
-          
-          if (!parentField.isEmpty())
-            variant = message.getVariant().getMember(fieldParts.join("/").
-              toStdString());
-          else
+
+          if (!parentField.isEmpty()) {
+            variant = message.getVariant().getMember(fieldParts.join("/").toStdString());
+          } else {
             variant = message.getVariant();
-            
+          }
+
           variant_topic_tools::MessageDataType type = variant.getType();
-            
+
           if (type.hasHeader()) {
-            timeFields_[axis] = parentField+"/header/stamp";
+            timeFields_[axis] = parentField + "/header/stamp";
             break;
           }
         }
@@ -233,28 +220,26 @@ void CurveDataSequencer::processMessage(CurveConfig::Axis axis, const
     }
 
     TimeValue timeValue;
-  
+
     if (!timeFields_[axis].isEmpty()) {
-      variant_topic_tools::BuiltinVariant variant = message.getVariant().
-        getMember(timeFields_[axis].toStdString());
-        
+      variant_topic_tools::BuiltinVariant variant = message.getVariant().getMember(timeFields_[axis].toStdString());
+
       timeValue.time_ = variant.getValue<ros::Time>();
-    }
-    else
+    } else {
       timeValue.time_ = message.getReceiptTime();
-    
-    if (axisConfig->getFieldType() == CurveAxisConfig::MessageData) {
-      variant_topic_tools::BuiltinVariant variant = message.getVariant().
-        getMember(axisConfig->getField().toStdString());
-        
-      timeValue.value_ = variant.getNumericValue();
     }
-    else
+
+    if (axisConfig->getFieldType() == CurveAxisConfig::MessageData) {
+      variant_topic_tools::BuiltinVariant variant = message.getVariant().getMember(axisConfig->getField().toStdString());
+
+      timeValue.value_ = variant.getNumericValue();
+    } else {
       timeValue.value_ = message.getReceiptTime().toSec();
-      
-    if (timeValues_[axis].isEmpty() ||
-        (timeValue.time_ > timeValues_[axis].last().time_))
+    }
+
+    if (timeValues_[axis].isEmpty() || (timeValue.time_ > timeValues_[axis].last().time_)) {
       timeValues_[axis].append(timeValue);
+    }
   }
 
   interpolate();
@@ -263,47 +248,42 @@ void CurveDataSequencer::processMessage(CurveConfig::Axis axis, const
 void CurveDataSequencer::interpolate() {
   TimeValueList& timeValuesX = timeValues_[CurveConfig::X];
   TimeValueList& timeValuesY = timeValues_[CurveConfig::Y];
-  
+
   while ((timeValuesX.count() > 1) && (timeValuesY.count() > 1)) {
-    while ((timeValuesX.count() > 1) &&
-        ((++timeValuesX.begin())->time_ < timeValuesY.front().time_))
+    while ((timeValuesX.count() > 1) && ((++timeValuesX.begin())->time_ < timeValuesY.front().time_)) {
       timeValuesX.removeFirst();
-    
-    while ((timeValuesY.count() > 1) &&
-        ((++timeValuesY.begin())->time_ < timeValuesX.front().time_))
+    }
+
+    while ((timeValuesY.count() > 1) && ((++timeValuesY.begin())->time_ < timeValuesX.front().time_)) {
       timeValuesY.removeFirst();
-  
-    if ((timeValuesY.front().time_ >= timeValuesX.front().time_) &&
-        (timeValuesX.count() > 1)) {
+    }
+
+    if ((timeValuesY.front().time_ >= timeValuesX.front().time_) && (timeValuesX.count() > 1)) {
       QPointF point;
-      
+
       const TimeValue& firstX = timeValuesX.first();
       const TimeValue& secondX = *(++timeValuesX.begin());
-      
-      point.setX(firstX.value_+(secondX.value_-firstX.value_)*
-        (timeValuesY.front().time_-firstX.time_).toSec()/
-        (secondX.time_-firstX.time_).toSec());
+
+      point.setX(firstX.value_ + (secondX.value_ - firstX.value_) * (timeValuesY.front().time_ - firstX.time_).toSec() /
+                                     (secondX.time_ - firstX.time_).toSec());
       point.setY(timeValuesY.front().value_);
-      
+
       timeValuesY.removeFirst();
-  
-      emit pointReceived(point); 
-    }    
-    else if ((timeValuesX.front().time_ >= timeValuesY.front().time_) &&
-        (timeValuesY.count() > 1)) {
+
+      emit pointReceived(point);
+    } else if ((timeValuesX.front().time_ >= timeValuesY.front().time_) && (timeValuesY.count() > 1)) {
       QPointF point;
-      
+
       const TimeValue& firstY = timeValuesY.first();
       const TimeValue& secondY = *(++timeValuesY.begin());
-      
+
       point.setX(timeValuesX.front().value_);
-      point.setY(firstY.value_+(secondY.value_-firstY.value_)*
-        (timeValuesX.front().time_-firstY.time_).toSec()/
-        (secondY.time_-firstY.time_).toSec());
-      
+      point.setY(firstY.value_ + (secondY.value_ - firstY.value_) * (timeValuesX.front().time_ - firstY.time_).toSec() /
+                                     (secondY.time_ - firstY.time_).toSec());
+
       timeValuesX.removeFirst();
-      
-      emit pointReceived(point); 
+
+      emit pointReceived(point);
     }
   }
 }
@@ -319,26 +299,23 @@ void CurveDataSequencer::configAxisConfigChanged() {
   }
 }
 
-void CurveDataSequencer::configSubscriberQueueSizeChanged(size_t queueSize) {
+void CurveDataSequencer::configSubscriberQueueSizeChanged(size_t /*queueSize*/) {
   if (isSubscribed()) {
     unsubscribe();
     subscribe();
   }
 }
 
-void CurveDataSequencer::subscriberMessageReceived(const QString& topic,
-    const Message& message) {
+void CurveDataSequencer::subscriberMessageReceived(const QString& /*topic*/, const Message& message) {
   processMessage(message);
 }
 
-void CurveDataSequencer::subscriberXAxisMessageReceived(const QString& topic,
-    const Message& message) {      
+void CurveDataSequencer::subscriberXAxisMessageReceived(const QString& /*topic*/, const Message& message) {
   processMessage(CurveConfig::X, message);
 }
 
-void CurveDataSequencer::subscriberYAxisMessageReceived(const QString& topic,
-    const Message& message) {
+void CurveDataSequencer::subscriberYAxisMessageReceived(const QString& /*topic*/, const Message& message) {
   processMessage(CurveConfig::Y, message);
 }
 
-}
+}  // namespace rqt_multiplot

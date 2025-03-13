@@ -24,41 +24,40 @@
 #include <rqt_multiplot/CurveAxisScaleConfig.h>
 
 namespace Ui {
-  class CurveAxisScaleConfigWidget;
-};
+class CurveAxisScaleConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveAxisScaleConfigWidget :
-    public QWidget {
+class CurveAxisScaleConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveAxisScaleConfigWidget(QWidget* parent = 0);
-    virtual ~CurveAxisScaleConfigWidget();
-    
-    void setConfig(CurveAxisScaleConfig* config);
-    CurveAxisScaleConfig* getConfig() const;
-    
-  private:
-    Ui::CurveAxisScaleConfigWidget* ui_;
-    
-    CurveAxisScaleConfig* config_;
-    
-  private slots:
-    void configTypeChanged(int type);
-    void configAbsoluteMinimumChanged(double minimum);
-    void configAbsoluteMaximumChanged(double maximum);
-    void configRelativeMinimumChanged(double minimum);
-    void configRelativeMaximumChanged(double maximum);
-    
-    void radioButtonAbsoluteToggled(bool checked);
-    void radioButtonRelativeToggled(bool checked);
-    void radioButtonAutoToggled(bool checked);
-    
-    void lineEditAbsoluteMinimumEditingFinished();
-    void lineEditAbsoluteMaximumEditingFinished();
-    void lineEditRelativeMinimumEditingFinished();
-    void lineEditRelativeMaximumEditingFinished();
-  };
+ public:
+  explicit CurveAxisScaleConfigWidget(QWidget* parent = nullptr);
+  ~CurveAxisScaleConfigWidget() override;
+
+  void setConfig(CurveAxisScaleConfig* config);
+  CurveAxisScaleConfig* getConfig() const;
+
+ private:
+  Ui::CurveAxisScaleConfigWidget* ui_;
+
+  CurveAxisScaleConfig* config_;
+
+ private slots:
+  void configTypeChanged(int type);
+  void configAbsoluteMinimumChanged(double minimum);
+  void configAbsoluteMaximumChanged(double maximum);
+  void configRelativeMinimumChanged(double minimum);
+  void configRelativeMaximumChanged(double maximum);
+
+  void radioButtonAbsoluteToggled(bool checked);
+  void radioButtonRelativeToggled(bool checked);
+  void radioButtonAutoToggled(bool checked);
+
+  void lineEditAbsoluteMinimumEditingFinished();
+  void lineEditAbsoluteMaximumEditingFinished();
+  void lineEditRelativeMinimumEditingFinished();
+  void lineEditRelativeMaximumEditingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

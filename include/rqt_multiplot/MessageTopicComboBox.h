@@ -23,40 +23,39 @@
 #include <rqt_multiplot/MessageTopicRegistry.h>
 
 namespace rqt_multiplot {
-  class MessageTopicComboBox :
-    public MatchFilterComboBox {
+class MessageTopicComboBox : public MatchFilterComboBox {
   Q_OBJECT
-  public:
-    MessageTopicComboBox(QWidget* parent = 0);
-    virtual ~MessageTopicComboBox();
-    
-    void setEditable(bool editable);
-    void setCurrentTopic(const QString& topic);
-    QString getCurrentTopic() const;
-    QString getCurrentTopicType() const;
-    bool isUpdating() const;
-    bool isCurrentTopicRegistered() const;
-  
-    void updateTopics();
-    
-  signals:
-    void updateStarted();
-    void updateFinished();
-    void currentTopicChanged(const QString& topic);
-    
-  private:
-    QString currentTopic_;
-    
-    MessageTopicRegistry* registry_;
-    bool isUpdating_;
-    
-  private slots:
-    void registryUpdateStarted();
-    void registryUpdateFinished();
-    
-    void currentIndexChanged(const QString& text);
-    void lineEditEditingFinished();
-  };
+ public:
+  explicit MessageTopicComboBox(QWidget* parent = nullptr);
+  ~MessageTopicComboBox() override;
+
+  void setEditable(bool editable);
+  void setCurrentTopic(const QString& topic);
+  QString getCurrentTopic() const;
+  QString getCurrentTopicType() const;
+  bool isUpdating() const;
+  bool isCurrentTopicRegistered() const;
+
+  void updateTopics();
+
+ signals:
+  void updateStarted();
+  void updateFinished();
+  void currentTopicChanged(const QString& topic);
+
+ private:
+  QString currentTopic_;
+
+  MessageTopicRegistry* registry_;
+  bool isUpdating_;
+
+ private slots:
+  void registryUpdateStarted();
+  void registryUpdateFinished();
+
+  void currentIndexChanged(const QString& text);
+  void lineEditEditingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

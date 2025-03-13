@@ -25,65 +25,64 @@
 #include <rqt_multiplot/PlotTableConfig.h>
 
 namespace Ui {
-  class PlotTableConfigWidget;
-};
+class PlotTableConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotTableWidget;
+class PlotTableWidget;
 
-  class PlotTableConfigWidget :
-    public QWidget {
+class PlotTableConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    PlotTableConfigWidget(QWidget* parent = 0);
-    virtual ~PlotTableConfigWidget();
+ public:
+  explicit PlotTableConfigWidget(QWidget* parent = nullptr);
+  ~PlotTableConfigWidget() override;
 
-    void setConfig(PlotTableConfig* config);
-    PlotTableConfig* getConfig() const;
-    void setPlotTable(PlotTableWidget* plotTable);
-    PlotTableWidget* getPlotTableWidget() const;
-    void runPlots();
+  void setConfig(PlotTableConfig* config);
+  PlotTableConfig* getConfig() const;
+  void setPlotTable(PlotTableWidget* plotTable);
+  PlotTableWidget* getPlotTableWidget() const;
+  void runPlots();
 
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
+ protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
 
-  private:
-    Ui::PlotTableConfigWidget* ui_;
+ private:
+  Ui::PlotTableConfigWidget* ui_;
 
-    QMenu* menuImportExport_;
+  QMenu* menuImportExport_;
 
-    PlotTableConfig* config_;
-    PlotTableWidget* plotTable_;
+  PlotTableConfig* config_;
+  PlotTableWidget* plotTable_;
 
-  private slots:
-    void configBackgroundColorChanged(const QColor& color);
-    void configForegroundColorChanged(const QColor& color);
-    void configNumPlotsChanged(size_t numRows, size_t numColumns);
-    void configLinkScaleChanged(bool link);
-    void configLinkCursorChanged(bool link);
-    void configTrackPointsChanged(bool track);
+ private slots:
+  void configBackgroundColorChanged(const QColor& color);
+  void configForegroundColorChanged(const QColor& color);
+  void configNumPlotsChanged(size_t numRows, size_t numColumns);
+  void configLinkScaleChanged(bool link);
+  void configLinkCursorChanged(bool link);
+  void configTrackPointsChanged(bool track);
 
-    void spinBoxRowsValueChanged(int value);
-    void spinBoxColumnsValueChanged(int value);
+  void spinBoxRowsValueChanged(int value);
+  void spinBoxColumnsValueChanged(int value);
 
-    void checkBoxLinkScaleStateChanged(int state);
-    void checkBoxLinkCursorStateChanged(int state);
-    void checkBoxTrackPointsStateChanged(int state);
+  void checkBoxLinkScaleStateChanged(int state);
+  void checkBoxLinkCursorStateChanged(int state);
+  void checkBoxTrackPointsStateChanged(int state);
 
-    void pushButtonRunClicked();
-    void pushButtonPauseClicked();
-    void pushButtonClearClicked();
-    void pushButtonImportExportClicked();
-    void menuImportBagFileTriggered();
-    void menuExportImageFileTriggered();
-    void menuExportTextFileTriggered();
+  void pushButtonRunClicked();
+  void pushButtonPauseClicked();
+  void pushButtonClearClicked();
+  void pushButtonImportExportClicked();
+  void menuImportBagFileTriggered();
+  void menuExportImageFileTriggered();
+  void menuExportTextFileTriggered();
 
-    void plotTablePlotPausedChanged();
-    void plotTableJobStarted(const QString& toolTip);
-    void plotTableJobProgressChanged(double progress);
-    void plotTableJobFinished(const QString& toolTip);
-    void plotTableJobFailed(const QString& toolTip);
-  };
+  void plotTablePlotPausedChanged();
+  void plotTableJobStarted(const QString& toolTip);
+  void plotTableJobProgressChanged(double progress);
+  void plotTableJobFinished(const QString& toolTip);
+  void plotTableJobFailed(const QString& toolTip);
 };
+}  // namespace rqt_multiplot
 
 #endif

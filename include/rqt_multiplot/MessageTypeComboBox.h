@@ -23,39 +23,38 @@
 #include <rqt_multiplot/MessageTypeRegistry.h>
 
 namespace rqt_multiplot {
-  class MessageTypeComboBox :
-    public MatchFilterComboBox {
+class MessageTypeComboBox : public MatchFilterComboBox {
   Q_OBJECT
-  public:
-    MessageTypeComboBox(QWidget* parent = 0);
-    virtual ~MessageTypeComboBox();
-    
-    void setEditable(bool editable);
-    void setCurrentType(const QString& type);
-    QString getCurrentType() const;
-    bool isUpdating() const;
-    bool isCurrentTypeRegistered() const;
-  
-    void updateTypes();
-    
-  signals:
-    void updateStarted();
-    void updateFinished();
-    void currentTypeChanged(const QString& type);
-    
-  private:
-    QString currentType_;
-    
-    MessageTypeRegistry* registry_;
-    bool isUpdating_;
-    
-  private slots:
-    void registryUpdateStarted();
-    void registryUpdateFinished();
-    
-    void currentIndexChanged(const QString& text);
-    void lineEditEditingFinished();
-  };
+ public:
+  explicit MessageTypeComboBox(QWidget* parent = nullptr);
+  ~MessageTypeComboBox() override;
+
+  void setEditable(bool editable);
+  void setCurrentType(const QString& type);
+  QString getCurrentType() const;
+  bool isUpdating() const;
+  bool isCurrentTypeRegistered() const;
+
+  void updateTypes();
+
+ signals:
+  void updateStarted();
+  void updateFinished();
+  void currentTypeChanged(const QString& type);
+
+ private:
+  QString currentType_;
+
+  MessageTypeRegistry* registry_;
+  bool isUpdating_;
+
+ private slots:
+  void registryUpdateStarted();
+  void registryUpdateFinished();
+
+  void currentIndexChanged(const QString& text);
+  void lineEditEditingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

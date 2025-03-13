@@ -26,14 +26,12 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigDialog::CurveConfigDialog(QWidget* parent, Qt::WindowFlags flags) :
-  QDialog(parent, flags),
-  ui_(new Ui::CurveConfigDialog()) {
+CurveConfigDialog::CurveConfigDialog(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags), ui_(new Ui::CurveConfigDialog()) {
   ui_->setupUi(this);
 }
 
 CurveConfigDialog::~CurveConfigDialog() {
-  delete ui_;  
+  delete ui_;
 }
 
 /*****************************************************************************/
@@ -44,4 +42,4 @@ CurveConfigWidget* CurveConfigDialog::getWidget() const {
   return ui_->widgetCurveConfig;
 }
 
-}
+}  // namespace rqt_multiplot

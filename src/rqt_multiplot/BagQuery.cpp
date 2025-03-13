@@ -39,12 +39,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-BagQuery::BagQuery(QObject* parent) :
-  QObject(parent) {
-}
+BagQuery::BagQuery(QObject* parent) : QObject(parent) {}
 
-BagQuery::~BagQuery() {
-}
+BagQuery::~BagQuery() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
@@ -52,14 +49,13 @@ BagQuery::~BagQuery() {
 
 bool BagQuery::event(QEvent* event) {
   if (event->type() == MessageEvent::Type) {
-    MessageEvent* messageEvent = static_cast<MessageEvent*>(event);
+    auto* messageEvent = dynamic_cast<MessageEvent*>(event);
 
-    emit messageRead(messageEvent->getTopic(), messageEvent->
-      getMessage());
-    
+    emit messageRead(messageEvent->getTopic(), messageEvent->getMessage());
+
     return true;
   }
-  
+
   return QObject::event(event);
 }
 
@@ -68,21 +64,19 @@ void BagQuery::callback(const rosbag::MessageInstance& instance) {
 
   if (!dataType_.isValid()) {
     DataTypeRegistry::mutex_.lock();
-    
+
     variant_topic_tools::DataTypeRegistry registry;
     dataType_ = registry.getDataType(instance.getDataType());
 
     if (!dataType_) {
-      variant_topic_tools::MessageType messageType(instance.getDataType(),
-        instance.getMD5Sum(), instance.getMessageDefinition());
-      variant_topic_tools::MessageDefinition messageDefinition(
-        messageType);
-      
+      variant_topic_tools::MessageType messageType(instance.getDataType(), instance.getMD5Sum(), instance.getMessageDefinition());
+      variant_topic_tools::MessageDefinition messageDefinition(messageType);
+
       dataType_ = messageDefinition.getMessageDataType();
     }
-    
+
     DataTypeRegistry::mutex_.unlock();
-    
+
     serializer_ = dataType_.createSerializer();
   }
 
@@ -92,22 +86,20 @@ void BagQuery::callback(const rosbag::MessageInstance& instance) {
 
   variant_topic_tools::MessageVariant variant = dataType_.createVariant();
   ros::serialization::IStream inputStream(data.data(), data.size());
-  
+
   serializer_.deserialize(inputStream, variant);
-  
+
   message.setReceiptTime(instance.getTime());
   message.setVariant(variant);
-  
-  MessageEvent* messageEvent = new MessageEvent(QString::fromStdString(
-    instance.getTopic()), message);
-  
+
+  auto* messageEvent = new MessageEvent(QString::fromStdString(instance.getTopic()), message);
+
   QApplication::postEvent(this, messageEvent);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-void BagQuery::disconnectNotify(const QMetaMethod& signal) {
-  if (!receivers(QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&))))) {
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+void BagQuery::disconnectNotify(const QMetaMethod& /*signal*/) {
+  if (receivers(QMetaObject::normalizedSignature(SIGNAL(messageReceived(const QString&, const Message&)))) == 0) {
     emit aboutToBeDestroyed();
 
     deleteLater();
@@ -115,13 +107,12 @@ void BagQuery::disconnectNotify(const QMetaMethod& signal) {
 }
 #else
 void BagQuery::disconnectNotify(const char* signal) {
-  if (!receivers(QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&))))) {
+  if (!receivers(QMetaObject::normalizedSignature(SIGNAL(messageReceived(const QString&, const Message&))))) {
     emit aboutToBeDestroyed();
-  
+
     deleteLater();
   }
 }
 #endif
 
-}
+}  // namespace rqt_multiplot

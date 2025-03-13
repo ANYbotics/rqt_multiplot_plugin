@@ -23,13 +23,13 @@
 #include <QSettings>
 
 namespace rqt_multiplot {
-  class XmlSettings {
-  public:
-    static const QSettings::Format format;
-    
-    static bool read(QIODevice& device, QSettings::SettingsMap& map);
-    static bool write(QIODevice& device, const QSettings::SettingsMap& map);
-  };
+class XmlSettings {
+ public:
+  static const QSettings::Format format;
+
+  static bool read(QIODevice& device, QSettings::SettingsMap& map);
+  static bool write(QIODevice& device, const QSettings::SettingsMap& map);
 };
+}  // namespace rqt_multiplot
 
 #endif

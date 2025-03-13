@@ -24,12 +24,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-Config::Config(QObject* parent) :
-  QObject(parent) {
-}
+Config::Config(QObject* parent) : QObject(parent) {}
 
-Config::~Config() {
-}
+Config::~Config() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
@@ -45,4 +42,4 @@ QDataStream& operator>>(QDataStream& stream, Config& config) {
   return stream;
 }
 
-}
+}  // namespace rqt_multiplot

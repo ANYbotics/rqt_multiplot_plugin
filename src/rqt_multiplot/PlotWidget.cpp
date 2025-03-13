@@ -21,16 +21,16 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QFontMetrics>
+#include <QMimeData>
 #include <QPainter>
 #include <QTextStream>
-#include <QMimeData>
 
+#include <qwt/qwt_plot.h>
 #include <qwt/qwt_plot_canvas.h>
 #include <qwt/qwt_plot_curve.h>
 #include <qwt/qwt_plot_picker.h>
 #include <qwt/qwt_plot_renderer.h>
 #include <qwt/qwt_scale_widget.h>
-#include <qwt/qwt_plot.h>
 
 #include <ros/package.h>
 
@@ -54,51 +54,42 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotWidget::PlotWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::PlotWidget()),
-  timer_(new QTimer(this)),
-  menuImportExport_(new QMenu(this)),
-  config_(0),
-  broker_(0),
-  legend_(0),
-  cursor_(0),
-  panner_(0),
-  magnifier_(0),
-  zoomer_(0),
-  paused_(true),
-  rescale_(false),
-  replot_(false),
-  state_(Normal) {
+PlotWidget::PlotWidget(QWidget* parent)
+    : QWidget(parent),
+      ui_(new Ui::PlotWidget()),
+      timer_(new QTimer(this)),
+      menuImportExport_(new QMenu(this)),
+      config_(nullptr),
+      broker_(nullptr),
+      legend_(nullptr),
+      cursor_(nullptr),
+      panner_(nullptr),
+      magnifier_(nullptr),
+      zoomer_(nullptr),
+      paused_(true),
+      rescale_(false),
+      replot_(false),
+      state_(Normal) {
   qRegisterMetaType<BoundingRectangle>("BoundingRectangle");
 
   ui_->setupUi(this);
 
   setAcceptDrops(true);
 
-  runIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
-    "rqt_multiplot").append("/resource/16x16/run.png")));
-  pauseIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
-    "rqt_multiplot").append("/resource/16x16/pause.png")));
-  normalIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
-    "rqt_multiplot").append("/resource/16x16/zoom_in.png")));
-  maximizedIcon_ = QIcon(QString::fromStdString(ros::package::getPath(
-    "rqt_multiplot").append("/resource/16x16/zoom_out.png")));
+  runIcon_ = QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/run.png")));
+  pauseIcon_ = QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/pause.png")));
+  normalIcon_ = QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/zoom_in.png")));
+  maximizedIcon_ = QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/zoom_out.png")));
 
   ui_->pushButtonRunPause->setIcon(runIcon_);
-  ui_->pushButtonClear->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/clear.png"))));
+  ui_->pushButtonClear->setIcon(QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/clear.png"))));
   ui_->pushButtonImportExport->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/eject.png"))));
-  ui_->pushButtonSetup->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/16x16/setup.png"))));
+      QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/eject.png"))));
+  ui_->pushButtonSetup->setIcon(QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/16x16/setup.png"))));
   ui_->pushButtonState->setIcon(normalIcon_);
 
   ui_->plot->setAutoReplot(false);
-  static_cast<QFrame*>(ui_->plot->canvas())->setFrameStyle(QFrame::NoFrame);
+  dynamic_cast<QFrame*>(ui_->plot->canvas())->setFrameStyle(QFrame::NoFrame);
 
   ui_->plot->enableAxis(QwtPlot::xTop);
   ui_->plot->enableAxis(QwtPlot::yRight);
@@ -108,69 +99,47 @@ PlotWidget::PlotWidget(QWidget* parent) :
   ui_->plot->setAxisAutoScale(QwtPlot::xTop, false);
   ui_->plot->setAxisAutoScale(QwtPlot::xBottom, false);
 
-  ui_->plot->axisScaleDraw(QwtPlot::xTop)->enableComponent(
-    QwtAbstractScaleDraw::Labels, false);
-  ui_->plot->axisScaleDraw(QwtPlot::yRight)->enableComponent(
-    QwtAbstractScaleDraw::Labels, false);
+  ui_->plot->axisScaleDraw(QwtPlot::xTop)->enableComponent(QwtAbstractScaleDraw::Labels, false);
+  ui_->plot->axisScaleDraw(QwtPlot::yRight)->enableComponent(QwtAbstractScaleDraw::Labels, false);
 
-  ui_->horizontalSpacerRight->changeSize(
-    ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
+  ui_->horizontalSpacerRight->changeSize(ui_->plot->axisWidget(QwtPlot::yRight)->width() - 5, 20);
 
-  timer_->setInterval(1e3/30.0);
+  timer_->setInterval(1e3 / 30.0);
   timer_->start();
 
-  menuImportExport_->addAction("Export to image file...", this,
-    SLOT(menuExportImageFileTriggered()));
-  menuImportExport_->addAction("Export to text file...", this,
-    SLOT(menuExportTextFileTriggered()));
+  menuImportExport_->addAction("Export to image file...", this, SLOT(menuExportImageFileTriggered()));
+  menuImportExport_->addAction("Export to text file...", this, SLOT(menuExportTextFileTriggered()));
 
-  QwtPlotCanvas* canvas = static_cast<QwtPlotCanvas*>(ui_->plot->canvas());
+  auto* canvas = dynamic_cast<QwtPlotCanvas*>(ui_->plot->canvas());
   cursor_ = new PlotCursor(canvas);
   magnifier_ = new PlotMagnifier(canvas);
   panner_ = new PlotPanner(canvas);
   zoomer_ = new PlotZoomer(canvas);
   zoomer_->setTrackerMode(QwtPicker::AlwaysOff);
 
-  #if QWT_VERSION >= 0x060100
-    currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(
-      QwtPlot::xBottom).lowerBound());
-    currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(
-      QwtPlot::yLeft).lowerBound());
-    currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(
-      QwtPlot::xBottom).upperBound());
-    currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(
-      QwtPlot::yLeft).upperBound());
-  #else
-    currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(
-      QwtPlot::xBottom)->lowerBound());
-    currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(
-      QwtPlot::yLeft)->lowerBound());
-    currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(
-      QwtPlot::xBottom)->upperBound());
-    currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(
-      QwtPlot::yLeft)->upperBound());
-  #endif
+#if QWT_VERSION >= 0x060100
+  currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(QwtPlot::xBottom).lowerBound());
+  currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(QwtPlot::yLeft).lowerBound());
+  currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(QwtPlot::xBottom).upperBound());
+  currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(QwtPlot::yLeft).upperBound());
+#else
+  currentBounds_.getMinimum().setX(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->lowerBound());
+  currentBounds_.getMinimum().setY(ui_->plot->axisScaleDiv(QwtPlot::yLeft)->lowerBound());
+  currentBounds_.getMaximum().setX(ui_->plot->axisScaleDiv(QwtPlot::xBottom)->upperBound());
+  currentBounds_.getMaximum().setY(ui_->plot->axisScaleDiv(QwtPlot::yLeft)->upperBound());
+#endif
 
-  connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this,
-    SLOT(lineEditTitleTextChanged(const QString&)));
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
+  connect(ui_->lineEditTitle, SIGNAL(textChanged(const QString&)), this, SLOT(lineEditTitleTextChanged(const QString&)));
+  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this, SLOT(lineEditTitleEditingFinished()));
 
-  connect(ui_->pushButtonRunPause, SIGNAL(clicked()), this,
-    SLOT(pushButtonRunPauseClicked()));
-  connect(ui_->pushButtonClear, SIGNAL(clicked()), this,
-    SLOT(pushButtonClearClicked()));
-  connect(ui_->pushButtonSetup, SIGNAL(clicked()), this,
-    SLOT(pushButtonSetupClicked()));
-  connect(ui_->pushButtonImportExport, SIGNAL(clicked()), this,
-    SLOT(pushButtonImportExportClicked()));
-  connect(ui_->pushButtonState, SIGNAL(clicked()), this,
-    SLOT(pushButtonStateClicked()));
+  connect(ui_->pushButtonRunPause, SIGNAL(clicked()), this, SLOT(pushButtonRunPauseClicked()));
+  connect(ui_->pushButtonClear, SIGNAL(clicked()), this, SLOT(pushButtonClearClicked()));
+  connect(ui_->pushButtonSetup, SIGNAL(clicked()), this, SLOT(pushButtonSetupClicked()));
+  connect(ui_->pushButtonImportExport, SIGNAL(clicked()), this, SLOT(pushButtonImportExportClicked()));
+  connect(ui_->pushButtonState, SIGNAL(clicked()), this, SLOT(pushButtonStateClicked()));
 
-  connect(ui_->plot->axisWidget(QwtPlot::xBottom),
-    SIGNAL(scaleDivChanged()), this, SLOT(plotXBottomScaleDivChanged()));
-  connect(ui_->plot->axisWidget(QwtPlot::yLeft),
-    SIGNAL(scaleDivChanged()), this, SLOT(plotYLeftScaleDivChanged()));
+  connect(ui_->plot->axisWidget(QwtPlot::xBottom), SIGNAL(scaleDivChanged()), this, SLOT(plotXBottomScaleDivChanged()));
+  connect(ui_->plot->axisWidget(QwtPlot::yLeft), SIGNAL(scaleDivChanged()), this, SLOT(plotYLeftScaleDivChanged()));
 
   connect(timer_, SIGNAL(timeout()), this, SLOT(timerTimeout()));
 
@@ -188,50 +157,32 @@ PlotWidget::~PlotWidget() {
 
 void PlotWidget::setConfig(PlotConfig* config) {
   if (config != config_) {
-    if (config_) {
-      disconnect(config_, SIGNAL(titleChanged(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      disconnect(config_, SIGNAL(curveAdded(size_t)), this,
-        SLOT(configCurveAdded(size_t)));
-      disconnect(config_, SIGNAL(curveRemoved(size_t)), this,
-        SLOT(configCurveRemoved(size_t)));
-      disconnect(config_, SIGNAL(curvesCleared()), this,
-        SLOT(configCurvesCleared()));
-      disconnect(config_, SIGNAL(curveConfigChanged(size_t)), this,
-        SLOT(configCurveConfigChanged(size_t)));
-      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      disconnect(config_->getLegendConfig(), SIGNAL(changed()), this,
-        SLOT(configLegendConfigChanged()));
-      disconnect(config_, SIGNAL(plotRateChanged(double)), this,
-        SLOT(configPlotRateChanged(double)));
+    if (config_ != nullptr) {
+      disconnect(config_, SIGNAL(titleChanged(const QString&)), this, SLOT(configTitleChanged(const QString&)));
+      disconnect(config_, SIGNAL(curveAdded(size_t)), this, SLOT(configCurveAdded(size_t)));
+      disconnect(config_, SIGNAL(curveRemoved(size_t)), this, SLOT(configCurveRemoved(size_t)));
+      disconnect(config_, SIGNAL(curvesCleared()), this, SLOT(configCurvesCleared()));
+      disconnect(config_, SIGNAL(curveConfigChanged(size_t)), this, SLOT(configCurveConfigChanged(size_t)));
+      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::X), SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      disconnect(config_->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y), SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      disconnect(config_->getLegendConfig(), SIGNAL(changed()), this, SLOT(configLegendConfigChanged()));
+      disconnect(config_, SIGNAL(plotRateChanged(double)), this, SLOT(configPlotRateChanged(double)));
 
       configCurvesCleared();
     }
 
     config_ = config;
 
-    if (config) {
-      connect(config, SIGNAL(titleChanged(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      connect(config, SIGNAL(curveAdded(size_t)), this,
-        SLOT(configCurveAdded(size_t)));
-      connect(config, SIGNAL(curveRemoved(size_t)), this,
-        SLOT(configCurveRemoved(size_t)));
-      connect(config, SIGNAL(curvesCleared()), this,
-        SLOT(configCurvesCleared()));
-      connect(config, SIGNAL(curveConfigChanged(size_t)), this,
-        SLOT(configCurveConfigChanged(size_t)));
-      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      connect(config->getLegendConfig(), SIGNAL(changed()), this,
-        SLOT(configLegendConfigChanged()));
-      connect(config, SIGNAL(plotRateChanged(double)), this,
-        SLOT(configPlotRateChanged(double)));
+    if (config != nullptr) {
+      connect(config, SIGNAL(titleChanged(const QString&)), this, SLOT(configTitleChanged(const QString&)));
+      connect(config, SIGNAL(curveAdded(size_t)), this, SLOT(configCurveAdded(size_t)));
+      connect(config, SIGNAL(curveRemoved(size_t)), this, SLOT(configCurveRemoved(size_t)));
+      connect(config, SIGNAL(curvesCleared()), this, SLOT(configCurvesCleared()));
+      connect(config, SIGNAL(curveConfigChanged(size_t)), this, SLOT(configCurveConfigChanged(size_t)));
+      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::X), SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      connect(config->getAxesConfig()->getAxisConfig(PlotAxesConfig::Y), SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      connect(config->getLegendConfig(), SIGNAL(changed()), this, SLOT(configLegendConfigChanged()));
+      connect(config, SIGNAL(plotRateChanged(double)), this, SLOT(configPlotRateChanged(double)));
 
       configTitleChanged(config->getTitle());
       configPlotRateChanged(config->getPlotRate());
@@ -239,8 +190,9 @@ void PlotWidget::setConfig(PlotConfig* config) {
       configYAxisConfigChanged();
       configLegendConfigChanged();
 
-      for (size_t index = 0; index < config->getNumCurves(); ++index)
+      for (size_t index = 0; index < config->getNumCurves(); ++index) {
         configCurveAdded(index);
+      }
     }
   }
 }
@@ -253,8 +205,9 @@ void PlotWidget::setBroker(MessageBroker* broker) {
   if (broker != broker_) {
     broker_ = broker;
 
-    for (size_t index = 0; index < curves_.count(); ++index)
+    for (size_t index = 0; index < curves_.count(); ++index) {
       curves_[index]->setBroker(broker);
+    }
   }
 }
 
@@ -269,26 +222,25 @@ PlotCursor* PlotWidget::getCursor() const {
 BoundingRectangle PlotWidget::getPreferredScale() const {
   BoundingRectangle bounds;
 
-  for (size_t index = 0; index < curves_.count(); ++index)
+  for (size_t index = 0; index < curves_.count(); ++index) {
     bounds += curves_[index]->getPreferredScale();
+  }
 
   return bounds;
 }
 
 void PlotWidget::setCurrentScale(const BoundingRectangle& bounds) {
   if (bounds != currentBounds_) {
-    if (bounds.getMaximum().x() == bounds.getMinimum().x())
-      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x() - 0.1,
-                              bounds.getMaximum().x() + 0.1);
-    else if (bounds.getMaximum().x() > bounds.getMinimum().x())
-      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(),
-        bounds.getMaximum().x());
-    if (bounds.getMaximum().y() == bounds.getMinimum().y())
-      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y() - 0.1,
-                              bounds.getMaximum().y() + 0.1);
-    else if (bounds.getMaximum().y() > bounds.getMinimum().y())
-      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(),
-        bounds.getMaximum().y());
+    if (bounds.getMaximum().x() == bounds.getMinimum().x()) {
+      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x() - 0.1, bounds.getMaximum().x() + 0.1);
+    } else if (bounds.getMaximum().x() > bounds.getMinimum().x()) {
+      ui_->plot->setAxisScale(QwtPlot::xBottom, bounds.getMinimum().x(), bounds.getMaximum().x());
+    }
+    if (bounds.getMaximum().y() == bounds.getMinimum().y()) {
+      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y() - 0.1, bounds.getMaximum().y() + 0.1);
+    } else if (bounds.getMaximum().y() > bounds.getMinimum().y()) {
+      ui_->plot->setAxisScale(QwtPlot::yLeft, bounds.getMinimum().y(), bounds.getMaximum().y());
+    }
 
     rescale_ = false;
 
@@ -312,10 +264,11 @@ void PlotWidget::setState(State state) {
   if ((state != state_) && canChangeState()) {
     state_ = state;
 
-    if (state == Maximized)
+    if (state == Maximized) {
       ui_->pushButtonState->setIcon(maximizedIcon_);
-    else
+    } else {
       ui_->pushButtonState->setIcon(normalIcon_);
+    }
 
     emit stateChanged(state);
   }
@@ -341,8 +294,9 @@ void PlotWidget::run() {
   if (paused_) {
     paused_ = false;
 
-    for (size_t index = 0; index < curves_.count(); ++index)
+    for (size_t index = 0; index < curves_.count(); ++index) {
       curves_[index]->run();
+    }
 
     ui_->pushButtonRunPause->setIcon(pauseIcon_);
 
@@ -352,8 +306,9 @@ void PlotWidget::run() {
 
 void PlotWidget::pause() {
   if (!paused_) {
-    for (size_t index = 0; index < curves_.count(); ++index)
+    for (size_t index = 0; index < curves_.count(); ++index) {
       curves_[index]->pause();
+    }
 
     paused_ = true;
 
@@ -364,8 +319,9 @@ void PlotWidget::pause() {
 }
 
 void PlotWidget::clear() {
-  for (size_t index = 0; index < curves_.count(); ++index)
+  for (size_t index = 0; index < curves_.count(); ++index) {
     curves_[index]->clear();
+  }
 
   forceReplot();
 
@@ -395,8 +351,9 @@ void PlotWidget::forceReplot() {
 void PlotWidget::renderToPixmap(QPixmap& pixmap, const QRectF& bounds) {
   QRectF plotBounds = bounds;
 
-  if (plotBounds.isEmpty())
+  if (plotBounds.isEmpty()) {
     plotBounds = QRectF(0, 0, pixmap.width(), pixmap.height());
+  }
 
   QwtPlotRenderer renderer;
 
@@ -406,25 +363,23 @@ void PlotWidget::renderToPixmap(QPixmap& pixmap, const QRectF& bounds) {
   QPainter painter(&pixmap);
   size_t textHeight = 0;
 
-  if (config_) {
-    textHeight = painter.fontMetrics().boundingRect(config_->
-      getTitle()).height();
+  if (config_ != nullptr) {
+    textHeight = painter.fontMetrics().boundingRect(config_->getTitle()).height();
 
-    painter.drawText(QRectF(plotBounds.x(), plotBounds.y(),
-      plotBounds.width(), textHeight), Qt::AlignHCenter |
-      Qt::AlignVCenter, config_->getTitle());
+    painter.drawText(QRectF(plotBounds.x(), plotBounds.y(), plotBounds.width(), textHeight), Qt::AlignHCenter | Qt::AlignVCenter,
+                     config_->getTitle());
   }
 
-  renderer.render(ui_->plot, &painter, QRectF(plotBounds.x(),
-    plotBounds.y()+textHeight+10, plotBounds.width(), plotBounds.
-    height()-textHeight-10));
+  renderer.render(ui_->plot, &painter,
+                  QRectF(plotBounds.x(), plotBounds.y() + textHeight + 10, plotBounds.width(), plotBounds.height() - textHeight - 10));
 }
 
 void PlotWidget::writeFormattedCurveData(QList<QStringList>& formattedData) {
   formattedData.clear();
 
   for (size_t index = 0; index < curves_.count(); ++index) {
-    QStringList formattedX, formattedY;
+    QStringList formattedX;
+    QStringList formattedY;
 
     curves_[index]->getData()->writeFormatted(formattedX, formattedY);
 
@@ -433,28 +388,27 @@ void PlotWidget::writeFormattedCurveData(QList<QStringList>& formattedData) {
   }
 }
 
-void PlotWidget::writeFormattedCurveAxisTitles(QStringList&
-    formattedAxisTitles) {
+void PlotWidget::writeFormattedCurveAxisTitles(QStringList& formattedAxisTitles) {
   formattedAxisTitles.clear();
 
   for (size_t index = 0; index < curves_.count(); ++index) {
-    CurveAxisConfig* xAxisConfig = curves_[index]->getConfig()->
-      getAxisConfig(CurveConfig::X);
-    CurveAxisConfig* yAxisConfig = curves_[index]->getConfig()->
-      getAxisConfig(CurveConfig::Y);
+    CurveAxisConfig* xAxisConfig = curves_[index]->getConfig()->getAxisConfig(CurveConfig::X);
+    CurveAxisConfig* yAxisConfig = curves_[index]->getConfig()->getAxisConfig(CurveConfig::Y);
 
     QString xAxisTitle = xAxisConfig->getTopic();
     QString yAxisTitle = yAxisConfig->getTopic();
 
-    if (xAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
-      xAxisTitle += "/"+xAxisConfig->getField();
-    else
+    if (xAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
+      xAxisTitle += "/" + xAxisConfig->getField();
+    } else {
       xAxisTitle += "/recceipt_time";
+    }
 
-    if (yAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
-      yAxisTitle += "/"+yAxisConfig->getField();
-    else
+    if (yAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
+      yAxisTitle += "/" + yAxisConfig->getField();
+    } else {
       yAxisTitle += "/recceipt_time";
+    }
 
     formattedAxisTitles.append(xAxisTitle);
     formattedAxisTitles.append(yAxisTitle);
@@ -494,58 +448,53 @@ void PlotWidget::saveToTextFile(const QString& fileName) {
         if (row < formattedData[column].count()) {
           dataLineParts.append(formattedData[column][row]);
           finished &= false;
-        }
-        else
+        } else {
           dataLineParts.append(QString());
+        }
       }
 
       if (!finished) {
         stream << dataLineParts.join(", ") << "\n";
         row++;
-      }
-      else
+      } else {
         break;
+      }
     }
   }
 }
 
 void PlotWidget::dragEnterEvent(QDragEnterEvent* event) {
-  if (event->mimeData()->hasFormat(CurveConfig::MimeType) &&
-      (event->source() != legend_) && config_)
+  if (event->mimeData()->hasFormat(CurveConfig::MimeType) && (event->source() != legend_) && (config_ != nullptr)) {
     event->acceptProposedAction();
-  else
+  } else {
     event->ignore();
+  }
 }
 
 void PlotWidget::dropEvent(QDropEvent* event) {
-  if (event->mimeData()->hasFormat(CurveConfig::MimeType) &&
-      (event->source() != legend_) && config_) {
+  if (event->mimeData()->hasFormat(CurveConfig::MimeType) && (event->source() != legend_) && (config_ != nullptr)) {
     QByteArray data = event->mimeData()->data(CurveConfig::MimeType);
     QDataStream stream(&data, QIODevice::ReadOnly);
 
     CurveConfig* curveConfig = config_->addCurve();
     stream >> *curveConfig;
 
-    while (config_->findCurves(curveConfig->getTitle()).count() > 1)
-      curveConfig->setTitle("Copy of "+curveConfig->getTitle());
+    while (config_->findCurves(curveConfig->getTitle()).count() > 1) {
+      curveConfig->setTitle("Copy of " + curveConfig->getTitle());
+    }
 
     event->acceptProposedAction();
-  }
-  else
+  } else {
     event->ignore();
+  }
 }
 
 bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
-  if ((object == ui_->plot->axisWidget(QwtPlot::yLeft)) &&
-      (event->type() == QEvent::Resize)) {
-    ui_->horizontalSpacerLeft->changeSize(
-      ui_->plot->axisWidget(QwtPlot::yLeft)->width(), 20);
+  if ((object == ui_->plot->axisWidget(QwtPlot::yLeft)) && (event->type() == QEvent::Resize)) {
+    ui_->horizontalSpacerLeft->changeSize(ui_->plot->axisWidget(QwtPlot::yLeft)->width(), 20);
     layout()->update();
-  }
-  else if ((object == ui_->plot->axisWidget(QwtPlot::yRight)) &&
-      (event->type() == QEvent::Resize)) {
-    ui_->horizontalSpacerRight->changeSize(
-      ui_->plot->axisWidget(QwtPlot::yRight)->width()-5, 20);
+  } else if ((object == ui_->plot->axisWidget(QwtPlot::yRight)) && (event->type() == QEvent::Resize)) {
+    ui_->horizontalSpacerRight->changeSize(ui_->plot->axisWidget(QwtPlot::yRight)->width() - 5, 20);
     layout()->update();
   }
 
@@ -553,40 +502,37 @@ bool PlotWidget::eventFilter(QObject* object, QEvent* event) {
 }
 
 void PlotWidget::updateAxisTitle(PlotAxesConfig::Axis axis) {
-  QwtPlot::Axis plotAxis = (axis == PlotAxesConfig::Y) ?
-    QwtPlot::yLeft : QwtPlot::xBottom;
-  CurveConfig::Axis curveAxis = (axis == PlotAxesConfig::Y) ?
-    CurveConfig::Y : CurveConfig::X;
+  QwtPlot::Axis plotAxis = (axis == PlotAxesConfig::Y) ? QwtPlot::yLeft : QwtPlot::xBottom;
+  CurveConfig::Axis curveAxis = (axis == PlotAxesConfig::Y) ? CurveConfig::Y : CurveConfig::X;
 
-  PlotAxisConfig* plotAxisConfig = config_->getAxesConfig()->
-    getAxisConfig(axis);
+  PlotAxisConfig* plotAxisConfig = config_->getAxesConfig()->getAxisConfig(axis);
 
   if (plotAxisConfig->isTitleVisible()) {
     if (plotAxisConfig->getTitleType() == PlotAxisConfig::AutoTitle) {
       QStringList titleParts;
 
       for (size_t index = 0; index < config_->getNumCurves(); ++index) {
-        CurveAxisConfig* curveAxisConfig = config_->getCurveConfig(index)->
-          getAxisConfig(curveAxis);
+        CurveAxisConfig* curveAxisConfig = config_->getCurveConfig(index)->getAxisConfig(curveAxis);
 
         QString titlePart = curveAxisConfig->getTopic();
-        if (curveAxisConfig->getFieldType() == CurveAxisConfig::MessageData)
-          titlePart += "/"+curveAxisConfig->getField();
-        else
+        if (curveAxisConfig->getFieldType() == CurveAxisConfig::MessageData) {
+          titlePart += "/" + curveAxisConfig->getField();
+        } else {
           titlePart += "/receipt_time";
+        }
 
-        if (!titleParts.contains(titlePart))
+        if (!titleParts.contains(titlePart)) {
           titleParts.append(titlePart);
+        }
       }
 
       ui_->plot->setAxisTitle(plotAxis, QwtText(titleParts.join(", ")));
+    } else {
+      ui_->plot->setAxisTitle(plotAxis, QwtText(plotAxisConfig->getCustomTitle()));
     }
-    else
-      ui_->plot->setAxisTitle(plotAxis, QwtText(plotAxisConfig->
-        getCustomTitle()));
-  }
-  else
+  } else {
     ui_->plot->setAxisTitle(plotAxis, QwtText());
+  }
 }
 
 /*****************************************************************************/
@@ -594,23 +540,23 @@ void PlotWidget::updateAxisTitle(PlotAxesConfig::Axis axis) {
 /*****************************************************************************/
 
 void PlotWidget::timerTimeout() {
-  if (replot_)
+  if (replot_) {
     forceReplot();
+  }
 }
 
-void PlotWidget::configTitleChanged(const QString& title) {
+void PlotWidget::configTitleChanged(const QString& /*title*/) {
   ui_->lineEditTitle->setText(config_->getTitle());
 }
 
 void PlotWidget::configCurveAdded(size_t index) {
-  PlotCurve* curve = new PlotCurve(this);
+  auto* curve = new PlotCurve(this);
 
   curve->attach(ui_->plot);
   curve->setConfig(config_->getCurveConfig(index));
   curve->setBroker(broker_);
 
-  connect(curve, SIGNAL(replotRequested()), this,
-    SLOT(curveReplotRequested()));
+  connect(curve, SIGNAL(replotRequested()), this, SLOT(curveReplotRequested()));
 
   curves_.insert(index, curve);
 
@@ -648,7 +594,7 @@ void PlotWidget::configCurvesCleared() {
   forceReplot();
 }
 
-void PlotWidget::configCurveConfigChanged(size_t index) {
+void PlotWidget::configCurveConfigChanged(size_t /*index*/) {
   configXAxisConfigChanged();
   configYAxisConfigChanged();
 }
@@ -662,18 +608,17 @@ void PlotWidget::configYAxisConfigChanged() {
 }
 
 void PlotWidget::configLegendConfigChanged() {
-  if (!legend_ && config_->getLegendConfig()->isVisible()) {
+  if ((legend_ == nullptr) && config_->getLegendConfig()->isVisible()) {
     legend_ = new PlotLegend(this);
     ui_->plot->insertLegend(legend_, QwtPlot::TopLegend);
-  }
-  else if (legend_ && !config_->getLegendConfig()->isVisible()) {
-    ui_->plot->insertLegend(0);
-    legend_ = 0;
+  } else if ((legend_ != nullptr) && !config_->getLegendConfig()->isVisible()) {
+    ui_->plot->insertLegend(nullptr);
+    legend_ = nullptr;
   }
 }
 
 void PlotWidget::configPlotRateChanged(double rate) {
-  timer_->setInterval(1e3/rate);
+  timer_->setInterval(1e3 / rate);
 }
 
 void PlotWidget::curveReplotRequested() {
@@ -685,20 +630,21 @@ void PlotWidget::curveReplotRequested() {
 void PlotWidget::lineEditTitleTextChanged(const QString& text) {
   QFontMetrics fontMetrics(ui_->lineEditTitle->font());
 
-  ui_->lineEditTitle->setMinimumWidth(
-    std::max(100, fontMetrics.width(text)+10));
+  ui_->lineEditTitle->setMinimumWidth(std::max(100, fontMetrics.width(text) + 10));
 }
 
 void PlotWidget::lineEditTitleEditingFinished() {
-  if (config_)
+  if (config_ != nullptr) {
     config_->setTitle(ui_->lineEditTitle->text());
+  }
 }
 
 void PlotWidget::pushButtonRunPauseClicked() {
-  if (paused_)
+  if (paused_) {
     run();
-  else
+  } else {
     pause();
+  }
 }
 
 void PlotWidget::pushButtonClearClicked() {
@@ -706,16 +652,15 @@ void PlotWidget::pushButtonClearClicked() {
 }
 
 void PlotWidget::pushButtonSetupClicked() {
-  if (config_) {
+  if (config_ != nullptr) {
     PlotConfigDialog dialog(this);
 
-    dialog.setWindowTitle(config_->getTitle().isEmpty() ?
-      "Configure Plot" :
-      "Configure \""+config_->getTitle()+"\"");
+    dialog.setWindowTitle(config_->getTitle().isEmpty() ? "Configure Plot" : "Configure \"" + config_->getTitle() + "\"");
     dialog.getWidget()->setConfig(*config_);
 
-    if (dialog.exec() == QDialog::Accepted)
+    if (dialog.exec() == QDialog::Accepted) {
       *config_ = dialog.getWidget()->getConfig();
+    }
   }
 }
 
@@ -724,42 +669,43 @@ void PlotWidget::pushButtonImportExportClicked() {
 }
 
 void PlotWidget::pushButtonStateClicked() {
-  if (state_ == Maximized)
+  if (state_ == Maximized) {
     setState(Normal);
-  else
+  } else {
     setState(Maximized);
+  }
 }
 
 void PlotWidget::menuExportImageFileTriggered() {
-  QFileDialog dialog(this, "Save Image File", QDir::homePath(),
-    "Portable Network Graphics (*.png)");
+  QFileDialog dialog(this, "Save Image File", QDir::homePath(), "Portable Network Graphics (*.png)");
 
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setFileMode(QFileDialog::AnyFile);
   dialog.selectFile("rqt_multiplot.png");
 
-  if (dialog.exec() == QDialog::Accepted)
+  if (dialog.exec() == QDialog::Accepted) {
     saveToImageFile(dialog.selectedFiles().first());
+  }
 }
 
 void PlotWidget::menuExportTextFileTriggered() {
-  QFileDialog dialog(this, "Save Text File", QDir::homePath(),
-    "Text file (*.txt)");
+  QFileDialog dialog(this, "Save Text File", QDir::homePath(), "Text file (*.txt)");
 
   dialog.setAcceptMode(QFileDialog::AcceptSave);
   dialog.setFileMode(QFileDialog::AnyFile);
   dialog.selectFile("rqt_multiplot.txt");
 
-  if (dialog.exec() == QDialog::Accepted)
+  if (dialog.exec() == QDialog::Accepted) {
     saveToTextFile(dialog.selectedFiles().first());
+  }
 }
 
 void PlotWidget::plotXBottomScaleDivChanged() {
-  #if QWT_VERSION >= 0x060100
-    const QwtScaleDiv& scale = ui_->plot->axisScaleDiv(QwtPlot::xBottom);
-  #else
-    const QwtScaleDiv& scale = *ui_->plot->axisScaleDiv(QwtPlot::xBottom);
-  #endif
+#if QWT_VERSION >= 0x060100
+  const QwtScaleDiv& scale = ui_->plot->axisScaleDiv(QwtPlot::xBottom);
+#else
+  const QwtScaleDiv& scale = *ui_->plot->axisScaleDiv(QwtPlot::xBottom);
+#endif
 
   ui_->plot->setAxisScaleDiv(QwtPlot::xTop, scale);
 
@@ -770,11 +716,11 @@ void PlotWidget::plotXBottomScaleDivChanged() {
 }
 
 void PlotWidget::plotYLeftScaleDivChanged() {
-  #if QWT_VERSION >= 0x060100
-    const QwtScaleDiv& scale = ui_->plot->axisScaleDiv(QwtPlot::yLeft);
-  #else
-    const QwtScaleDiv& scale = *ui_->plot->axisScaleDiv(QwtPlot::yLeft);
-  #endif
+#if QWT_VERSION >= 0x060100
+  const QwtScaleDiv& scale = ui_->plot->axisScaleDiv(QwtPlot::yLeft);
+#else
+  const QwtScaleDiv& scale = *ui_->plot->axisScaleDiv(QwtPlot::yLeft);
+#endif
 
   ui_->plot->setAxisScaleDiv(QwtPlot::yRight, scale);
 
@@ -784,4 +730,4 @@ void PlotWidget::plotYLeftScaleDivChanged() {
   emit currentScaleChanged(currentBounds_);
 }
 
-}
+}  // namespace rqt_multiplot

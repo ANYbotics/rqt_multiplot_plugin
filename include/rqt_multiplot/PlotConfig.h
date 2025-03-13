@@ -28,61 +28,59 @@
 #include <rqt_multiplot/PlotLegendConfig.h>
 
 namespace rqt_multiplot {
-  class PlotConfig :
-    public Config {
+class PlotConfig : public Config {
   Q_OBJECT
-  public:
-    PlotConfig(QObject* parent = 0, const QString& title = "Untitled Plot",
-      double plotRate = 30.0);
-    ~PlotConfig();
+ public:
+  explicit PlotConfig(QObject* parent = nullptr, QString title = "Untitled Plot", double plotRate = 30.0);
+  ~PlotConfig() override;
 
-    void setTitle(const QString& title);
-    const QString& getTitle() const;
-    void setNumCurves(size_t numCurves);
-    size_t getNumCurves() const;
-    CurveConfig* getCurveConfig(size_t index) const;
-    PlotAxesConfig* getAxesConfig() const;
-    PlotLegendConfig* getLegendConfig() const;
-    void setPlotRate(double rate);
-    double getPlotRate() const;
-    
-    CurveConfig* addCurve();
-    void removeCurve(CurveConfig* curveConfig);
-    void removeCurve(size_t index);
-    void clearCurves();
-    
-    QVector<CurveConfig*> findCurves(const QString& title) const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    PlotConfig& operator=(const PlotConfig& src);
-    
-  signals:
-    void titleChanged(const QString& title);
-    void curveAdded(size_t index);
-    void curveRemoved(size_t index);
-    void curvesCleared();
-    void curveConfigChanged(size_t index);
-    void plotRateChanged(double rate);
-    
-  private:
-    QString title_;
-    QVector<CurveConfig*> curveConfig_;
-    PlotAxesConfig* axesConfig_;
-    PlotLegendConfig* legendConfig_;
-    double plotRate_;
-    
-  private slots:
-    void curveConfigChanged();
-    void curveConfigDestroyed();
-    void axesConfigChanged();
-    void legendConfigChanged();
-  };
+  void setTitle(const QString& title);
+  const QString& getTitle() const;
+  void setNumCurves(size_t numCurves);
+  size_t getNumCurves() const;
+  CurveConfig* getCurveConfig(size_t index) const;
+  PlotAxesConfig* getAxesConfig() const;
+  PlotLegendConfig* getLegendConfig() const;
+  void setPlotRate(double rate);
+  double getPlotRate() const;
+
+  CurveConfig* addCurve();
+  void removeCurve(CurveConfig* curveConfig);
+  void removeCurve(size_t index);
+  void clearCurves();
+
+  QVector<CurveConfig*> findCurves(const QString& title) const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  PlotConfig& operator=(const PlotConfig& src);
+
+ signals:
+  void titleChanged(const QString& title);
+  void curveAdded(size_t index);
+  void curveRemoved(size_t index);
+  void curvesCleared();
+  void curveConfigChanged(size_t index);
+  void plotRateChanged(double rate);
+
+ private:
+  QString title_;
+  QVector<CurveConfig*> curveConfig_;
+  PlotAxesConfig* axesConfig_;
+  PlotLegendConfig* legendConfig_;
+  double plotRate_;
+
+ private slots:
+  void curveConfigChanged();
+  void curveConfigDestroyed();
+  void axesConfigChanged();
+  void legendConfigChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

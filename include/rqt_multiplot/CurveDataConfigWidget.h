@@ -24,38 +24,37 @@
 #include <rqt_multiplot/CurveDataConfig.h>
 
 namespace Ui {
-  class CurveDataConfigWidget;
-};
+class CurveDataConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveDataConfigWidget :
-    public QWidget {
+class CurveDataConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveDataConfigWidget(QWidget* parent = 0);
-    virtual ~CurveDataConfigWidget();
-    
-    void setConfig(CurveDataConfig* range);
-    CurveDataConfig* getConfig() const;
-    
-  private:
-    Ui::CurveDataConfigWidget* ui_;
-    
-    CurveDataConfig* config_;
-    
-  private slots:
-    void configTypeChanged(int type);
-    void configCircularBufferCapacityChanged(size_t capacity);
-    void configTimeFrameLengthChanged(double length);
-    
-    void radioButtonVectorToggled(bool checked);
-    void radioButtonListToggled(bool checked);
-    void radioButtonCircularBufferToggled(bool checked);
-    void radioButtonTimeFrameToggled(bool checked);
-    
-    void spinBoxCircularBufferCapacityValueChanged(int value);
-    void doubleSpinBoxTimeFrameLengthValueChanged(double value);
-  };
+ public:
+  explicit CurveDataConfigWidget(QWidget* parent = nullptr);
+  ~CurveDataConfigWidget() override;
+
+  void setConfig(CurveDataConfig* range);
+  CurveDataConfig* getConfig() const;
+
+ private:
+  Ui::CurveDataConfigWidget* ui_;
+
+  CurveDataConfig* config_;
+
+ private slots:
+  void configTypeChanged(int type);
+  void configCircularBufferCapacityChanged(size_t capacity);
+  void configTimeFrameLengthChanged(double length);
+
+  void radioButtonVectorToggled(bool checked);
+  void radioButtonListToggled(bool checked);
+  void radioButtonCircularBufferToggled(bool checked);
+  void radioButtonTimeFrameToggled(bool checked);
+
+  void spinBoxCircularBufferCapacityValueChanged(int value);
+  void doubleSpinBoxTimeFrameLengthValueChanged(double value);
 };
+}  // namespace rqt_multiplot
 
 #endif

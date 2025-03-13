@@ -26,17 +26,13 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-UrlCompleter::UrlCompleter(QObject* parent) :
-  QCompleter(parent),
-  model_(new UrlItemModel(this)) {
+UrlCompleter::UrlCompleter(QObject* parent) : QCompleter(parent), model_(new UrlItemModel(this)) {
   setModel(model_);
-  
-  connect(model_, SIGNAL(urlLoaded(const QString&)), this,
-    SLOT(modelUrlLoaded(const QString&)));
+
+  connect(model_, SIGNAL(urlLoaded(const QString&)), this, SLOT(modelUrlLoaded(const QString&)));
 }
 
-UrlCompleter::~UrlCompleter() {
-}
+UrlCompleter::~UrlCompleter() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -51,32 +47,35 @@ UrlItemModel* UrlCompleter::getModel() const {
 /*****************************************************************************/
 
 QStringList UrlCompleter::splitPath(const QString& url) const {
-  QString scheme, path;
-  
+  QString scheme;
+  QString path;
+
   QStringList urlParts = url.split("://");
-  
+
   if (urlParts.count() > 1) {
     scheme = urlParts[0];
     path = urlParts[1];
-  }
-  else
+  } else {
     path = url;
-  
+  }
+
   QStringList pathParts = path.split("/");
 
-  if (path[0] == '/')
+  if (path[0] == '/') {
     pathParts[0] = "/";
+  }
 
   QStringList parts;
-  if (!scheme.isEmpty())
-    parts.append(scheme+"://");
+  if (!scheme.isEmpty()) {
+    parts.append(scheme + "://");
+  }
   parts.append(pathParts);
-  
+
   return parts;
 }
 
 QString UrlCompleter::pathFromIndex(const QModelIndex& index) const {
-  return model_->getUrl(index);
+  return rqt_multiplot::UrlItemModel::getUrl(index);
 }
 
 /*****************************************************************************/
@@ -85,9 +84,10 @@ QString UrlCompleter::pathFromIndex(const QModelIndex& index) const {
 
 void UrlCompleter::modelUrlLoaded(const QString& url) {
   QString prefix = completionPrefix();
-  
-  if (prefix.startsWith(url) && (prefix != (url+"/")))
+
+  if (prefix.startsWith(url) && (prefix != (url + "/"))) {
     complete();
+  }
 }
 
-}
+}  // namespace rqt_multiplot

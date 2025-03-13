@@ -24,22 +24,21 @@
 class QwtPlotCanvas;
 
 namespace rqt_multiplot {
-  class PlotZoomer :
-    public QwtPlotZoomer {
+class PlotZoomer : public QwtPlotZoomer {
   Q_OBJECT
-  public:
-    PlotZoomer(QwtPlotCanvas* canvas, bool doReplot = true);
-    ~PlotZoomer();
+ public:
+  explicit PlotZoomer(QwtPlotCanvas* canvas, bool doReplot = true);
+  ~PlotZoomer() override;
 
-    void drawRubberBand(QPainter* painter) const;
+  void drawRubberBand(QPainter* painter) const override;
 
-  protected:
-    void widgetMousePressEvent(QMouseEvent* event);
-    void widgetMouseReleaseEvent(QMouseEvent* event);
+ protected:
+  void widgetMousePressEvent(QMouseEvent* event) override;
+  void widgetMouseReleaseEvent(QMouseEvent* event) override;
 
-  private:
-    QPoint position_;
-  };
+ private:
+  QPoint position_;
 };
+}  // namespace rqt_multiplot
 
 #endif

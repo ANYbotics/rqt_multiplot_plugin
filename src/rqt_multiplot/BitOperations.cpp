@@ -16,7 +16,7 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <limits.h>
+#include <climits>
 
 #include "rqt_multiplot/BitOperations.h"
 
@@ -28,9 +28,9 @@ namespace rqt_multiplot {
 
 unsigned int BitOperations::revertInt(unsigned int val) {
   unsigned int reverse = val;
-  unsigned int shift = sizeof(unsigned int)*CHAR_BIT-1;
+  unsigned int shift = sizeof(unsigned int) * CHAR_BIT - 1;
 
-  for (val >>= 1; val; val >>= 1) {
+  for (val >>= 1; val != 0u; val >>= 1) {
     reverse <<= 1;
     reverse |= val & 1;
     --shift;
@@ -39,12 +39,12 @@ unsigned int BitOperations::revertInt(unsigned int val) {
 
   return reverse;
 }
-               
+
 unsigned short BitOperations::revertShort(unsigned short val) {
   unsigned short reverse = val;
-  unsigned short shift = sizeof(unsigned short)*CHAR_BIT-1;
+  unsigned short shift = sizeof(unsigned short) * CHAR_BIT - 1;
 
-  for (val >>= 1; val; val >>= 1) {
+  for (val >>= 1; val != 0u; val >>= 1) {
     reverse <<= 1;
     reverse |= val & 1;
     --shift;
@@ -56,9 +56,9 @@ unsigned short BitOperations::revertShort(unsigned short val) {
 
 unsigned char BitOperations::revertByte(unsigned char val) {
   unsigned char reverse = val;
-  unsigned char shift = sizeof(unsigned char)*CHAR_BIT-1;
+  unsigned char shift = sizeof(unsigned char) * CHAR_BIT - 1;
 
-  for (val >>= 1; val; val >>= 1) {
+  for (val >>= 1; val != 0u; val >>= 1) {
     reverse <<= 1;
     reverse |= val & 1;
     --shift;
@@ -68,4 +68,4 @@ unsigned char BitOperations::revertByte(unsigned char val) {
   return reverse;
 }
 
-};
+}  // namespace rqt_multiplot

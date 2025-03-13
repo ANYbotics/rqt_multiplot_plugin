@@ -28,39 +28,34 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageFieldLineEdit::MessageFieldLineEdit(QWidget* parent) :
-  QLineEdit(parent),
-  completer_(new MessageFieldCompleter(this)),
-  completerModel_(new MessageFieldItemModel(this)) {
+MessageFieldLineEdit::MessageFieldLineEdit(QWidget* parent)
+    : QLineEdit(parent), completer_(new MessageFieldCompleter(this)), completerModel_(new MessageFieldItemModel(this)) {
   completer_->setModel(completerModel_);
   setCompleter(completer_);
-    
+
   connect(this, SIGNAL(editingFinished()), this, SLOT(editingFinished()));
 }
 
-MessageFieldLineEdit::~MessageFieldLineEdit() {
-}
+MessageFieldLineEdit::~MessageFieldLineEdit() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void MessageFieldLineEdit::setMessageDataType(const variant_topic_tools::
-    MessageDataType& dataType) {
+void MessageFieldLineEdit::setMessageDataType(const variant_topic_tools::MessageDataType& dataType) {
   completerModel_->setMessageDataType(dataType);
 }
 
-variant_topic_tools::MessageDataType MessageFieldLineEdit::
-    getMessageDataType() const {
+variant_topic_tools::MessageDataType MessageFieldLineEdit::getMessageDataType() const {
   return completerModel_->getMessageDataType();
 }
 
 void MessageFieldLineEdit::setCurrentField(const QString& field) {
   if (field != currentField_) {
     currentField_ = field;
-    
+
     setText(field);
-    
+
     emit currentFieldChanged(currentField_);
   }
 }
@@ -69,8 +64,7 @@ QString MessageFieldLineEdit::getCurrentField() const {
   return currentField_;
 }
 
-variant_topic_tools::DataType MessageFieldLineEdit::
-    getCurrentFieldDataType() const {
+variant_topic_tools::DataType MessageFieldLineEdit::getCurrentFieldDataType() const {
   return completerModel_->getFieldDataType(currentField_);
 }
 
@@ -86,4 +80,4 @@ void MessageFieldLineEdit::editingFinished() {
   setCurrentField(text());
 }
 
-}
+}  // namespace rqt_multiplot

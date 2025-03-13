@@ -24,11 +24,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataVector::CurveDataVector() {
-}
+CurveDataVector::CurveDataVector() = default;
 
-CurveDataVector::~CurveDataVector() {
-}
+CurveDataVector::~CurveDataVector() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -42,21 +40,20 @@ QPointF CurveDataVector::getPoint(size_t index) const {
   return points_[index];
 }
 
-QVector<size_t> CurveDataVector::getPointsInDistance(double x, double
-    maxDistance) const {
+QVector<size_t> CurveDataVector::getPointsInDistance(double x, double maxDistance) const {
   QVector<size_t> indexes;
-      
-  XCoordinateRefSet::const_iterator it = x_.lower_bound(x-maxDistance);
-  
+
+  XCoordinateRefSet::const_iterator it = x_.lower_bound(x - maxDistance);
+
   while (it != x_.end()) {
-    if (fabs(x-it->x_) <= maxDistance) {
+    if (fabs(x - it->x_) <= maxDistance) {
       indexes.push_back(it->index_);
       ++it;
-    }
-    else
+    } else {
       break;
+    }
   }
-  
+
   return indexes;
 }
 
@@ -70,23 +67,25 @@ BoundingRectangle CurveDataVector::getBounds() const {
 
 void CurveDataVector::appendPoint(const QPointF& point) {
   bounds_ += point;
-  
-  if (points_.capacity() < points_.count()+1)
-    points_.reserve(points_.capacity() ? 2*points_.capacity() : 1);
-    
+
+  if (points_.capacity() < points_.count() + 1) {
+    points_.reserve((points_.capacity() != 0) ? 2 * points_.capacity() : 1);
+  }
+
   points_.append(point);
-  
-  if (x_.capacity() < x_.size()+1)
-    x_.reserve(x_.capacity() ? 2*x_.capacity() : 1);
-    
-  x_.insert(XCoordinateRef(point.x(), points_.size()-1));
+
+  if (x_.capacity() < x_.size() + 1) {
+    x_.reserve((x_.capacity() != 0u) ? 2 * x_.capacity() : 1);
+  }
+
+  x_.insert(XCoordinateRef(point.x(), points_.size() - 1));
 }
 
 void CurveDataVector::clearPoints() {
   points_.clear();
   x_.clear();
-  
+
   bounds_.clear();
 }
 
-}
+}  // namespace rqt_multiplot

@@ -26,38 +26,37 @@
 #include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class UrlItemModel :
-    public QAbstractItemModel {
+class UrlItemModel : public QAbstractItemModel {
   Q_OBJECT
-  public:
-    UrlItemModel(QObject* parent = 0);
-    virtual ~UrlItemModel();
+ public:
+  explicit UrlItemModel(QObject* parent = nullptr);
+  ~UrlItemModel() override;
 
-    QString getUrl(const QModelIndex& index) const;
-    QString getFilePath(const QModelIndex& index) const;
-    QString getFilePath(const QString& url) const;
-    UrlScheme* getScheme(const QModelIndex& index) const;
-    
-    void addScheme(UrlScheme* scheme);
-    
-    int rowCount(const QModelIndex& parent) const;
-    int columnCount(const QModelIndex& parent) const;
-    QVariant data(const QModelIndex& index, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex& parent) const;
-    QModelIndex parent(const QModelIndex& index) const;
-  
-  signals:
-    void urlLoaded(const QString& url);
-    
-  private:
-    QList<UrlScheme*> schemes_;
-    QList<UrlItem*> schemeItems_;
-    
-  private slots:
-    void schemeResetStarted();
-    void schemeResetFinished();
-    void schemePathLoaded(const QString& host, const QString& path);
-  };
+  static QString getUrl(const QModelIndex& index);
+  static QString getFilePath(const QModelIndex& index);
+  QString getFilePath(const QString& url) const;
+  static UrlScheme* getScheme(const QModelIndex& index);
+
+  void addScheme(UrlScheme* scheme);
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+  QModelIndex parent(const QModelIndex& index) const override;
+
+ signals:
+  void urlLoaded(const QString& url);
+
+ private:
+  QList<UrlScheme*> schemes_;
+  QList<UrlItem*> schemeItems_;
+
+ private slots:
+  void schemeResetStarted();
+  void schemeResetFinished();
+  void schemePathLoaded(const QString& host, const QString& path);
 };
+}  // namespace rqt_multiplot
 
 #endif

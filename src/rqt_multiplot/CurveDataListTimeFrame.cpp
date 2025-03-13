@@ -24,12 +24,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataListTimeFrame::CurveDataListTimeFrame(double length) :
-  timeFrameLength_(length) {
-}
+CurveDataListTimeFrame::CurveDataListTimeFrame(double length) : timeFrameLength_(length) {}
 
-CurveDataListTimeFrame::~CurveDataListTimeFrame() {
-}
+CurveDataListTimeFrame::~CurveDataListTimeFrame() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -56,31 +53,26 @@ void CurveDataListTimeFrame::appendPoint(const QPointF& point) {
 
   double timeCutoff = point.x() - timeFrameLength_;
 
-//  QMutableListIterator<QPointF> iterator(points_);
-//  while (iterator.hasNext()) {
-//    if (iterator.next().x() < timeCutoff)
-//      iterator.remove();
-//    else
-//      break;
-//  }
+  //  QMutableListIterator<QPointF> iterator(points_);
+  //  while (iterator.hasNext()) {
+  //    if (iterator.next().x() < timeCutoff)
+  //      iterator.remove();
+  //    else
+  //      break;
+  //  }
 
   QList<QPointF>::iterator it = points_.begin();
   while (it != points_.end()) {
-    if ((*it).x() < timeCutoff)
+    if ((*it).x() < timeCutoff) {
       it = points_.erase(it);
-    else
+    } else {
       break;
+    }
   }
 
-  auto min_max_x = std::minmax_element(points_.begin(), points_.end(),
-                                       [](const QPointF &a, const QPointF &b) {
-                                         return a.x() < b.x();
-                                       });
+  auto min_max_x = std::minmax_element(points_.begin(), points_.end(), [](const QPointF& a, const QPointF& b) { return a.x() < b.x(); });
 
-  auto min_max_y = std::minmax_element(points_.begin(), points_.end(),
-                                    [](const QPointF &a, const QPointF &b) {
-                                      return a.y() < b.y();
-                                    });
+  auto min_max_y = std::minmax_element(points_.begin(), points_.end(), [](const QPointF& a, const QPointF& b) { return a.y() < b.y(); });
 
   bounds_.setMinimum(QPointF(min_max_x.first->x(), min_max_y.first->y()));
   bounds_.setMaximum(QPointF(min_max_x.second->x(), min_max_y.second->y()));
@@ -91,4 +83,4 @@ void CurveDataListTimeFrame::clearPoints() {
   bounds_.clear();
 }
 
-}
+}  // namespace rqt_multiplot

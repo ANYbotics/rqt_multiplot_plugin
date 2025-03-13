@@ -23,15 +23,15 @@
 namespace rqt_multiplot {
 
 class QwtPlotCustom : public QwtPlot {
-Q_OBJECT
-public:
-  QwtPlotCustom(QWidget* = NULL );
+  Q_OBJECT
+ public:
+  explicit QwtPlotCustom(QWidget* = nullptr);
 
-  QwtPlotCustom(const QwtText &title, QWidget *p = NULL );
+  explicit QwtPlotCustom(const QwtText& title, QWidget* p = nullptr);
 
-  virtual QSize sizeHint() const;
+  QSize sizeHint() const override;
 
-  virtual QSize minimumSizeHint() const;
+  QSize minimumSizeHint() const override;
 };
 
-}
+}  // namespace rqt_multiplot

@@ -24,22 +24,22 @@
 #include <variant_topic_tools/MessageVariant.h>
 
 namespace rqt_multiplot {
-  class Message {
-  public:
-    Message();
-    Message(const Message& src);
-    ~Message();
-    
-    void setReceiptTime(const ros::Time& receiptTime);
-    const ros::Time& getReceiptTime() const;  
-    void setVariant(const variant_topic_tools::MessageVariant& variant);
-    const variant_topic_tools::MessageVariant& getVariant() const;
-    bool isEmpty() const;
-    
-  private:
-    ros::Time receiptTime_;
-    variant_topic_tools::MessageVariant variant_;
-  };
+class Message {
+ public:
+  Message();
+  Message(const Message& src);
+  ~Message();
+
+  void setReceiptTime(const ros::Time& receiptTime);
+  const ros::Time& getReceiptTime() const;
+  void setVariant(const variant_topic_tools::MessageVariant& variant);
+  const variant_topic_tools::MessageVariant& getVariant() const;
+  bool isEmpty() const;
+
+ private:
+  ros::Time receiptTime_;
+  variant_topic_tools::MessageVariant variant_;
 };
+}  // namespace rqt_multiplot
 
 #endif

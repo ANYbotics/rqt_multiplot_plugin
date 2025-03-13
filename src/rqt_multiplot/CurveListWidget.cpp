@@ -26,12 +26,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveListWidget::CurveListWidget(QWidget* parent) :
-  QListWidget(parent) {
-}
+CurveListWidget::CurveListWidget(QWidget* parent) : QListWidget(parent) {}
 
-CurveListWidget::~CurveListWidget() {
-}
+CurveListWidget::~CurveListWidget() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -43,11 +40,12 @@ size_t CurveListWidget::getNumCurves() const {
 
 CurveItemWidget* CurveListWidget::getCurveItem(size_t index) const {
   QListWidgetItem* widgetItem = item(index);
-  
-  if (widgetItem)
-    return static_cast<CurveItemWidget*>(itemWidget(widgetItem));
-  else
-    return 0;
+
+  if (widgetItem != nullptr) {
+    return dynamic_cast<CurveItemWidget*>(itemWidget(widgetItem));
+  } else {
+    return nullptr;
+  }
 }
 
 /*****************************************************************************/
@@ -55,10 +53,10 @@ CurveItemWidget* CurveListWidget::getCurveItem(size_t index) const {
 /*****************************************************************************/
 
 void CurveListWidget::addCurve(CurveConfig* config) {
-  CurveItemWidget* itemWidget = new CurveItemWidget(this);
+  auto* itemWidget = new CurveItemWidget(this);
   itemWidget->setConfig(config);
-  
-  QListWidgetItem* widgetItem = new QListWidgetItem(this);
+
+  auto* widgetItem = new QListWidgetItem(this);
   widgetItem->setSizeHint(itemWidget->sizeHint());
 
   addItem(widgetItem);
@@ -70,21 +68,21 @@ void CurveListWidget::addCurve(CurveConfig* config) {
 void CurveListWidget::removeCurve(size_t index) {
   QListWidgetItem* widgetItem = item(index);
 
-  if (widgetItem) {
+  if (widgetItem != nullptr) {
     delete widgetItem;
-    
+
     emit curveRemoved(index);
   }
 }
 
 void CurveListWidget::keyPressEvent(QKeyEvent* event) {
-  if ((event->modifiers() == Qt::ControlModifier) &&
-      (event->key() == Qt::Key_A)) {
-    for (size_t index = 0; index < count(); ++index)
+  if ((event->modifiers() == Qt::ControlModifier) && (event->key() == Qt::Key_A)) {
+    for (size_t index = 0; index < count(); ++index) {
       item(index)->setSelected(true);
+    }
   }
-  
+
   QListWidget::keyPressEvent(event);
 }
 
-}
+}  // namespace rqt_multiplot

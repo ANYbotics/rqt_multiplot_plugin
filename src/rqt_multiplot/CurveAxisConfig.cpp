@@ -18,25 +18,25 @@
 
 #include "rqt_multiplot/CurveAxisConfig.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveAxisConfig::CurveAxisConfig(QObject* parent, const QString& topic,
-    const QString& type, FieldType fieldType, const QString& field) :
-  Config(parent),
-  topic_(topic),
-  type_(type),
-  fieldType_(fieldType),
-  field_(field),
-  scaleConfig_(new CurveAxisScaleConfig(this)) {
+CurveAxisConfig::CurveAxisConfig(QObject* parent, QString topic, QString type, FieldType fieldType, QString field)
+    : Config(parent),
+      topic_(std::move(topic)),
+      type_(std::move(type)),
+      fieldType_(fieldType),
+      field_(std::move(field)),
+      scaleConfig_(new CurveAxisScaleConfig(this)) {
   connect(scaleConfig_, SIGNAL(changed()), this, SLOT(scaleChanged()));
 }
 
-CurveAxisConfig::~CurveAxisConfig() {
-}
+CurveAxisConfig::~CurveAxisConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -45,7 +45,7 @@ CurveAxisConfig::~CurveAxisConfig() {
 void CurveAxisConfig::setTopic(const QString& topic) {
   if (topic != topic_) {
     topic_ = topic;
-    
+
     emit topicChanged(topic);
     emit changed();
   }
@@ -58,7 +58,7 @@ const QString& CurveAxisConfig::getTopic() const {
 void CurveAxisConfig::setType(const QString& type) {
   if (type != type_) {
     type_ = type;
-    
+
     emit typeChanged(type);
     emit changed();
   }
@@ -71,7 +71,7 @@ const QString& CurveAxisConfig::getType() const {
 void CurveAxisConfig::setFieldType(FieldType fieldType) {
   if (fieldType != fieldType_) {
     fieldType_ = fieldType;
-    
+
     emit fieldTypeChanged(fieldType);
     emit changed();
   }
@@ -84,7 +84,7 @@ CurveAxisConfig::FieldType CurveAxisConfig::getFieldType() const {
 void CurveAxisConfig::setField(const QString& field) {
   if (field != field_) {
     field_ = field;
-    
+
     emit fieldChanged(field);
     emit changed();
   }
@@ -107,7 +107,7 @@ void CurveAxisConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
   settings.setValue("field_type", fieldType_);
   settings.setValue("field", field_);
-  
+
   settings.beginGroup("scale");
   scaleConfig_->save(settings);
   settings.endGroup();
@@ -118,7 +118,7 @@ void CurveAxisConfig::load(QSettings& settings) {
   setType(settings.value("type").toString());
   setFieldType(static_cast<FieldType>(settings.value("field_type").toInt()));
   setField(settings.value("field").toString());
-  
+
   settings.beginGroup("scale");
   scaleConfig_->load(settings);
   settings.endGroup();
@@ -129,7 +129,7 @@ void CurveAxisConfig::reset() {
   setType(QString());
   setFieldType(MessageData);
   setField(QString());
-  
+
   scaleConfig_->reset();
 }
 
@@ -138,14 +138,16 @@ void CurveAxisConfig::write(QDataStream& stream) const {
   stream << type_;
   stream << (int)fieldType_;
   stream << field_;
-  
+
   scaleConfig_->write(stream);
 }
 
 void CurveAxisConfig::read(QDataStream& stream) {
-  QString topic, type, field;
-  int fieldType;
-  
+  QString topic;
+  QString type;
+  QString field;
+  int fieldType = 0;
+
   stream >> topic;
   setTopic(topic);
   stream >> type;
@@ -153,8 +155,8 @@ void CurveAxisConfig::read(QDataStream& stream) {
   stream >> fieldType;
   setFieldType(static_cast<FieldType>(fieldType));
   stream >> field;
-  setField(field);  
-  
+  setField(field);
+
   scaleConfig_->read(stream);
 }
 
@@ -167,9 +169,9 @@ CurveAxisConfig& CurveAxisConfig::operator=(const CurveAxisConfig& src) {
   setType(src.type_);
   setFieldType(src.fieldType_);
   setField(src.field_);
-  
+
   *scaleConfig_ = *src.scaleConfig_;
-  
+
   return *this;
 }
 
@@ -181,4 +183,4 @@ void CurveAxisConfig::scaleChanged() {
   emit changed();
 }
 
-}
+}  // namespace rqt_multiplot

@@ -22,56 +22,50 @@
 #include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class CurveAxisScaleConfig :
-    public Config {
+class CurveAxisScaleConfig : public Config {
   Q_OBJECT
-  public:
-    enum Type {
-      Auto,
-      Absolute,
-      Relative
-    };
-    
-    CurveAxisScaleConfig(QObject* parent = 0, Type type = Auto, double
-      absoluteMinimum = 0.0, double absoluteMaximum = 1000.0, double
-      relativeMinimum = -1000.0, double relativeMaximum = 0.0);
-    ~CurveAxisScaleConfig();
-    
-    void setType(Type type);
-    Type getType() const;
-    void setAbsoluteMinimum(double minimum);
-    double getAbsoluteMinimum() const;
-    void setAbsoluteMaximum(double maximum);
-    double getAbsoluteMaximum() const;
-    void setRelativeMinimum(double minimum);
-    double getRelativeMinimum() const;
-    void setRelativeMaximum(double maximum);
-    double getRelativeMaximum() const;
-    bool isValid() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    CurveAxisScaleConfig& operator=(const CurveAxisScaleConfig& src);
-    
-  signals:
-    void typeChanged(int type);
-    void absoluteMinimumChanged(double minimum);
-    void absoluteMaximumChanged(double maxnimum);
-    void relativeMinimumChanged(double minimum);
-    void relativeMaximumChanged(double maxnimum);
-    
-  private:
-    Type type_;
-    double absoluteMinimum_;
-    double absoluteMaximum_;
-    double relativeMinimum_;
-    double relativeMaximum_;
-  };
+ public:
+  enum Type { Auto, Absolute, Relative };
+
+  explicit CurveAxisScaleConfig(QObject* parent = nullptr, Type type = Auto, double absoluteMinimum = 0.0, double absoluteMaximum = 1000.0,
+                                double relativeMinimum = -1000.0, double relativeMaximum = 0.0);
+  ~CurveAxisScaleConfig() override;
+
+  void setType(Type type);
+  Type getType() const;
+  void setAbsoluteMinimum(double minimum);
+  double getAbsoluteMinimum() const;
+  void setAbsoluteMaximum(double maximum);
+  double getAbsoluteMaximum() const;
+  void setRelativeMinimum(double minimum);
+  double getRelativeMinimum() const;
+  void setRelativeMaximum(double maximum);
+  double getRelativeMaximum() const;
+  bool isValid() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  CurveAxisScaleConfig& operator=(const CurveAxisScaleConfig& src);
+
+ signals:
+  void typeChanged(int type);
+  void absoluteMinimumChanged(double minimum);
+  void absoluteMaximumChanged(double maxnimum);
+  void relativeMinimumChanged(double minimum);
+  void relativeMaximumChanged(double maxnimum);
+
+ private:
+  Type type_;
+  double absoluteMinimum_;
+  double absoluteMaximum_;
+  double relativeMinimum_;
+  double relativeMaximum_;
 };
+}  // namespace rqt_multiplot
 
 #endif

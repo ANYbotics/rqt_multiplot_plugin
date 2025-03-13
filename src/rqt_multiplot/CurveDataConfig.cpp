@@ -18,22 +18,18 @@
 
 #include "rqt_multiplot/CurveDataConfig.h"
 
+#include <cmath>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataConfig::CurveDataConfig(QObject* parent, Type type, size_t
-    circularBufferCapacity, double timeFrameLength) :
-  Config(parent),
-  type_(type),
-  circularBufferCapacity_(circularBufferCapacity),
-  timeFrameLength_(timeFrameLength) {
-}
+CurveDataConfig::CurveDataConfig(QObject* parent, Type type, size_t circularBufferCapacity, double timeFrameLength)
+    : Config(parent), type_(type), circularBufferCapacity_(circularBufferCapacity), timeFrameLength_(timeFrameLength) {}
 
-CurveDataConfig::~CurveDataConfig() {
-}
+CurveDataConfig::~CurveDataConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -42,7 +38,7 @@ CurveDataConfig::~CurveDataConfig() {
 void CurveDataConfig::setType(Type type) {
   if (type != type_) {
     type_ = type;
-    
+
     emit typeChanged(type);
     emit changed();
   }
@@ -55,7 +51,7 @@ CurveDataConfig::Type CurveDataConfig::getType() const {
 void CurveDataConfig::setCircularBufferCapacity(size_t capacity) {
   if (capacity != circularBufferCapacity_) {
     circularBufferCapacity_ = capacity;
-    
+
     emit circularBufferCapacityChanged(capacity);
     emit changed();
   }
@@ -84,16 +80,13 @@ double CurveDataConfig::getTimeFrameLength() const {
 
 void CurveDataConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
-  settings.setValue("circular_buffer_capacity", QVariant::
-    fromValue<qulonglong>(circularBufferCapacity_));
-  settings.setValue("time_frame_length", QVariant::
-    fromValue<qreal>(timeFrameLength_));
+  settings.setValue("circular_buffer_capacity", QVariant::fromValue<qulonglong>(circularBufferCapacity_));
+  settings.setValue("time_frame_length", QVariant::fromValue<qreal>(timeFrameLength_));
 }
 
 void CurveDataConfig::load(QSettings& settings) {
   setType(static_cast<Type>(settings.value("type", Vector).toInt()));
-  setCircularBufferCapacity(settings.value("circular_buffer_capacity",
-    10000).toULongLong());
+  setCircularBufferCapacity(settings.value("circular_buffer_capacity", 10000).toULongLong());
   setTimeFrameLength(settings.value("time_frame_length", 10.0).toReal());
 }
 
@@ -110,10 +103,10 @@ void CurveDataConfig::write(QDataStream& stream) const {
 }
 
 void CurveDataConfig::read(QDataStream& stream) {
-  int type;
-  quint64 circularBufferCapacity;
-  qreal timeFrameLength;
-  
+  int type = 0;
+  quint64 circularBufferCapacity = 0;
+  qreal timeFrameLength = NAN;
+
   stream >> type;
   setType(static_cast<Type>(type));
   stream >> circularBufferCapacity;
@@ -130,8 +123,8 @@ CurveDataConfig& CurveDataConfig::operator=(const CurveDataConfig& src) {
   setType(src.type_);
   setCircularBufferCapacity(src.circularBufferCapacity_);
   setTimeFrameLength(src.timeFrameLength_);
-  
+
   return *this;
 }
 
-}
+}  // namespace rqt_multiplot

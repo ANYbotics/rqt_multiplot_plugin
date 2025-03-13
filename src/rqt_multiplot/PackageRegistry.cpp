@@ -35,18 +35,14 @@ PackageRegistry::Impl PackageRegistry::impl_;
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PackageRegistry::PackageRegistry(QObject* parent) :
-  QObject(parent) {
+PackageRegistry::PackageRegistry(QObject* parent) : QObject(parent) {
   connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
   connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
 
-PackageRegistry::~PackageRegistry() {
-}
+PackageRegistry::~PackageRegistry() = default;
 
-PackageRegistry::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
+PackageRegistry::Impl::Impl(QObject* parent) : QThread(parent) {}
 
 PackageRegistry::Impl::~Impl() {
   terminate();
@@ -57,19 +53,19 @@ PackageRegistry::Impl::~Impl() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QMap<QString, QString> PackageRegistry::getPackages() const {
+QMap<QString, QString> PackageRegistry::getPackages() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.packages_;
 }
 
-bool PackageRegistry::isUpdating() const {
+bool PackageRegistry::isUpdating() {
   return impl_.isRunning();
 }
 
-bool PackageRegistry::isEmpty() const {
+bool PackageRegistry::isEmpty() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.packages_.isEmpty();
 }
 
@@ -87,16 +83,15 @@ void PackageRegistry::wait() {
 
 void PackageRegistry::Impl::run() {
   std::vector<std::string> packages;
-  
+
   mutex_.lock();
   packages_.clear();
   mutex_.unlock();
-  
+
   if (ros::package::getAll(packages)) {
-    for (size_t i = 0; i < packages.size(); ++i) {
-      QString package = QString::fromStdString(packages[i]);
-      QDir directory(QString::fromStdString(ros::package::
-        getPath(packages[i])));
+    for (const auto& i : packages) {
+      QString package = QString::fromStdString(i);
+      QDir directory(QString::fromStdString(ros::package::getPath(i)));
 
       if (directory.exists()) {
         mutex_.lock();
@@ -114,9 +109,9 @@ void PackageRegistry::Impl::run() {
 void PackageRegistry::threadStarted() {
   emit updateStarted();
 }
-  
+
 void PackageRegistry::threadFinished() {
   emit updateFinished();
 }
-  
-}
+
+}  // namespace rqt_multiplot

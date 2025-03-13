@@ -26,61 +26,58 @@
 #include <rqt_multiplot/PlotConfig.h>
 
 namespace rqt_multiplot {
-  class PlotTableConfig :
-    public Config {
+class PlotTableConfig : public Config {
   Q_OBJECT
-  public:
-    PlotTableConfig(QObject* parent, const QColor& backgroundColor =
-      Qt::white, const QColor& foregroundColor = Qt::black, size_t
-      numRows = 1, size_t numColumns = 1, bool linkScale = false,
-      bool linkCursor = false, bool trackPoints = false);
-    ~PlotTableConfig();
+ public:
+  explicit PlotTableConfig(QObject* parent, QColor backgroundColor = Qt::white, QColor foregroundColor = Qt::black, size_t numRows = 1,
+                           size_t numColumns = 1, bool linkScale = false, bool linkCursor = false, bool trackPoints = false);
+  ~PlotTableConfig() override;
 
-    void setBackgroundColor(const QColor& color);
-    const QColor& getBackgroundColor() const;
-    void setForegroundColor(const QColor& color);
-    const QColor& getForegroundColor() const;
-    void setNumPlots(size_t numRows, size_t numColumns);
-    void setNumRows(size_t numRows);
-    size_t getNumRows() const;
-    void setNumColumns(size_t numColumns);
-    size_t getNumColumns() const;
-    PlotConfig* getPlotConfig(size_t row, size_t column) const;
-    void setLinkScale(bool link);
-    bool isScaleLinked() const;
-    void setLinkCursor(bool link);
-    bool isCursorLinked() const;
-    void setTrackPoints(bool track);
-    bool arePointsTracked() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    PlotTableConfig& operator=(const PlotTableConfig& src);
-    
-  signals:
-    void backgroundColorChanged(const QColor& color);
-    void foregroundColorChanged(const QColor& color);
-    void numPlotsChanged(size_t numRows, size_t numColumns);
-    void linkScaleChanged(bool link);
-    void linkCursorChanged(bool link);
-    void trackPointsChanged(bool track);
-    
-  private:
-    QColor backgroundColor_;
-    QColor foregroundColor_;
-    QVector<QVector<PlotConfig*> > plotConfig_;
-    bool linkScale_;
-    bool linkCursor_;
-    bool trackPoints_;
-    
-  private slots:
-    void plotConfigChanged();
-  };
+  void setBackgroundColor(const QColor& color);
+  const QColor& getBackgroundColor() const;
+  void setForegroundColor(const QColor& color);
+  const QColor& getForegroundColor() const;
+  void setNumPlots(size_t numRows, size_t numColumns);
+  void setNumRows(size_t numRows);
+  size_t getNumRows() const;
+  void setNumColumns(size_t numColumns);
+  size_t getNumColumns() const;
+  PlotConfig* getPlotConfig(size_t row, size_t column) const;
+  void setLinkScale(bool link);
+  bool isScaleLinked() const;
+  void setLinkCursor(bool link);
+  bool isCursorLinked() const;
+  void setTrackPoints(bool track);
+  bool arePointsTracked() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  PlotTableConfig& operator=(const PlotTableConfig& src);
+
+ signals:
+  void backgroundColorChanged(const QColor& color);
+  void foregroundColorChanged(const QColor& color);
+  void numPlotsChanged(size_t numRows, size_t numColumns);
+  void linkScaleChanged(bool link);
+  void linkCursorChanged(bool link);
+  void trackPointsChanged(bool track);
+
+ private:
+  QColor backgroundColor_;
+  QColor foregroundColor_;
+  QVector<QVector<PlotConfig*> > plotConfig_;
+  bool linkScale_;
+  bool linkCursor_;
+  bool trackPoints_;
+
+ private slots:
+  void plotConfigChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

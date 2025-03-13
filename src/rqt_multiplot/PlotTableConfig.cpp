@@ -18,39 +18,38 @@
 
 #include "rqt_multiplot/PlotTableConfig.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotTableConfig::PlotTableConfig(QObject* parent, const QColor&
-    backgroundColor, const QColor& foregroundColor, size_t numRows,
-    size_t numColumns, bool linkScale, bool linkCursor, bool trackPoints) :
-  Config(parent),
-  backgroundColor_(backgroundColor),
-  foregroundColor_(foregroundColor),
-  linkScale_(linkScale),
-  linkCursor_(linkCursor),
-  trackPoints_(trackPoints) {
-  if (numRows && numColumns) {
+PlotTableConfig::PlotTableConfig(QObject* parent, QColor backgroundColor, QColor foregroundColor, size_t numRows, size_t numColumns,
+                                 bool linkScale, bool linkCursor, bool trackPoints)
+    : Config(parent),
+      backgroundColor_(std::move(backgroundColor)),
+      foregroundColor_(std::move(foregroundColor)),
+      linkScale_(linkScale),
+      linkCursor_(linkCursor),
+      trackPoints_(trackPoints) {
+  if ((numRows != 0u) && (numColumns != 0u)) {
     plotConfig_.resize(numRows);
-    
+
     for (size_t row = 0; row < numRows; ++row) {
       plotConfig_[row].resize(numColumns);
-      
+
       for (size_t column = 0; column < numColumns; ++column) {
         plotConfig_[row][column] = new PlotConfig(this);
-        
-        connect(plotConfig_[row][column], SIGNAL(changed()), this,
-          SLOT(plotConfigChanged()));
+
+        connect(plotConfig_[row][column], SIGNAL(changed()), this, SLOT(plotConfigChanged()));
       }
     }
   }
 }
 
-PlotTableConfig::~PlotTableConfig() {
-}
+PlotTableConfig::~PlotTableConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -59,7 +58,7 @@ PlotTableConfig::~PlotTableConfig() {
 void PlotTableConfig::setBackgroundColor(const QColor& color) {
   if (color != backgroundColor_) {
     backgroundColor_ = color;
-    
+
     emit backgroundColorChanged(color);
     emit changed();
   }
@@ -72,7 +71,7 @@ const QColor& PlotTableConfig::getBackgroundColor() const {
 void PlotTableConfig::setForegroundColor(const QColor& color) {
   if (color != foregroundColor_) {
     foregroundColor_ = color;
-    
+
     emit foregroundColorChanged(color);
     emit changed();
   }
@@ -86,36 +85,38 @@ void PlotTableConfig::setNumPlots(size_t numRows, size_t numColumns) {
   if ((numRows != getNumRows()) || (numColumns != getNumColumns())) {
     size_t oldNumRows = getNumRows();
     size_t oldNumColumns = getNumColumns();
-    
-    if (!numRows || !numColumns) {
+
+    if ((numRows == 0u) || (numColumns == 0u)) {
       numRows = 0;
       numColumns = 0;
     }
-    
+
     QVector<QVector<PlotConfig*> > plotConfig(numRows);
-    
+
     for (size_t row = 0; row < numRows; ++row) {
       plotConfig[row].resize(numColumns);
-      
+
       for (size_t column = 0; column < numColumns; ++column) {
-        if ((row < oldNumRows) && (column < oldNumColumns))
+        if ((row < oldNumRows) && (column < oldNumColumns)) {
           plotConfig[row][column] = plotConfig_[row][column];
-        else {
+        } else {
           plotConfig[row][column] = new PlotConfig(this);
-          
-          connect(plotConfig[row][column], SIGNAL(changed()), this,
-            SLOT(plotConfigChanged()));
+
+          connect(plotConfig[row][column], SIGNAL(changed()), this, SLOT(plotConfigChanged()));
         }
       }
     }
-    
-    for (size_t row = 0; row < oldNumRows; ++row)
-      for (size_t column = 0; column < oldNumColumns; ++column)
-        if ((row >= numRows) || (column >= numColumns))
+
+    for (size_t row = 0; row < oldNumRows; ++row) {
+      for (size_t column = 0; column < oldNumColumns; ++column) {
+        if ((row >= numRows) || (column >= numColumns)) {
           delete plotConfig_[row][column];
-    
+        }
+      }
+    }
+
     plotConfig_ = plotConfig;
-    
+
     emit numPlotsChanged(numRows, numColumns);
     emit changed();
   }
@@ -134,23 +135,25 @@ void PlotTableConfig::setNumColumns(size_t numColumns) {
 }
 
 size_t PlotTableConfig::getNumColumns() const {
-  if (!plotConfig_.isEmpty())
+  if (!plotConfig_.isEmpty()) {
     return plotConfig_[0].count();
-  else
+  } else {
     return 0;
+  }
 }
 
 PlotConfig* PlotTableConfig::getPlotConfig(size_t row, size_t column) const {
-  if ((row < getNumRows()) && (column < getNumColumns()))
+  if ((row < getNumRows()) && (column < getNumColumns())) {
     return plotConfig_[row][column];
-  else
-    return 0;
+  } else {
+    return nullptr;
+  }
 }
 
 void PlotTableConfig::setLinkScale(bool link) {
   if (link != linkScale_) {
     linkScale_ = link;
-    
+
     emit linkScaleChanged(link);
     emit changed();
   }
@@ -163,7 +166,7 @@ bool PlotTableConfig::isScaleLinked() const {
 void PlotTableConfig::setLinkCursor(bool link) {
   if (link != linkCursor_) {
     linkCursor_ = link;
-    
+
     emit linkCursorChanged(link);
     emit changed();
   }
@@ -176,7 +179,7 @@ bool PlotTableConfig::isCursorLinked() const {
 void PlotTableConfig::setTrackPoints(bool track) {
   if (track != trackPoints_) {
     trackPoints_ = track;
-    
+
     emit trackPointsChanged(track);
     emit changed();
   }
@@ -191,76 +194,72 @@ bool PlotTableConfig::arePointsTracked() const {
 /*****************************************************************************/
 
 void PlotTableConfig::save(QSettings& settings) const {
-  settings.setValue("background_color", QVariant::fromValue<QColor>(
-    backgroundColor_));
-  settings.setValue("foreground_color", QVariant::fromValue<QColor>(
-    foregroundColor_));
-  
+  settings.setValue("background_color", QVariant::fromValue<QColor>(backgroundColor_));
+  settings.setValue("foreground_color", QVariant::fromValue<QColor>(foregroundColor_));
+
   settings.beginGroup("plots");
-  
+
   for (size_t row = 0; row < plotConfig_.count(); ++row) {
-    settings.beginGroup("row_"+QString::number(row));
-    
+    settings.beginGroup("row_" + QString::number(row));
+
     for (size_t column = 0; column < plotConfig_[row].count(); ++column) {
-      settings.beginGroup("column_"+QString::number(column));
+      settings.beginGroup("column_" + QString::number(column));
       plotConfig_[row][column]->save(settings);
       settings.endGroup();
     }
-    
+
     settings.endGroup();
   }
-  
+
   settings.endGroup();
-  
+
   settings.setValue("link_scale", linkScale_);
   settings.setValue("link_cursor", linkCursor_);
   settings.setValue("track_points", trackPoints_);
 }
 
 void PlotTableConfig::load(QSettings& settings) {
-  setBackgroundColor(settings.value("background_color", (QColor)Qt::white).
-    value<QColor>());
-  setForegroundColor(settings.value("foreground_color", (QColor)Qt::black).
-    value<QColor>());
-  
+  setBackgroundColor(settings.value("background_color", (QColor)Qt::white).value<QColor>());
+  setForegroundColor(settings.value("foreground_color", (QColor)Qt::black).value<QColor>());
+
   settings.beginGroup("plots");
-  
+
   QStringList rowGroups = settings.childGroups();
   size_t row = 0;
   size_t numColumns = 0;
-  
-  for (QStringList::iterator it = rowGroups.begin();
-      it != rowGroups.end(); ++it) {
-    if (row >= plotConfig_.count())
-      setNumRows(row+1);
-    
-    settings.beginGroup(*it);
-    
+
+  for (auto& rowGroup : rowGroups) {
+    if (row >= plotConfig_.count()) {
+      setNumRows(row + 1);
+    }
+
+    settings.beginGroup(rowGroup);
+
     QStringList columnGroups = settings.childGroups();
     size_t column = 0;
-    
-    for (QStringList::iterator jt = columnGroups.begin();
-        jt != columnGroups.end(); ++jt) {    
-      if (column >= plotConfig_[row].count())
-        setNumColumns(column+1);
-      
-      settings.beginGroup(*jt);
+
+    for (auto& columnGroup : columnGroups) {
+      if (column >= plotConfig_[row].count()) {
+        setNumColumns(column + 1);
+      }
+
+      settings.beginGroup(columnGroup);
       plotConfig_[row][column]->load(settings);
       settings.endGroup();
-      
+
       ++column;
     }
-    
+
     settings.endGroup();
-    
+
     numColumns = std::max(numColumns, column);
     ++row;
   }
-    
+
   settings.endGroup();
-  
+
   setNumPlots(row, numColumns);
-  
+
   setLinkScale(settings.value("link_scale", false).toBool());
   setLinkCursor(settings.value("link_cursor", false).toBool());
   setTrackPoints(settings.value("track_points", false).toBool());
@@ -272,7 +271,7 @@ void PlotTableConfig::reset() {
 
   setNumPlots(1, 1);
   plotConfig_[0][0]->reset();
-  
+
   setLinkScale(false);
   setLinkCursor(false);
   setTrackPoints(false);
@@ -281,34 +280,42 @@ void PlotTableConfig::reset() {
 void PlotTableConfig::write(QDataStream& stream) const {
   stream << backgroundColor_;
   stream << foregroundColor_;
-  
+
   stream << (quint64)getNumRows() << (quint64)getNumColumns();
-  
-  for (size_t row = 0; row < plotConfig_.count(); ++row)
-    for (size_t column = 0; column < plotConfig_[row].count(); ++column)
+
+  for (size_t row = 0; row < plotConfig_.count(); ++row) {
+    for (size_t column = 0; column < plotConfig_[row].count(); ++column) {
       plotConfig_[row][column]->write(stream);
-  
+    }
+  }
+
   stream << linkScale_;
   stream << linkCursor_;
   stream << trackPoints_;
 }
 
 void PlotTableConfig::read(QDataStream& stream) {
-  QColor backgroundColor, foregroundColor;
-  bool linkScale, linkCursor, trackPoints;
-  quint64 numRows, numColumns;
-  
+  QColor backgroundColor;
+  QColor foregroundColor;
+  bool linkScale = false;
+  bool linkCursor = false;
+  bool trackPoints = false;
+  quint64 numRows = 0;
+  quint64 numColumns = 0;
+
   stream >> backgroundColor;
   setBackgroundColor(backgroundColor);
   stream >> foregroundColor;
   setForegroundColor(foregroundColor);
-  
+
   stream >> numRows >> numColumns;
   setNumPlots(numRows, numColumns);
-  for (size_t row = 0; row < plotConfig_.count(); ++row)
-    for (size_t column = 0; column < plotConfig_[row].count(); ++column)
+  for (size_t row = 0; row < plotConfig_.count(); ++row) {
+    for (size_t column = 0; column < plotConfig_[row].count(); ++column) {
       plotConfig_[row][column]->read(stream);
-  
+    }
+  }
+
   stream >> linkScale;
   setLinkScale(linkScale);
   stream >> linkCursor;
@@ -324,17 +331,19 @@ void PlotTableConfig::read(QDataStream& stream) {
 PlotTableConfig& PlotTableConfig::operator=(const PlotTableConfig& src) {
   setBackgroundColor(src.backgroundColor_);
   setForegroundColor(src.foregroundColor_);
-  
+
   setNumPlots(src.getNumRows(), src.getNumColumns());
-  
-  for (size_t row = 0; row < getNumRows(); ++row)
-    for (size_t column = 0; column < getNumColumns(); ++column)
+
+  for (size_t row = 0; row < getNumRows(); ++row) {
+    for (size_t column = 0; column < getNumColumns(); ++column) {
       *plotConfig_[row][column] = *src.plotConfig_[row][column];
+    }
+  }
 
   setLinkScale(src.linkScale_);
   setLinkCursor(src.linkCursor_);
   setTrackPoints(src.trackPoints_);
-    
+
   return *this;
 }
 
@@ -346,4 +355,4 @@ void PlotTableConfig::plotConfigChanged() {
   emit changed();
 }
 
-}
+}  // namespace rqt_multiplot

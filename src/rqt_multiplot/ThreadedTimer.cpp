@@ -27,18 +27,16 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-ThreadedTimer::ThreadedTimer(QObject* parent) :
-  QThread(parent),
-  timer_(new QTimer()) {
+ThreadedTimer::ThreadedTimer(QObject* parent) : QThread(parent), timer_(new QTimer()) {
   timer_->moveToThread(this);
-  
+
   connect(timer_, SIGNAL(timeout()), this, SLOT(timerTimeout()));
 }
 
 ThreadedTimer::~ThreadedTimer() {
   quit();
   wait();
-  
+
   delete timer_;
 }
 
@@ -51,11 +49,11 @@ int ThreadedTimer::getTimerId() const {
 }
 
 void ThreadedTimer::setRate(double rate) {
-  timer_->setInterval(1e3/rate);
+  timer_->setInterval(1e3 / rate);
 }
 
 double ThreadedTimer::getRate() const {
-  return 1e3/timer_->interval();
+  return 1e3 / timer_->interval();
 }
 
 /*****************************************************************************/
@@ -63,7 +61,7 @@ double ThreadedTimer::getRate() const {
 /*****************************************************************************/
 
 void ThreadedTimer::run() {
-  timer_->start();  
+  timer_->start();
 
   QThread::exec();
 }
@@ -73,8 +71,9 @@ void ThreadedTimer::run() {
 /*****************************************************************************/
 
 void ThreadedTimer::timerTimeout() {
-  if (parent())
+  if (parent() != nullptr) {
     QApplication::postEvent(parent(), new QTimerEvent(timer_->timerId()));
+  }
 }
 
-}
+}  // namespace rqt_multiplot

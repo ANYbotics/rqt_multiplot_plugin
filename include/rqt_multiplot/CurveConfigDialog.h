@@ -22,24 +22,23 @@
 #include <QDialog>
 
 namespace Ui {
-  class CurveConfigDialog;
-};
+class CurveConfigDialog;
+}
 
 namespace rqt_multiplot {
-  class CurveConfigWidget;
-    
-  class CurveConfigDialog :
-    public QDialog {
+class CurveConfigWidget;
+
+class CurveConfigDialog : public QDialog {
   Q_OBJECT
-  public:
-    CurveConfigDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~CurveConfigDialog();
-    
-    CurveConfigWidget* getWidget() const;
-    
-  private:
-    Ui::CurveConfigDialog* ui_;
-  };
+ public:
+  explicit CurveConfigDialog(QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr);
+  ~CurveConfigDialog() override;
+
+  CurveConfigWidget* getWidget() const;
+
+ private:
+  Ui::CurveConfigDialog* ui_;
 };
+}  // namespace rqt_multiplot
 
 #endif

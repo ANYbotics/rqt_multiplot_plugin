@@ -25,54 +25,53 @@
 #include <rqt_multiplot/CurveStyleConfig.h>
 
 namespace Ui {
-  class CurveStyleConfigWidget;
-};
+class CurveStyleConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveStyleConfigWidget :
-    public QWidget {
+class CurveStyleConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveStyleConfigWidget(QWidget* parent = 0);
-    virtual ~CurveStyleConfigWidget();
+ public:
+  explicit CurveStyleConfigWidget(QWidget* parent = nullptr);
+  ~CurveStyleConfigWidget() override;
 
-    void setConfig(CurveStyleConfig* config);
-    CurveStyleConfig* getConfig() const;
-    
-  private:
-    Ui::CurveStyleConfigWidget* ui_;
-    
-    QButtonGroup* buttonGroupSticksOrientation_;
-    
-    CurveStyleConfig* config_;
-    
-  private slots:
-    void configTypeChanged(int type);
-    
-    void configLinesInterpolateChanged(bool interpolate);
-    void configSticksOrientationChanged(int orientation);
-    void configSticksBaselineChanged(double baseline);
-    void configStepsInvertChanged(bool invert);
-    
-    void configPenWidthChanged(size_t width);
-    void configPenStyleChanged(int style);
-    void configRenderAntialiasChanged(bool antialias);
-    
-    void radioButtonLinesToggled(bool checked);
-    void radioButtonSticksToggled(bool checked);
-    void radioButtonStepsToggled(bool checked);
-    void radioButtonPointsToggled(bool checked);
-    
-    void checkBoxLinesInterpolateStateChanged(int state);
-    void radioButtonSticksOrientationHorizontalToggled(bool checked);
-    void radioButtonSticksOrientationVerticalToggled(bool checked);
-    void lineEditSticksBaselineEditingFinished();    
-    void checkBoxStepsInvertStateChanged(int state);
-    
-    void spinBoxPenWidthValueChanged(int value);
-    void comboBoxPenStyleCurrentStyleChanged(int style);
-    void checkBoxRenderAntialiasStateChanged(int state);
-  };
+  void setConfig(CurveStyleConfig* config);
+  CurveStyleConfig* getConfig() const;
+
+ private:
+  Ui::CurveStyleConfigWidget* ui_;
+
+  QButtonGroup* buttonGroupSticksOrientation_;
+
+  CurveStyleConfig* config_;
+
+ private slots:
+  void configTypeChanged(int type);
+
+  void configLinesInterpolateChanged(bool interpolate);
+  void configSticksOrientationChanged(int orientation);
+  void configSticksBaselineChanged(double baseline);
+  void configStepsInvertChanged(bool invert);
+
+  void configPenWidthChanged(size_t width);
+  void configPenStyleChanged(int style);
+  void configRenderAntialiasChanged(bool antialias);
+
+  void radioButtonLinesToggled(bool checked);
+  void radioButtonSticksToggled(bool checked);
+  void radioButtonStepsToggled(bool checked);
+  void radioButtonPointsToggled(bool checked);
+
+  void checkBoxLinesInterpolateStateChanged(int state);
+  void radioButtonSticksOrientationHorizontalToggled(bool checked);
+  void radioButtonSticksOrientationVerticalToggled(bool checked);
+  void lineEditSticksBaselineEditingFinished();
+  void checkBoxStepsInvertStateChanged(int state);
+
+  void spinBoxPenWidthValueChanged(int value);
+  void comboBoxPenStyleCurrentStyleChanged(int style);
+  void checkBoxRenderAntialiasStateChanged(int state);
 };
+}  // namespace rqt_multiplot
 
 #endif

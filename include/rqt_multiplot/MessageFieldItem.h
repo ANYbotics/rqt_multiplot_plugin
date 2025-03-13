@@ -25,33 +25,32 @@
 #include <variant_topic_tools/DataType.h>
 
 namespace rqt_multiplot {
-  class MessageFieldItem {
-  public:
-    MessageFieldItem(const variant_topic_tools::DataType& dataType,
-      MessageFieldItem* parent = 0, const QString& name = QString());
-    ~MessageFieldItem();
-  
-    MessageFieldItem* getParent() const;
-    size_t getNumChildren() const;
-    MessageFieldItem* getChild(size_t row) const;
-    MessageFieldItem* getChild(const QString& name) const;
-    MessageFieldItem* getDescendant(const QString& path) const;
-    int getRow() const;
-    size_t getNumColumns() const;
-    const QString& getName() const;
-    const variant_topic_tools::DataType& getDataType() const;
-    
-    void appendChild(MessageFieldItem* child);
-    
-    void update(const QString& path);
+class MessageFieldItem {
+ public:
+  explicit MessageFieldItem(const variant_topic_tools::DataType& dataType, MessageFieldItem* parent = nullptr, QString name = QString());
+  ~MessageFieldItem();
 
-  private:
-    MessageFieldItem* parent_;
-    QList<MessageFieldItem*> children_;
-    
-    QString name_;
-    variant_topic_tools::DataType dataType_;
-  };
+  MessageFieldItem* getParent() const;
+  size_t getNumChildren() const;
+  MessageFieldItem* getChild(size_t row) const;
+  MessageFieldItem* getChild(const QString& name) const;
+  MessageFieldItem* getDescendant(const QString& path) const;
+  int getRow() const;
+  static size_t getNumColumns();
+  const QString& getName() const;
+  const variant_topic_tools::DataType& getDataType() const;
+
+  void appendChild(MessageFieldItem* child);
+
+  void update(const QString& path);
+
+ private:
+  MessageFieldItem* parent_;
+  QList<MessageFieldItem*> children_;
+
+  QString name_;
+  variant_topic_tools::DataType dataType_;
 };
+}  // namespace rqt_multiplot
 
 #endif

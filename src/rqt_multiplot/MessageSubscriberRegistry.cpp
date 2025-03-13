@@ -26,14 +26,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageSubscriberRegistry::MessageSubscriberRegistry(QObject* parent, const
-    ros::NodeHandle& nodeHandle) :
-  MessageBroker(parent),
-  nodeHandle_(nodeHandle) {
-}
+MessageSubscriberRegistry::MessageSubscriberRegistry(QObject* parent, const ros::NodeHandle& nodeHandle)
+    : MessageBroker(parent), nodeHandle_(nodeHandle) {}
 
-MessageSubscriberRegistry::~MessageSubscriberRegistry() {
-}
+MessageSubscriberRegistry::~MessageSubscriberRegistry() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -47,42 +43,37 @@ const ros::NodeHandle& MessageSubscriberRegistry::getNodeHandle() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-bool MessageSubscriberRegistry::subscribe(const QString& topic,
-    QObject* receiver, const char* method, const PropertyMap& properties,
-    Qt::ConnectionType type) {
+bool MessageSubscriberRegistry::subscribe(const QString& topic, QObject* receiver, const char* method, const PropertyMap& properties,
+                                          Qt::ConnectionType type) {
   QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
-  
+
   size_t queueSize = 100;
-  if (properties.contains(MessageSubscriber::QueueSize))
+  if (properties.contains(MessageSubscriber::QueueSize)) {
     queueSize = properties[MessageSubscriber::QueueSize].toULongLong();
-  
-  if (it == subscribers_.end()) {
-    it = subscribers_.insert(topic, new MessageSubscriber(this,
-      getNodeHandle()));
-    
-    it.value()->setQueueSize(queueSize);    
-    it.value()->setTopic(topic);    
-    
-    connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
-      SLOT(subscriberAboutToBeDestroyed()));
   }
-  else if (it.value()->getQueueSize() < queueSize)
+
+  if (it == subscribers_.end()) {
+    it = subscribers_.insert(topic, new MessageSubscriber(this, getNodeHandle()));
+
     it.value()->setQueueSize(queueSize);
-  
-  return receiver->connect(it.value(), SIGNAL(messageReceived(const
-    QString&, const Message&)), method, type);
+    it.value()->setTopic(topic);
+
+    connect(it.value(), SIGNAL(aboutToBeDestroyed()), this, SLOT(subscriberAboutToBeDestroyed()));
+  } else if (it.value()->getQueueSize() < queueSize) {
+    it.value()->setQueueSize(queueSize);
+  }
+
+  return receiver->connect(it.value(), SIGNAL(messageReceived(const QString&, const Message&)), method, type) != nullptr;
 }
 
-bool MessageSubscriberRegistry::unsubscribe(const QString& topic, QObject*
-    receiver, const char* method) {
+bool MessageSubscriberRegistry::unsubscribe(const QString& topic, QObject* receiver, const char* method) {
   QMap<QString, MessageSubscriber*>::iterator it = subscribers_.find(topic);
-    
+
   if (it != subscribers_.end()) {
-    return it.value()->disconnect(SIGNAL(messageReceived(const QString&,
-      const Message&)), receiver, method);
-  }
-  else
+    return it.value()->disconnect(SIGNAL(messageReceived(const QString&, const Message&)), receiver, method);
+  } else {
     return false;
+  }
 }
 
 /*****************************************************************************/
@@ -90,13 +81,12 @@ bool MessageSubscriberRegistry::unsubscribe(const QString& topic, QObject*
 /*****************************************************************************/
 
 void MessageSubscriberRegistry::subscriberAboutToBeDestroyed() {
-  for (QMap<QString, MessageSubscriber*>::iterator it = subscribers_.begin();
-      it != subscribers_.end(); ++it) {
-    if (it.value() == static_cast<MessageSubscriber*>(sender())) {
-      subscribers_.erase(it);      
+  for (QMap<QString, MessageSubscriber*>::iterator it = subscribers_.begin(); it != subscribers_.end(); ++it) {
+    if (it.value() == dynamic_cast<MessageSubscriber*>(sender())) {
+      subscribers_.erase(it);
       break;
     }
   }
 }
-  
-}
+
+}  // namespace rqt_multiplot

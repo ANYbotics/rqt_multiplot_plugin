@@ -24,18 +24,17 @@
 #include <rqt_multiplot/UrlComboBox.h>
 
 namespace rqt_multiplot {
-  class ConfigComboBox :
-    public UrlComboBox {
+class ConfigComboBox : public UrlComboBox {
   Q_OBJECT
-  public:
-    ConfigComboBox(QWidget* parent = 0);
-    virtual ~ConfigComboBox();
-  
-  private:
-    FileScheme* rootFileScheme_;
-    FileScheme* homeFileScheme_;
-    PackageScheme* packageScheme_;
-  };
+ public:
+  explicit ConfigComboBox(QWidget* parent = nullptr);
+  ~ConfigComboBox() override;
+
+ private:
+  FileScheme* rootFileScheme_;
+  FileScheme* homeFileScheme_;
+  PackageScheme* packageScheme_;
 };
+}  // namespace rqt_multiplot
 
 #endif

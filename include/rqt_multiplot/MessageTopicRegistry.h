@@ -26,42 +26,40 @@
 #include <QThread>
 
 namespace rqt_multiplot {
-  class MessageTopicRegistry :
-    public QObject {
+class MessageTopicRegistry : public QObject {
   Q_OBJECT
-  public:
-    MessageTopicRegistry(QObject* parent = 0);
-    ~MessageTopicRegistry();
-    
-    QMap<QString, QString> getTopics() const;
-    bool isUpdating() const;
-    bool isEmpty() const;
-    
-    void update();
-    
-  signals:
-    void updateStarted();
-    void updateFinished();
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QMap<QString, QString> topics_;
-    };
-    
-    static Impl impl_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+ public:
+  explicit MessageTopicRegistry(QObject* parent = nullptr);
+  ~MessageTopicRegistry() override;
+
+  static QMap<QString, QString> getTopics();
+  static bool isUpdating();
+  static bool isEmpty();
+
+  static void update();
+
+ signals:
+  void updateStarted();
+  void updateFinished();
+
+ private:
+  class Impl : public QThread {
+   public:
+    explicit Impl(QObject* parent = nullptr);
+    ~Impl() override;
+
+    void run() override;
+
+    mutable QMutex mutex_;
+    QMap<QString, QString> topics_;
   };
+
+  static Impl impl_;
+
+ private slots:
+  void threadStarted();
+  void threadFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

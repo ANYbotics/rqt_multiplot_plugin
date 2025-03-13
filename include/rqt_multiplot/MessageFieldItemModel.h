@@ -26,30 +26,27 @@
 #include <variant_topic_tools/MessageDataType.h>
 
 namespace rqt_multiplot {
-  class MessageFieldItemModel :
-    public QAbstractItemModel {
+class MessageFieldItemModel : public QAbstractItemModel {
   Q_OBJECT
-  public:
-    MessageFieldItemModel(QObject* parent = 0);
-    virtual ~MessageFieldItemModel();
-  
-    void setMessageDataType(const variant_topic_tools::MessageDataType&
-      dataType);
-    variant_topic_tools::MessageDataType getMessageDataType() const;
-    variant_topic_tools::DataType getFieldDataType(const QString& field)
-      const;
-    
-    int rowCount(const QModelIndex& parent) const;
-    int columnCount(const QModelIndex& parent) const;
-    QVariant data(const QModelIndex& index, int role) const;
-    QModelIndex index(int row, int column, const QModelIndex& parent) const;
-    QModelIndex parent(const QModelIndex& index) const;
-    
-    void update(const QString& path);
-    
-  private:
-    MessageFieldItem* rootItem_;
-  };
+ public:
+  explicit MessageFieldItemModel(QObject* parent = nullptr);
+  ~MessageFieldItemModel() override;
+
+  void setMessageDataType(const variant_topic_tools::MessageDataType& dataType);
+  variant_topic_tools::MessageDataType getMessageDataType() const;
+  variant_topic_tools::DataType getFieldDataType(const QString& field) const;
+
+  int rowCount(const QModelIndex& parent) const override;
+  int columnCount(const QModelIndex& parent) const override;
+  QVariant data(const QModelIndex& index, int role) const override;
+  QModelIndex index(int row, int column, const QModelIndex& parent) const override;
+  QModelIndex parent(const QModelIndex& index) const override;
+
+  void update(const QString& path);
+
+ private:
+  MessageFieldItem* rootItem_;
 };
+}  // namespace rqt_multiplot
 
 #endif

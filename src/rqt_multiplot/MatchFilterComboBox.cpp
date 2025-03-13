@@ -28,15 +28,12 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MatchFilterComboBox::MatchFilterComboBox(QWidget* parent) :
-  QComboBox(parent),
-  matchFilterCompleter_(new MatchFilterCompleter(this, Qt::MatchContains)) {
-  connect(matchFilterCompleter_, SIGNAL(activated(const QString&)), this,
-    SLOT(matchFilterCompleterActivated(const QString&)));
+MatchFilterComboBox::MatchFilterComboBox(QWidget* parent)
+    : QComboBox(parent), matchFilterCompleter_(new MatchFilterCompleter(this, Qt::MatchContains)) {
+  connect(matchFilterCompleter_, SIGNAL(activated(const QString&)), this, SLOT(matchFilterCompleterActivated(const QString&)));
 }
 
-MatchFilterComboBox::~MatchFilterComboBox() {
-}
+MatchFilterComboBox::~MatchFilterComboBox() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -45,16 +42,15 @@ MatchFilterComboBox::~MatchFilterComboBox() {
 void MatchFilterComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
     QComboBox::setEditable(editable);
-    
-    if (lineEdit()) {
+
+    if (lineEdit() != nullptr) {
       matchFilterCompleter_->setModel(model());
       matchFilterCompleter_->setWidget(this);
-      
-      connect(lineEdit(), SIGNAL(editingFinished()), this,
-        SLOT(lineEditEditingFinished()));
-    }
-    else
+
+      connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
+    } else {
       matchFilterCompleter_->setModel(model());
+    }
   }
 }
 
@@ -68,7 +64,7 @@ MatchFilterCompleter* MatchFilterComboBox::getMatchFilterCompleter() const {
 
 void MatchFilterComboBox::keyPressEvent(QKeyEvent* event) {
   bool doComplete = (count() >= 0);
-  
+
   if (matchFilterCompleter_->popup()->isVisible()) {
     switch (event->key()) {
       case Qt::Key_Escape:
@@ -80,25 +76,23 @@ void MatchFilterComboBox::keyPressEvent(QKeyEvent* event) {
       case Qt::Key_Return:
         if (matchFilterCompleter_->popup()->currentIndex().isValid()) {
           event->ignore();
-          return; 
-        }
-        else {
-          matchFilterCompleter_->popup()->hide();    
+          return;
+        } else {
+          matchFilterCompleter_->popup()->hide();
           doComplete = false;
         }
     }
   }
 
-  bool isShortcut = (event->modifiers() & Qt::ControlModifier) &&
-    (event->key() == Qt::Key_E);
-  bool ctrlOrShift = event->modifiers() &
-    (Qt::ControlModifier | Qt::ShiftModifier);
-    
-  if (!isShortcut)
+  bool isShortcut = static_cast<bool>(event->modifiers() & Qt::ControlModifier) && (event->key() == Qt::Key_E);
+  bool ctrlOrShift = static_cast<bool>(event->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier));
+
+  if (!isShortcut) {
     QComboBox::keyPressEvent(event);
+  }
 
   if (!isShortcut && !ctrlOrShift && (event->modifiers() != Qt::NoModifier)) {
-    matchFilterCompleter_->popup()->hide();    
+    matchFilterCompleter_->popup()->hide();
     return;
   }
 
@@ -113,26 +107,27 @@ void MatchFilterComboBox::keyPressEvent(QKeyEvent* event) {
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void MatchFilterComboBox::matchFilterCompleterActivated(const QString& text) {  
+void MatchFilterComboBox::matchFilterCompleterActivated(const QString& text) {
   setEditText(text);
   lineEdit()->selectAll();
 
   setCurrentIndex(findText(text));
-  
+
   matchFilterCompleter_->popup()->hide();
 }
 
 void MatchFilterComboBox::lineEditEditingFinished() {
   if (!matchFilterCompleter_->popup()->isVisible()) {
     int index = findText(currentText());
-    
-    if (index < 0)
+
+    if (index < 0) {
       setEditText(currentText());
-    else
+    } else {
       setCurrentIndex(index);
-  }
-  else
+    }
+  } else {
     matchFilterCompleter_->popup()->hide();
+  }
 }
 
-}
+}  // namespace rqt_multiplot

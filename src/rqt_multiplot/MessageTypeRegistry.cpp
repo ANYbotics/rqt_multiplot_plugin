@@ -35,18 +35,14 @@ MessageTypeRegistry::Impl MessageTypeRegistry::impl_;
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageTypeRegistry::MessageTypeRegistry(QObject* parent) :
-  QObject(parent) {
+MessageTypeRegistry::MessageTypeRegistry(QObject* parent) : QObject(parent) {
   connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
   connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
 
-MessageTypeRegistry::~MessageTypeRegistry() {
-}
+MessageTypeRegistry::~MessageTypeRegistry() = default;
 
-MessageTypeRegistry::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
+MessageTypeRegistry::Impl::Impl(QObject* parent) : QThread(parent) {}
 
 MessageTypeRegistry::Impl::~Impl() {
   terminate();
@@ -57,19 +53,19 @@ MessageTypeRegistry::Impl::~Impl() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QList<QString> MessageTypeRegistry::getTypes() const {
+QList<QString> MessageTypeRegistry::getTypes() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.types_;
 }
 
-bool MessageTypeRegistry::isUpdating() const {
+bool MessageTypeRegistry::isUpdating() {
   return impl_.isRunning();
 }
 
-bool MessageTypeRegistry::isEmpty() const {
+bool MessageTypeRegistry::isEmpty() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.types_.isEmpty();
 }
 
@@ -87,28 +83,25 @@ void MessageTypeRegistry::wait() {
 
 void MessageTypeRegistry::Impl::run() {
   std::vector<std::string> packages;
-  
+
   mutex_.lock();
   types_.clear();
   mutex_.unlock();
-  
+
   if (ros::package::getAll(packages)) {
-    for (size_t i = 0; i < packages.size(); ++i) {
-      QString package = QString::fromStdString(packages[i]);
-      QDir directory(QString::fromStdString(ros::package::
-        getPath(packages[i]))+"/msg");
+    for (const auto& i : packages) {
+      QString package = QString::fromStdString(i);
+      QDir directory(QString::fromStdString(ros::package::getPath(i)) + "/msg");
 
       if (directory.exists()) {
         QList<QString> filters;
         filters.append("*.msg");
-        
-        QFileInfoList entries = directory.entryInfoList(filters,
-          QDir::Files | QDir::Readable);
-        
-        for (QFileInfoList::iterator it = entries.begin(); it !=
-            entries.end(); ++it) {
+
+        QFileInfoList entries = directory.entryInfoList(filters, QDir::Files | QDir::Readable);
+
+        for (auto& entrie : entries) {
           mutex_.lock();
-          types_.append(package+"/"+it->baseName());
+          types_.append(package + "/" + entrie.baseName());
           mutex_.unlock();
         }
       }
@@ -123,9 +116,9 @@ void MessageTypeRegistry::Impl::run() {
 void MessageTypeRegistry::threadStarted() {
   emit updateStarted();
 }
-  
+
 void MessageTypeRegistry::threadFinished() {
   emit updateFinished();
 }
-  
-}
+
+}  // namespace rqt_multiplot

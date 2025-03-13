@@ -26,45 +26,38 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageFieldCompleter::MessageFieldCompleter(QObject* parent) :
-  QCompleter(parent) {
-}
-  
-MessageFieldCompleter::MessageFieldCompleter(MessageFieldItemModel* model,
-    QObject* parent) :
-  QCompleter(model, parent) {
-}
+MessageFieldCompleter::MessageFieldCompleter(QObject* parent) : QCompleter(parent) {}
 
-MessageFieldCompleter::~MessageFieldCompleter() {
-}
+MessageFieldCompleter::MessageFieldCompleter(MessageFieldItemModel* model, QObject* parent) : QCompleter(model, parent) {}
+
+MessageFieldCompleter::~MessageFieldCompleter() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
 QStringList MessageFieldCompleter::splitPath(const QString& path) const {
-  MessageFieldItemModel* messageFieldItemModel = qobject_cast<
-    MessageFieldItemModel*>(model());
-    
-  if (messageFieldItemModel)
+  auto* messageFieldItemModel = qobject_cast<MessageFieldItemModel*>(model());
+
+  if (messageFieldItemModel != nullptr) {
     messageFieldItemModel->update(path);
-  
+  }
+
   return path.split("/");
 }
 
 QString MessageFieldCompleter::pathFromIndex(const QModelIndex& index) const {
   QStringList fieldNames;
   QModelIndex fieldIndex = index;
-  
-  if (model()) {
+
+  if (model() != nullptr) {
     while (fieldIndex.isValid()) {
-      fieldNames.prepend(model()->data(fieldIndex, Qt::DisplayRole).
-        toString());
+      fieldNames.prepend(model()->data(fieldIndex, Qt::DisplayRole).toString());
       fieldIndex = fieldIndex.parent();
     }
   }
-      
+
   return fieldNames.join("/");
 }
 
-}
+}  // namespace rqt_multiplot

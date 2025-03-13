@@ -24,25 +24,24 @@
 #include <rqt_multiplot/PlotAxesConfig.h>
 
 namespace Ui {
-  class PlotAxesConfigWidget;
-};
+class PlotAxesConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotAxesConfigWidget :
-    public QWidget {
+class PlotAxesConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    PlotAxesConfigWidget(QWidget* parent = 0);
-    virtual ~PlotAxesConfigWidget();
-    
-    void setConfig(PlotAxesConfig* range);
-    PlotAxesConfig* getConfig() const;
-    
-  private:
-    Ui::PlotAxesConfigWidget* ui_;
-    
-    PlotAxesConfig* config_;
-  };
+ public:
+  explicit PlotAxesConfigWidget(QWidget* parent = nullptr);
+  ~PlotAxesConfigWidget() override;
+
+  void setConfig(PlotAxesConfig* range);
+  PlotAxesConfig* getConfig() const;
+
+ private:
+  Ui::PlotAxesConfigWidget* ui_;
+
+  PlotAxesConfig* config_;
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -22,24 +22,23 @@
 #include <QDialog>
 
 namespace Ui {
-  class PlotConfigDialog;
-};
+class PlotConfigDialog;
+}
 
 namespace rqt_multiplot {
-  class PlotConfigWidget;
-    
-  class PlotConfigDialog :
-    public QDialog {
+class PlotConfigWidget;
+
+class PlotConfigDialog : public QDialog {
   Q_OBJECT
-  public:
-    PlotConfigDialog(QWidget* parent = 0, Qt::WindowFlags flags = 0);
-    virtual ~PlotConfigDialog();
-    
-    PlotConfigWidget* getWidget() const;
-    
-  private:
-    Ui::PlotConfigDialog* ui_;
-  };
+ public:
+  explicit PlotConfigDialog(QWidget* parent = nullptr, Qt::WindowFlags flags = nullptr);
+  ~PlotConfigDialog() override;
+
+  PlotConfigWidget* getWidget() const;
+
+ private:
+  Ui::PlotConfigDialog* ui_;
 };
+}  // namespace rqt_multiplot
 
 #endif

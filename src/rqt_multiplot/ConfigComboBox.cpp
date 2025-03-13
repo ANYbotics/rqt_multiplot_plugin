@@ -26,19 +26,18 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-ConfigComboBox::ConfigComboBox(QWidget* parent) :
-  UrlComboBox(parent),
-  rootFileScheme_(new FileScheme(this)),
-  homeFileScheme_(new FileScheme(this, "home", QDir::homePath())),
-  packageScheme_(new PackageScheme(this)) {
+ConfigComboBox::ConfigComboBox(QWidget* parent)
+    : UrlComboBox(parent),
+      rootFileScheme_(new FileScheme(this)),
+      homeFileScheme_(new FileScheme(this, "home", QDir::homePath())),
+      packageScheme_(new PackageScheme(this)) {
   getCompleter()->getModel()->addScheme(rootFileScheme_);
   getCompleter()->getModel()->addScheme(homeFileScheme_);
   getCompleter()->getModel()->addScheme(packageScheme_);
-  
+
   getCompleter()->setCompletionMode(QCompleter::InlineCompletion);
 }
 
-ConfigComboBox::~ConfigComboBox() {
-}
+ConfigComboBox::~ConfigComboBox() = default;
 
-}
+}  // namespace rqt_multiplot

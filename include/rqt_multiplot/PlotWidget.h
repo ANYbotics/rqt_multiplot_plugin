@@ -33,131 +33,127 @@
 #include <rqt_multiplot/PlotConfig.h>
 
 namespace Ui {
-  class PlotWidget;
-};
+class PlotWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotCursor;
-  class PlotCurve;
-  class PlotLegend;
-  class PlotMagnifier;
-  class PlotPanner;
-  class PlotZoomer;
+class PlotCursor;
+class PlotCurve;
+class PlotLegend;
+class PlotMagnifier;
+class PlotPanner;
+class PlotZoomer;
 
-  class PlotWidget :
-    public QWidget {
+class PlotWidget : public QWidget {
   Q_OBJECT
-  public:
-    enum State {
-      Normal,
-      Maximized
-    };
+ public:
+  enum State { Normal, Maximized };
 
-    PlotWidget(QWidget* parent = 0);
-    virtual ~PlotWidget();
+  explicit PlotWidget(QWidget* parent = nullptr);
+  ~PlotWidget() override;
 
-    void setConfig(PlotConfig* config);
-    PlotConfig* getConfig() const;
-    void setBroker(MessageBroker* broker);
-    MessageBroker* getBroker() const;
-    PlotCursor* getCursor() const;
-    BoundingRectangle getPreferredScale() const;
-    void setCurrentScale(const BoundingRectangle& bounds);
-    const BoundingRectangle& getCurrentScale() const;
-    bool isPaused() const;
-    bool isReplotRequested() const;
-    void setState(State state);
-    State getState() const;
-    void setCanChangeState(bool can);
-    bool canChangeState() const;
+  void setConfig(PlotConfig* config);
+  PlotConfig* getConfig() const;
+  void setBroker(MessageBroker* broker);
+  MessageBroker* getBroker() const;
+  PlotCursor* getCursor() const;
+  BoundingRectangle getPreferredScale() const;
+  void setCurrentScale(const BoundingRectangle& bounds);
+  const BoundingRectangle& getCurrentScale() const;
+  bool isPaused() const;
+  bool isReplotRequested() const;
+  void setState(State state);
+  State getState() const;
+  void setCanChangeState(bool can);
+  bool canChangeState() const;
 
-    void run();
-    void pause();
-    void clear();
+  void run();
+  void pause();
+  void clear();
 
-    void requestReplot();
-    void forceReplot();
+  void requestReplot();
+  void forceReplot();
 
-    void renderToPixmap(QPixmap& pixmap, const QRectF& bounds = QRectF());
-    void writeFormattedCurveAxisTitles(QStringList& formattedAxisTitles);
-    void writeFormattedCurveData(QList<QStringList>& formattedData);
+  void renderToPixmap(QPixmap& pixmap, const QRectF& bounds = QRectF());
+  void writeFormattedCurveAxisTitles(QStringList& formattedAxisTitles);
+  void writeFormattedCurveData(QList<QStringList>& formattedData);
 
-    void saveToImageFile(const QString& fileName);
-    void saveToTextFile(const QString& fileName);
+  void saveToImageFile(const QString& fileName);
+  void saveToTextFile(const QString& fileName);
 
-  signals:
-    void preferredScaleChanged(const BoundingRectangle& bounds);
-    void currentScaleChanged(const BoundingRectangle& bounds);
-    void pausedChanged(bool paused);
-    void stateChanged(int state);
-    void cleared();
+ signals:
+  void preferredScaleChanged(const BoundingRectangle& bounds);
+  void currentScaleChanged(const BoundingRectangle& bounds);
+  void pausedChanged(bool paused);
+  void stateChanged(int state);
+  void cleared();
 
-  protected:
-    void dragEnterEvent(QDragEnterEvent* event);
-    void dropEvent(QDropEvent* event);
+ protected:
+  void dragEnterEvent(QDragEnterEvent* event) override;
+  void dropEvent(QDropEvent* event) override;
 
-    bool eventFilter(QObject* object, QEvent* event);
+  bool eventFilter(QObject* object, QEvent* event) override;
 
-  private:
-    Ui::PlotWidget* ui_;
+ private:
+  Ui::PlotWidget* ui_;
 
-    QIcon runIcon_;
-    QIcon pauseIcon_;
-    QIcon normalIcon_;
-    QIcon maximizedIcon_;
-    QTimer* timer_;
-    QMenu* menuImportExport_;
+  QIcon runIcon_;
+  QIcon pauseIcon_;
+  QIcon normalIcon_;
+  QIcon maximizedIcon_;
+  QTimer* timer_;
+  QMenu* menuImportExport_;
 
-    PlotConfig* config_;
+  PlotConfig* config_;
 
-    MessageBroker* broker_;
+  MessageBroker* broker_;
 
-    QVector<PlotCurve*> curves_;
+  QVector<PlotCurve*> curves_;
 
-    PlotLegend* legend_;
-    PlotCursor* cursor_;
-    PlotPanner* panner_;
-    PlotMagnifier* magnifier_;
-    PlotZoomer* zoomer_;
+  PlotLegend* legend_;
+  PlotCursor* cursor_;
+  PlotPanner* panner_;
+  PlotMagnifier* magnifier_;
+  PlotZoomer* zoomer_;
 
-    bool paused_;
-    bool rescale_;
-    bool replot_;
-    State state_;
+  bool paused_;
+  bool rescale_;
+  bool replot_;
+  State state_;
 
-    BoundingRectangle currentBounds_;
+  BoundingRectangle currentBounds_;
 
-    void updateAxisTitle(PlotAxesConfig::Axis axis);
+  void updateAxisTitle(PlotAxesConfig::Axis axis);
 
-  private slots:
-    void timerTimeout();
+ private slots:
+  void timerTimeout();
 
-    void configTitleChanged(const QString& title);
-    void configCurveAdded(size_t index);
-    void configCurveRemoved(size_t index);
-    void configCurvesCleared();
-    void configCurveConfigChanged(size_t index);
-    void configXAxisConfigChanged();
-    void configYAxisConfigChanged();
-    void configLegendConfigChanged();
-    void configPlotRateChanged(double rate);
+  void configTitleChanged(const QString& title);
+  void configCurveAdded(size_t index);
+  void configCurveRemoved(size_t index);
+  void configCurvesCleared();
+  void configCurveConfigChanged(size_t index);
+  void configXAxisConfigChanged();
+  void configYAxisConfigChanged();
+  void configLegendConfigChanged();
+  void configPlotRateChanged(double rate);
 
-    void curveReplotRequested();
+  void curveReplotRequested();
 
-    void lineEditTitleTextChanged(const QString& text);
-    void lineEditTitleEditingFinished();
+  void lineEditTitleTextChanged(const QString& text);
+  void lineEditTitleEditingFinished();
 
-    void pushButtonRunPauseClicked();
-    void pushButtonClearClicked();
-    void pushButtonSetupClicked();
-    void pushButtonImportExportClicked();
-    void pushButtonStateClicked();
-    void menuExportImageFileTriggered();
-    void menuExportTextFileTriggered();
+  void pushButtonRunPauseClicked();
+  void pushButtonClearClicked();
+  void pushButtonSetupClicked();
+  void pushButtonImportExportClicked();
+  void pushButtonStateClicked();
+  void menuExportImageFileTriggered();
+  void menuExportTextFileTriggered();
 
-    void plotXBottomScaleDivChanged();
-    void plotYLeftScaleDivChanged();
-  };
+  void plotXBottomScaleDivChanged();
+  void plotYLeftScaleDivChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

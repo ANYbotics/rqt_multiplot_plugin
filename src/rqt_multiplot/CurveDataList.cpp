@@ -24,11 +24,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataList::CurveDataList() {
-}
+CurveDataList::CurveDataList() = default;
 
-CurveDataList::~CurveDataList() {
-}
+CurveDataList::~CurveDataList() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -52,8 +50,8 @@ BoundingRectangle CurveDataList::getBounds() const {
 
 void CurveDataList::appendPoint(const QPointF& point) {
   bounds_ += point;
-  
-  points_.append(point);  
+
+  points_.append(point);
 }
 
 void CurveDataList::clearPoints() {
@@ -61,4 +59,4 @@ void CurveDataList::clearPoints() {
   bounds_.clear();
 }
 
-}
+}  // namespace rqt_multiplot

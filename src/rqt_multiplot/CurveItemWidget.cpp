@@ -16,8 +16,8 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.       *
  ******************************************************************************/
 
-#include <QPainter>
 #include <QPaintEvent>
+#include <QPainter>
 
 #include <ui_CurveItemWidget.h>
 
@@ -29,10 +29,7 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveItemWidget::CurveItemWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveItemWidget()),
-  config_(0) {
+CurveItemWidget::CurveItemWidget(QWidget* parent) : QWidget(parent), ui_(new Ui::CurveItemWidget()), config_(nullptr) {
   ui_->setupUi(this);
 
   ui_->frameColor->installEventFilter(this);
@@ -48,36 +45,27 @@ CurveItemWidget::~CurveItemWidget() {
 
 void CurveItemWidget::setConfig(CurveConfig* config) {
   if (config != config_) {
-    if (config_) {
-      disconnect(config_, SIGNAL(titleChanged(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      disconnect(config_->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      disconnect(config_->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      disconnect(config_->getColorConfig(), SIGNAL(currentColorChanged(const
-        QColor&)), this, SLOT(configColorConfigCurrentColorChanged(const
-        QColor&)));
+    if (config_ != nullptr) {
+      disconnect(config_, SIGNAL(titleChanged(const QString&)), this, SLOT(configTitleChanged(const QString&)));
+      disconnect(config_->getAxisConfig(CurveConfig::X), SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      disconnect(config_->getAxisConfig(CurveConfig::Y), SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      disconnect(config_->getColorConfig(), SIGNAL(currentColorChanged(const QColor&)), this,
+                 SLOT(configColorConfigCurrentColorChanged(const QColor&)));
     }
-    
+
     config_ = config;
-    
-    if (config) {
-      connect(config, SIGNAL(titleChanged(const QString&)), this,
-        SLOT(configTitleChanged(const QString&)));
-      connect(config->getAxisConfig(CurveConfig::X),
-        SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
-      connect(config->getAxisConfig(CurveConfig::Y),
-        SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
-      connect(config->getColorConfig(), SIGNAL(currentColorChanged(const
-        QColor&)), this, SLOT(configColorConfigCurrentColorChanged(const
-        QColor&)));
-      
+
+    if (config != nullptr) {
+      connect(config, SIGNAL(titleChanged(const QString&)), this, SLOT(configTitleChanged(const QString&)));
+      connect(config->getAxisConfig(CurveConfig::X), SIGNAL(changed()), this, SLOT(configXAxisConfigChanged()));
+      connect(config->getAxisConfig(CurveConfig::Y), SIGNAL(changed()), this, SLOT(configYAxisConfigChanged()));
+      connect(config->getColorConfig(), SIGNAL(currentColorChanged(const QColor&)), this,
+              SLOT(configColorConfigCurrentColorChanged(const QColor&)));
+
       configTitleChanged(config->getTitle());
       configXAxisConfigChanged();
       configYAxisConfigChanged();
-      configColorConfigCurrentColorChanged(config->getColorConfig()->
-        getCurrentColor());
+      configColorConfigCurrentColorChanged(config->getColorConfig()->getCurrentColor());
     }
   }
 }
@@ -91,22 +79,21 @@ CurveConfig* CurveItemWidget::getConfig() const {
 /*****************************************************************************/
 
 bool CurveItemWidget::eventFilter(QObject* object, QEvent* event) {
-  if (config_) {
+  if (config_ != nullptr) {
     if ((object == ui_->frameColor) && (event->type() == QEvent::Paint)) {
-      QPaintEvent* paintEvent = static_cast<QPaintEvent*>(event);
-      
+      auto* paintEvent = dynamic_cast<QPaintEvent*>(event);
+
       QPainter painter(ui_->frameColor);
       QColor color = config_->getColorConfig()->getCurrentColor();
-      
+
       painter.setBrush(color);
       painter.setPen((color.lightnessF() > 0.5) ? Qt::black : Qt::white);
-      
+
       painter.fillRect(paintEvent->rect(), color);
-      painter.drawText(paintEvent->rect(), color.name().toUpper(),
-        Qt::AlignHCenter | Qt::AlignVCenter);
+      painter.drawText(paintEvent->rect(), color.name().toUpper(), Qt::AlignHCenter | Qt::AlignVCenter);
     }
   }
-  
+
   return false;
 }
 
@@ -114,39 +101,41 @@ bool CurveItemWidget::eventFilter(QObject* object, QEvent* event) {
 /* Slots                                                                     */
 /*****************************************************************************/
 
-void CurveItemWidget::configTitleChanged(const QString& title) {
-  ui_->labelTitle->setText(config_->getTitle());  
+void CurveItemWidget::configTitleChanged(const QString& /*title*/) {
+  ui_->labelTitle->setText(config_->getTitle());
 }
 
 void CurveItemWidget::configXAxisConfigChanged() {
   CurveAxisConfig* config = config_->getAxisConfig(CurveConfig::X);
-  
+
   QString text = config->getTopic();
-  
-  if (config->getFieldType() == CurveAxisConfig::MessageData)
-    text += "/"+config->getField();
-  else
+
+  if (config->getFieldType() == CurveAxisConfig::MessageData) {
+    text += "/" + config->getField();
+  } else {
     text += "/receipt_time";
+  }
 
   ui_->labelXAxis->setText(text);
 }
 
 void CurveItemWidget::configYAxisConfigChanged() {
   CurveAxisConfig* config = config_->getAxisConfig(CurveConfig::Y);
-  
+
   QString text = config->getTopic();
-  
-  if (config->getFieldType() == CurveAxisConfig::MessageData)
-    text += "/"+config->getField();
-  else
+
+  if (config->getFieldType() == CurveAxisConfig::MessageData) {
+    text += "/" + config->getField();
+  } else {
     text += "/receipt_time";
+  }
 
   ui_->labelYAxis->setText(text);
 }
 
 void CurveItemWidget::configColorConfigCurrentColorChanged(const QColor&
-    color) {
+                                                           /*color*/) {
   ui_->frameColor->repaint();
 }
 
-}
+}  // namespace rqt_multiplot

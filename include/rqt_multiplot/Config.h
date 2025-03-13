@@ -24,26 +24,25 @@
 #include <QSettings>
 
 namespace rqt_multiplot {
-  class Config :
-    public QObject {
+class Config : public QObject {
   Q_OBJECT
-  public:
-    Config(QObject* parent = 0);
-    ~Config();
+ public:
+  explicit Config(QObject* parent = nullptr);
+  ~Config() override;
 
-    virtual void save(QSettings& settings) const = 0;
-    virtual void load(QSettings& settings) = 0;
-    virtual void reset() = 0;
-    
-    virtual void write(QDataStream& stream) const = 0;
-    virtual void read(QDataStream& stream) = 0;
-    
-  signals:
-    void changed();
-  };
-  
-  QDataStream& operator<<(QDataStream& stream, const Config& config);
-  QDataStream& operator>>(QDataStream& stream, Config& config);
+  virtual void save(QSettings& settings) const = 0;
+  virtual void load(QSettings& settings) = 0;
+  virtual void reset() = 0;
+
+  virtual void write(QDataStream& stream) const = 0;
+  virtual void read(QDataStream& stream) = 0;
+
+ signals:
+  void changed();
 };
+
+QDataStream& operator<<(QDataStream& stream, const Config& config);
+QDataStream& operator>>(QDataStream& stream, Config& config);
+}  // namespace rqt_multiplot
 
 #endif

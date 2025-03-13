@@ -24,23 +24,22 @@
 #include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class CurveDataList :
-    public CurveData {
-  public:
-    CurveDataList();
-    ~CurveDataList();
+class CurveDataList : public CurveData {
+ public:
+  CurveDataList();
+  ~CurveDataList() override;
 
-    size_t getNumPoints() const;
-    QPointF getPoint(size_t index) const;
-    BoundingRectangle getBounds() const;
-    
-    void appendPoint(const QPointF& point);
-    void clearPoints();
-    
-  private:
-    QList<QPointF> points_;
-    BoundingRectangle bounds_;
-  };
+  size_t getNumPoints() const override;
+  QPointF getPoint(size_t index) const override;
+  BoundingRectangle getBounds() const override;
+
+  void appendPoint(const QPointF& point) override;
+  void clearPoints() override;
+
+ private:
+  QList<QPointF> points_;
+  BoundingRectangle bounds_;
 };
+}  // namespace rqt_multiplot
 
 #endif

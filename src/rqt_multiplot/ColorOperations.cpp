@@ -18,7 +18,6 @@
 
 #include <cmath>
 #include <limits>
-#include <stdexcept>
 
 #include <rqt_multiplot/BitOperations.h>
 
@@ -31,27 +30,25 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 float ColorOperations::intToHue(unsigned char val) {
-  return (float)BitOperations::revertByte(val)/
-    std::numeric_limits<unsigned char>::max();
+  return (float)BitOperations::revertByte(val) / std::numeric_limits<unsigned char>::max();
 }
 
 unsigned char ColorOperations::hueToInt(float hue) {
-  return BitOperations::revertByte((unsigned int)round(hue/
-    (2.0*M_PI)*std::numeric_limits<unsigned char>::max()));
+  return BitOperations::revertByte((unsigned int)round(hue / (2.0 * M_PI) * std::numeric_limits<unsigned char>::max()));
 }
 
 QColor ColorOperations::hsvToRgb(const QColor& hsv) {
   QColor rgb;
-  
+
   rgb.setAlphaF(hsv.alphaF());
 
   if (hsv.blueF() > 0.0) {
-    float hue = hsv.redF()*2.0*M_PI/(60.0*M_PI/180.0);
+    float hue = hsv.redF() * 2.0 * M_PI / (60.0 * M_PI / 180.0);
     int i = floor(hue);
-    float f = hue-i;
-    float p = hsv.blueF()*(1.0-hsv.greenF());
-    float q = hsv.blueF()*(1.0-hsv.greenF()*f);
-    float t = hsv.blueF()*(1.0-hsv.greenF()*(1.0-f));
+    float f = hue - i;
+    float p = hsv.blueF() * (1.0 - hsv.greenF());
+    float q = hsv.blueF() * (1.0 - hsv.greenF() * f);
+    float t = hsv.blueF() * (1.0 - hsv.greenF() * (1.0 - f));
 
     switch (i) {
       case 0:
@@ -85,8 +82,7 @@ QColor ColorOperations::hsvToRgb(const QColor& hsv) {
         rgb.setBlueF(q);
         break;
     }
-  }
-  else {
+  } else {
     rgb.setRedF(hsv.blueF());
     rgb.setGreenF(hsv.blueF());
     rgb.setBlueF(hsv.blueF());
@@ -103,8 +99,7 @@ QColor ColorOperations::intToRgb(unsigned char val) {
 }
 
 QColor ColorOperations::invertRgb(const QColor& rgb) {
-  return QColor::fromRgbF(1.0-rgb.redF(), 1.0-rgb.greenF(), 1.0-rgb.blueF(),
-    rgb.alphaF());
+  return QColor::fromRgbF(1.0 - rgb.redF(), 1.0 - rgb.greenF(), 1.0 - rgb.blueF(), rgb.alphaF());
 }
 
-};
+}  // namespace rqt_multiplot

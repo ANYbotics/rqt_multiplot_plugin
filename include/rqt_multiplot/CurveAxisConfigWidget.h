@@ -24,59 +24,58 @@
 #include <rqt_multiplot/CurveAxisConfig.h>
 
 namespace Ui {
-  class CurveAxisConfigWidget;
+class CurveAxisConfigWidget;
 }
 
 namespace rqt_multiplot {
-  class CurveAxisConfigWidget :
-    public QWidget {
+class CurveAxisConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveAxisConfigWidget(QWidget* parent = 0);
-    virtual ~CurveAxisConfigWidget();
+ public:
+  explicit CurveAxisConfigWidget(QWidget* parent = nullptr);
+  ~CurveAxisConfigWidget() override;
 
-    void setConfig(CurveAxisConfig* config);
-    CurveAxisConfig* getConfig() const;
-    
-    void updateTopics();
-    void updateTypes();
-    void updateFields();
-    
-  private:
-    Ui::CurveAxisConfigWidget* ui_;
-    
-    CurveAxisConfig* config_;
-    
-    bool validateTopic();
-    bool validateType();
-    bool validateField();
-    bool validateScale();
-    
-  private slots:
-    void configTopicChanged(const QString& topic);
-    void configTypeChanged(const QString& type);
-    void configFieldTypeChanged(int fieldType);
-    void configFieldChanged(const QString& field);
-    void configScaleConfigChanged();
-    
-    void comboBoxTopicUpdateStarted();
-    void comboBoxTopicUpdateFinished();
-    void comboBoxTopicCurrentTopicChanged(const QString& topic);
-    
-    void comboBoxTypeUpdateStarted();
-    void comboBoxTypeUpdateFinished();    
-    void comboBoxTypeCurrentTypeChanged(const QString& type);
-    
-    void widgetFieldLoadingStarted();
-    void widgetFieldLoadingFinished();
-    void widgetFieldLoadingFailed(const QString& error);
-    void widgetFieldConnecting(const QString& topic);
-    void widgetFieldConnected(const QString& topic);
-    void widgetFieldConnectionTimeout(const QString& topic, double timeout);
-    void widgetFieldCurrentFieldChanged(const QString& field);
-    
-    void checkBoxFieldReceiptTimeStateChanged(int state);
-  };
+  void setConfig(CurveAxisConfig* config);
+  CurveAxisConfig* getConfig() const;
+
+  void updateTopics();
+  void updateTypes();
+  void updateFields();
+
+ private:
+  Ui::CurveAxisConfigWidget* ui_;
+
+  CurveAxisConfig* config_;
+
+  bool validateTopic();
+  bool validateType();
+  bool validateField();
+  bool validateScale();
+
+ private slots:
+  void configTopicChanged(const QString& topic);
+  void configTypeChanged(const QString& type);
+  void configFieldTypeChanged(int fieldType);
+  void configFieldChanged(const QString& field);
+  void configScaleConfigChanged();
+
+  void comboBoxTopicUpdateStarted();
+  void comboBoxTopicUpdateFinished();
+  void comboBoxTopicCurrentTopicChanged(const QString& topic);
+
+  void comboBoxTypeUpdateStarted();
+  void comboBoxTypeUpdateFinished();
+  void comboBoxTypeCurrentTypeChanged(const QString& type);
+
+  void widgetFieldLoadingStarted();
+  void widgetFieldLoadingFinished();
+  void widgetFieldLoadingFailed(const QString& error);
+  void widgetFieldConnecting(const QString& topic);
+  void widgetFieldConnected(const QString& topic);
+  void widgetFieldConnectionTimeout(const QString& topic, double timeout);
+  void widgetFieldCurrentFieldChanged(const QString& field);
+
+  void checkBoxFieldReceiptTimeStateChanged(int state);
 };
+}  // namespace rqt_multiplot
 
 #endif

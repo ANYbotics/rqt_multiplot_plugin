@@ -29,59 +29,55 @@
 #include <rqt_multiplot/MessageBroker.h>
 
 namespace rqt_multiplot {
-  class BagReader :
-    public MessageBroker {
+class BagReader : public MessageBroker {
   Q_OBJECT
-  public:
-    BagReader(QObject* parent = 0);
-    virtual ~BagReader();
-    
-    QString getFileName() const;
-    QString getError() const;
-    bool isReading() const;
-    
-    void read(const QString& fileName);
-    void wait();
-    
-    bool subscribe(const QString& topic, QObject* receiver,
-      const char* method, const PropertyMap& properties = PropertyMap(),
-      Qt::ConnectionType type = Qt::AutoConnection);
-    bool unsubscribe(const QString& topic, QObject* receiver,
-      const char* method = 0);
-    
-    bool event(QEvent* event);
-    
-  signals:
-    void readingStarted();
-    void messageRead(const QString& topic, const Message& message);
-    void readingProgressChanged(double progress);
-    void readingFinished();
-    void readingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      QMutex mutex_;
-      QString fileName_;
-      QString error_;
-      
-      QMap<QString, BagQuery*> queries_;
-    };
-    
-    Impl impl_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+ public:
+  explicit BagReader(QObject* parent = nullptr);
+  ~BagReader() override;
 
-    void queryAboutToBeDestroyed();
+  QString getFileName() const;
+  QString getError() const;
+  bool isReading() const;
+
+  void read(const QString& fileName);
+  void wait();
+
+  bool subscribe(const QString& topic, QObject* receiver, const char* method, const PropertyMap& properties = PropertyMap(),
+                 Qt::ConnectionType type = Qt::AutoConnection) override;
+  bool unsubscribe(const QString& topic, QObject* receiver, const char* method = nullptr) override;
+
+  bool event(QEvent* event) override;
+
+ signals:
+  void readingStarted();
+  void messageRead(const QString& topic, const Message& message);
+  void readingProgressChanged(double progress);
+  void readingFinished();
+  void readingFailed(const QString& error);
+
+ private:
+  class Impl : public QThread {
+   public:
+    explicit Impl(QObject* parent = nullptr);
+    ~Impl() override;
+
+    void run() override;
+
+    QMutex mutex_;
+    QString fileName_;
+    QString error_;
+
+    QMap<QString, BagQuery*> queries_;
   };
+
+  Impl impl_;
+
+ private slots:
+  void threadStarted();
+  void threadFinished();
+
+  void queryAboutToBeDestroyed();
 };
+}  // namespace rqt_multiplot
 
 #endif

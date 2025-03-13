@@ -30,57 +30,54 @@
 #include <rqt_multiplot/MessageBroker.h>
 
 namespace rqt_multiplot {
-  class CurveData;
-  class CurveDataSequencer;
+class CurveData;
+class CurveDataSequencer;
 
-  class PlotCurve :
-    public QObject,
-    public QwtPlotCurve {
+class PlotCurve : public QObject, public QwtPlotCurve {
   Q_OBJECT
-  public:
-    PlotCurve(QObject* parent = 0);
-    virtual ~PlotCurve();
-    
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
-    void setBroker(MessageBroker* broker);
-    MessageBroker* getBroker() const;
-    CurveData* getData() const;
-    CurveDataSequencer* getDataSequencer() const;
-    QPair<double, double> getPreferredAxisScale(CurveConfig::Axis
-      axis) const;
-    BoundingRectangle getPreferredScale() const;
-    
-    void attach(QwtPlot* plot);
-    void detach();
-    
-    void run();
-    void pause();
-    void clear();
-  
-  signals:
-    void preferredScaleChanged(const BoundingRectangle& bounds);
-    void replotRequested();
-    
-  private:
-    CurveConfig* config_;
+ public:
+  explicit PlotCurve(QObject* parent = nullptr);
+  ~PlotCurve() override;
 
-    MessageBroker* broker_;
-    
-    CurveData* data_;
-    CurveDataSequencer* dataSequencer_;
+  void setConfig(CurveConfig* config);
+  CurveConfig* getConfig() const;
+  void setBroker(MessageBroker* broker);
+  MessageBroker* getBroker() const;
+  CurveData* getData() const;
+  CurveDataSequencer* getDataSequencer() const;
+  QPair<double, double> getPreferredAxisScale(CurveConfig::Axis axis) const;
+  BoundingRectangle getPreferredScale() const;
 
-    bool paused_;
-    
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configAxisConfigChanged();
-    void configColorConfigCurrentColorChanged(const QColor& color);
-    void configStyleConfigChanged();
-    void configDataConfigChanged();
-    
-    void dataSequencerPointReceived(const QPointF& point);
-  };
+  void attach(QwtPlot* plot);
+  void detach();
+
+  void run();
+  void pause();
+  void clear();
+
+ signals:
+  void preferredScaleChanged(const BoundingRectangle& bounds);
+  void replotRequested();
+
+ private:
+  CurveConfig* config_;
+
+  MessageBroker* broker_;
+
+  CurveData* data_;
+  CurveDataSequencer* dataSequencer_;
+
+  bool paused_;
+
+ private slots:
+  void configTitleChanged(const QString& title);
+  void configAxisConfigChanged();
+  void configColorConfigCurrentColorChanged(const QColor& color);
+  void configStyleConfigChanged();
+  void configDataConfigChanged();
+
+  void dataSequencerPointReceived(const QPointF& point);
 };
+}  // namespace rqt_multiplot
 
 #endif

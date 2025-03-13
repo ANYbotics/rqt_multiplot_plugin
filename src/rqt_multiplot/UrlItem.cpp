@@ -24,18 +24,13 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-UrlItem::UrlItem(UrlScheme* scheme, Type type, const QModelIndex& index,
-    UrlItem* parent) :
-  parent_(parent),
-  scheme_(scheme),
-  type_(type),
-  index_(index) {
-}
+UrlItem::UrlItem(UrlScheme* scheme, Type type, const QModelIndex& index, UrlItem* parent)
+    : parent_(parent), scheme_(scheme), type_(type), index_(index) {}
 
 UrlItem::~UrlItem() {
-  for (QMap<size_t, UrlItem*>::iterator it = children_.begin();
-      it != children_.end(); ++it)
+  for (QMap<size_t, UrlItem*>::iterator it = children_.begin(); it != children_.end(); ++it) {
     delete it.value();
+  }
 }
 
 /*****************************************************************************/
@@ -52,19 +47,20 @@ size_t UrlItem::getNumChildren() const {
 
 UrlItem* UrlItem::getChild(size_t row) const {
   QMap<size_t, UrlItem*>::const_iterator it = children_.find(row);
-  
-  if (it != children_.end())
+
+  if (it != children_.end()) {
     return it.value();
-  else
-    return 0;
+  } else {
+    return nullptr;
+  }
 }
 
 int UrlItem::getRow() const {
-  if (parent_) {
-    for (QMap<size_t, UrlItem*>::const_iterator it = parent_->children_.
-        begin(); it != parent_->children_.end(); ++it) {
-      if (it.value() == this)
+  if (parent_ != nullptr) {
+    for (QMap<size_t, UrlItem*>::const_iterator it = parent_->children_.begin(); it != parent_->children_.end(); ++it) {
+      if (it.value() == this) {
         return it.key();
+      }
     }
   }
 
@@ -97,14 +93,15 @@ const QModelIndex& UrlItem::getIndex() const {
 
 QModelIndex UrlItem::getIndex(Type type) const {
   const UrlItem* item = this;
-  
-  while (item) {
-    if (item->type_ != type)
+
+  while (item != nullptr) {
+    if (item->type_ != type) {
       item = item->parent_;
-    else
+    } else {
       return item->index_;
+    }
   }
-  
+
   return QModelIndex();
 }
 
@@ -114,19 +111,18 @@ QModelIndex UrlItem::getIndex(Type type) const {
 
 UrlItem* UrlItem::addChild(size_t row, Type type, const QModelIndex& index) {
   QMap<size_t, UrlItem*>::iterator it = children_.find(row);
-  
+
   if (it != children_.end()) {
     it.value()->type_ = type;
     it.value()->index_ = index;
 
     return it.value();
-  }
-  else {
-    UrlItem* item = new UrlItem(scheme_, type, index, this);
+  } else {
+    auto* item = new UrlItem(scheme_, type, index, this);
     children_.insert(row, item);
-    
+
     return item;
   }
 }
 
-}
+}  // namespace rqt_multiplot

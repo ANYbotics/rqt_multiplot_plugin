@@ -24,34 +24,33 @@
 #include <rqt_multiplot/CurveConfig.h>
 
 namespace Ui {
-  class CurveItemWidget;
-};
+class CurveItemWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveItemWidget :
-    public QWidget {
+class CurveItemWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveItemWidget(QWidget* parent = 0);
-    virtual ~CurveItemWidget();
+ public:
+  explicit CurveItemWidget(QWidget* parent = nullptr);
+  ~CurveItemWidget() override;
 
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
-  
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
-    
-  private:
-    Ui::CurveItemWidget* ui_;
-    
-    CurveConfig* config_;
-    
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configXAxisConfigChanged();
-    void configYAxisConfigChanged();
-    void configColorConfigCurrentColorChanged(const QColor& color);
-  };
+  void setConfig(CurveConfig* config);
+  CurveConfig* getConfig() const;
+
+ protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
+
+ private:
+  Ui::CurveItemWidget* ui_;
+
+  CurveConfig* config_;
+
+ private slots:
+  void configTitleChanged(const QString& title);
+  void configXAxisConfigChanged();
+  void configYAxisConfigChanged();
+  void configColorConfigCurrentColorChanged(const QColor& color);
 };
+}  // namespace rqt_multiplot
 
 #endif

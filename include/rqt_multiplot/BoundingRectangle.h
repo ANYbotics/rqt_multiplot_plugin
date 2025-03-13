@@ -24,38 +24,37 @@
 #include <QRectF>
 
 namespace rqt_multiplot {
-  class BoundingRectangle {
-  public:
-    BoundingRectangle(const QPointF& minimum = QPointF(0.0, 0.0),
-      const QPointF& maximum = QPointF(-1.0, -1.0));
-    BoundingRectangle(const QRectF& rectangle);
-    BoundingRectangle(const BoundingRectangle& src);
-    ~BoundingRectangle();
-    
-    void setMinimum(const QPointF& minimum);
-    QPointF& getMinimum();
-    const QPointF& getMinimum() const;
-    void setMaximum(const QPointF& maximum);
-    QPointF& getMaximum();
-    const QPointF& getMaximum() const;
-    QRectF getRectangle() const;
-    bool isValid() const;
-    bool isEmpty() const;
-    bool contains(const QPointF& point) const;
-    
-    void initialize(const QPointF& point);
-    void clear();
-    
-    bool operator==(const BoundingRectangle& rectangle) const;
-    bool operator!=(const BoundingRectangle& rectangle) const;
-    
-    BoundingRectangle& operator+=(const QPointF& point);
-    BoundingRectangle& operator+=(const BoundingRectangle& rectangle);
-    
-  private:
-    QPointF minimum_;
-    QPointF maximum_;
-  };
+class BoundingRectangle {
+ public:
+  explicit BoundingRectangle(const QPointF& minimum = QPointF(0.0, 0.0), const QPointF& maximum = QPointF(-1.0, -1.0));
+  explicit BoundingRectangle(const QRectF& rectangle);
+  BoundingRectangle(const BoundingRectangle& src);
+  ~BoundingRectangle();
+
+  void setMinimum(const QPointF& minimum);
+  QPointF& getMinimum();
+  const QPointF& getMinimum() const;
+  void setMaximum(const QPointF& maximum);
+  QPointF& getMaximum();
+  const QPointF& getMaximum() const;
+  QRectF getRectangle() const;
+  bool isValid() const;
+  bool isEmpty() const;
+  bool contains(const QPointF& point) const;
+
+  void initialize(const QPointF& point);
+  void clear();
+
+  bool operator==(const BoundingRectangle& rectangle) const;
+  bool operator!=(const BoundingRectangle& rectangle) const;
+
+  BoundingRectangle& operator+=(const QPointF& point);
+  BoundingRectangle& operator+=(const BoundingRectangle& rectangle);
+
+ private:
+  QPointF minimum_;
+  QPointF maximum_;
 };
+}  // namespace rqt_multiplot
 
 #endif

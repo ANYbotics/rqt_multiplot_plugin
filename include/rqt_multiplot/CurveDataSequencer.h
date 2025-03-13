@@ -31,82 +31,65 @@
 #include <rqt_multiplot/MessageBroker.h>
 
 namespace rqt_multiplot {
-  class CurveDataSequencer :
-    public QObject {
+class CurveDataSequencer : public QObject {
   Q_OBJECT
-  public:
-    CurveDataSequencer(QObject* parent = 0);
-    virtual ~CurveDataSequencer();
-    
-    void setConfig(CurveConfig* config);
-    CurveConfig* getConfig() const;
-    void setBroker(MessageBroker* broker);
-    MessageBroker* getBroker() const;
-    bool isSubscribed() const;
-    
-    void subscribe();
-    void unsubscribe();
-    
-  signals:
-    void subscribed();
-    void pointReceived(const QPointF& point);
-    void unsubscribed();
-    
-  private:
-    class TimeValue {
-    public:
-      inline TimeValue(const ros::Time& time = ros::Time(),
-          double value = 0.0) :
-        time_(time),
-        value_(value) {
-      };
+ public:
+  explicit CurveDataSequencer(QObject* parent = nullptr);
+  ~CurveDataSequencer() override;
 
-      inline TimeValue(const TimeValue& src) :
-        time_(src.time_),
-        value_(src.value_) {
-      };
-      
-      inline bool operator==(const TimeValue& timeValue) const {
-        return (time_ == timeValue.time_);
-      };
-      
-      inline bool operator>(const TimeValue& timeValue) const {
-        return (time_ > timeValue.time_);
-      };
-      
-      inline bool operator<(const TimeValue& timeValue) const {
-        return (time_ < timeValue.time_);
-      };
-      
-      ros::Time time_;
-      double value_;
-    };
-    
-    typedef QLinkedList<TimeValue> TimeValueList;
-    
-    CurveConfig* config_;
-    
-    MessageBroker* broker_;
+  void setConfig(CurveConfig* config);
+  CurveConfig* getConfig() const;
+  void setBroker(MessageBroker* broker);
+  MessageBroker* getBroker() const;
+  bool isSubscribed() const;
 
-    QMap<CurveConfig::Axis, QString> subscribedTopics_;    
-    QMap<CurveConfig::Axis, QString> timeFields_;
-    QMap<CurveConfig::Axis, TimeValueList> timeValues_;
-    
-    void processMessage(const Message& message);
-    void processMessage(CurveConfig::Axis axis, const Message& message);
-    void interpolate();
-    
-  private slots:
-    void configAxisConfigChanged();
-    void configSubscriberQueueSizeChanged(size_t queueSize);
-    
-    void subscriberMessageReceived(const QString& topic, const
-      Message& message);
-    void subscriberXAxisMessageReceived(const QString& topic, const
-      Message& message);
-    void subscriberYAxisMessageReceived(const QString& topic, const
-      Message& message);
+  void subscribe();
+  void unsubscribe();
+
+ signals:
+  void subscribed();
+  void pointReceived(const QPointF& point);
+  void unsubscribed();
+
+ private:
+  class TimeValue {
+   public:
+    inline explicit TimeValue(const ros::Time& time = ros::Time(), double value = 0.0) : time_(time), value_(value){};
+
+    inline TimeValue(const TimeValue& src) = default;
+
+    inline bool operator==(const TimeValue& timeValue) const { return (time_ == timeValue.time_); };
+
+    inline bool operator>(const TimeValue& timeValue) const { return (time_ > timeValue.time_); };
+
+    inline bool operator<(const TimeValue& timeValue) const { return (time_ < timeValue.time_); };
+
+    ros::Time time_;
+    double value_;
   };
+
+  using TimeValueList = QLinkedList<TimeValue>;
+
+  CurveConfig* config_;
+
+  MessageBroker* broker_;
+
+  QMap<CurveConfig::Axis, QString> subscribedTopics_;
+  QMap<CurveConfig::Axis, QString> timeFields_;
+  QMap<CurveConfig::Axis, TimeValueList> timeValues_;
+
+  void processMessage(const Message& message);
+  void processMessage(CurveConfig::Axis axis, const Message& message);
+  void interpolate();
+
+ private slots:
+  void configAxisConfigChanged();
+  void configSubscriberQueueSizeChanged(size_t queueSize);
+
+  void subscriberMessageReceived(const QString& topic, const Message& message);
+  void subscriberXAxisMessageReceived(const QString& topic, const Message& message);
+  void subscriberYAxisMessageReceived(const QString& topic, const Message& message);
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -25,56 +25,51 @@
 #include <rqt_multiplot/CurveAxisScaleConfig.h>
 
 namespace rqt_multiplot {
-  class CurveAxisConfig :
-    public Config {
+class CurveAxisConfig : public Config {
   Q_OBJECT
-  public:
-    enum FieldType {
-      MessageData,
-      MessageReceiptTime
-    };
-    
-    CurveAxisConfig(QObject* parent = 0, const QString& topic = QString(),
-      const QString& type = QString(), FieldType fieldType = MessageData,
-      const QString& field = QString());
-    ~CurveAxisConfig();
+ public:
+  enum FieldType { MessageData, MessageReceiptTime };
 
-    void setTopic(const QString& topic);
-    const QString& getTopic() const;
-    void setType(const QString& type);
-    const QString& getType() const;
-    void setFieldType(FieldType fieldType);
-    FieldType getFieldType() const;
-    void setField(const QString& field);
-    const QString& getField() const;
-    CurveAxisScaleConfig* getScaleConfig() const;
-  
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    CurveAxisConfig& operator=(const CurveAxisConfig& src);
-    
-  signals:
-    void topicChanged(const QString& topic);
-    void typeChanged(const QString& type);
-    void fieldTypeChanged(int fieldType);
-    void fieldChanged(const QString& field);
-    
-  private:
-    QString topic_;
-    QString type_;
-    FieldType fieldType_;
-    QString field_;
-    
-    CurveAxisScaleConfig* scaleConfig_;
-    
-  private slots:
-    void scaleChanged();
-  };
+  explicit CurveAxisConfig(QObject* parent = nullptr, QString topic = QString(), QString type = QString(),
+                           FieldType fieldType = MessageData, QString field = QString());
+  ~CurveAxisConfig() override;
+
+  void setTopic(const QString& topic);
+  const QString& getTopic() const;
+  void setType(const QString& type);
+  const QString& getType() const;
+  void setFieldType(FieldType fieldType);
+  FieldType getFieldType() const;
+  void setField(const QString& field);
+  const QString& getField() const;
+  CurveAxisScaleConfig* getScaleConfig() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  CurveAxisConfig& operator=(const CurveAxisConfig& src);
+
+ signals:
+  void topicChanged(const QString& topic);
+  void typeChanged(const QString& type);
+  void fieldTypeChanged(int fieldType);
+  void fieldChanged(const QString& field);
+
+ private:
+  QString topic_;
+  QString type_;
+  FieldType fieldType_;
+  QString field_;
+
+  CurveAxisScaleConfig* scaleConfig_;
+
+ private slots:
+  void scaleChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

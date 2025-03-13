@@ -27,47 +27,45 @@
 #include <variant_topic_tools/MessageDefinition.h>
 
 namespace rqt_multiplot {
-  class MessageDefinitionLoader :
-    public QObject {
+class MessageDefinitionLoader : public QObject {
   Q_OBJECT
-  public:
-    MessageDefinitionLoader(QObject* parent = 0);
-    ~MessageDefinitionLoader();
-    
-    QString getType() const;
-    variant_topic_tools::MessageDefinition getDefinition() const;
-    QString getError() const;
-    bool isLoading() const;
-    
-    void load(const QString& type);
-    void wait();
-    
-  signals:
-    void loadingStarted();
-    void loadingFinished();
-    void loadingFailed(const QString& error);
-    
-  private:
-    class Impl :
-      public QThread {
-    public:
-      Impl(QObject* parent = 0);
-      virtual ~Impl();
-      
-      void run();
-      
-      mutable QMutex mutex_;
-      QString type_;
-      variant_topic_tools::MessageDefinition definition_;
-      QString error_;
-    };
-    
-    Impl impl_;
-    
-  private slots:
-    void threadStarted();
-    void threadFinished();
+ public:
+  explicit MessageDefinitionLoader(QObject* parent = nullptr);
+  ~MessageDefinitionLoader() override;
+
+  QString getType() const;
+  variant_topic_tools::MessageDefinition getDefinition() const;
+  QString getError() const;
+  bool isLoading() const;
+
+  void load(const QString& type);
+  void wait();
+
+ signals:
+  void loadingStarted();
+  void loadingFinished();
+  void loadingFailed(const QString& error);
+
+ private:
+  class Impl : public QThread {
+   public:
+    explicit Impl(QObject* parent = nullptr);
+    ~Impl() override;
+
+    void run() override;
+
+    mutable QMutex mutex_;
+    QString type_;
+    variant_topic_tools::MessageDefinition definition_;
+    QString error_;
   };
+
+  Impl impl_;
+
+ private slots:
+  void threadStarted();
+  void threadFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

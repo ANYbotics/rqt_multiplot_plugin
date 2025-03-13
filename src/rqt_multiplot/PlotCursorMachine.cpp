@@ -26,27 +26,24 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotCursorMachine::PlotCursorMachine() {
-}
+PlotCursorMachine::PlotCursorMachine() = default;
 
-PlotCursorMachine::~PlotCursorMachine() {
-}
+PlotCursorMachine::~PlotCursorMachine() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-QList<QwtPickerMachine::Command> PlotCursorMachine::transition(const
-    QwtEventPattern& pattern, const QEvent* event) {
-  QList<QwtPickerMachine::Command> commands = QwtPickerTrackerMachine::
-    transition(pattern, event);
+QList<QwtPickerMachine::Command> PlotCursorMachine::transition(const QwtEventPattern& pattern, const QEvent* event) {
+  QList<QwtPickerMachine::Command> commands = QwtPickerTrackerMachine::transition(pattern, event);
 
   if (event->type() == QEvent::Resize) {
-    if (state() == 1)
+    if (state() == 1) {
       commands += Move;
+    }
   }
 
   return commands;
 }
 
-}
+}  // namespace rqt_multiplot

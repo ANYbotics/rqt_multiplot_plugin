@@ -28,48 +28,44 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageFieldItemModel::MessageFieldItemModel(QObject* parent) :
-  QAbstractItemModel(parent),
-  rootItem_(0) {
-}
+MessageFieldItemModel::MessageFieldItemModel(QObject* parent) : QAbstractItemModel(parent), rootItem_(nullptr) {}
 
 MessageFieldItemModel::~MessageFieldItemModel() {
-  if (rootItem_)
-    delete rootItem_;
+  { delete rootItem_; }
 }
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-void MessageFieldItemModel::setMessageDataType(const variant_topic_tools::
-    MessageDataType& dataType) {
-  if (rootItem_) {
+void MessageFieldItemModel::setMessageDataType(const variant_topic_tools::MessageDataType& dataType) {
+  if (rootItem_ != nullptr) {
     delete rootItem_;
-    rootItem_ = 0;
+    rootItem_ = nullptr;
   }
-  
-  if (dataType.isValid())
+
+  if (dataType.isValid()) {
     rootItem_ = new MessageFieldItem(dataType);
-}
-
-variant_topic_tools::MessageDataType MessageFieldItemModel::
-    getMessageDataType() const {
-  if (rootItem_)
-    return rootItem_->getDataType();
-  else
-    return variant_topic_tools::MessageDataType();
-}
-
-variant_topic_tools::DataType MessageFieldItemModel::getFieldDataType(const
-    QString& field) const {
-  if (rootItem_) {
-    MessageFieldItem* descendant = rootItem_->getDescendant(field);
-    
-    if (descendant)
-      return descendant->getDataType();
   }
-  
+}
+
+variant_topic_tools::MessageDataType MessageFieldItemModel::getMessageDataType() const {
+  if (rootItem_ != nullptr) {
+    return rootItem_->getDataType();
+  } else {
+    return variant_topic_tools::MessageDataType();
+  }
+}
+
+variant_topic_tools::DataType MessageFieldItemModel::getFieldDataType(const QString& field) const {
+  if (rootItem_ != nullptr) {
+    MessageFieldItem* descendant = rootItem_->getDescendant(field);
+
+    if (descendant != nullptr) {
+      return descendant->getDataType();
+    }
+  }
+
   return variant_topic_tools::DataType();
 }
 
@@ -79,15 +75,17 @@ variant_topic_tools::DataType MessageFieldItemModel::getFieldDataType(const
 
 int MessageFieldItemModel::rowCount(const QModelIndex& parent) const {
   if (parent.column() <= 0) {
-    MessageFieldItem* parentItem = 0;
-  
-    if (!parent.isValid())
-      parentItem = rootItem_;
-    else
-      parentItem = static_cast<MessageFieldItem*>(parent.internalPointer());
+    MessageFieldItem* parentItem = nullptr;
 
-    if (parentItem)
+    if (!parent.isValid()) {
+      parentItem = rootItem_;
+    } else {
+      parentItem = static_cast<MessageFieldItem*>(parent.internalPointer());
+    }
+
+    if (parentItem != nullptr) {
       return parentItem->getNumChildren();
+    }
   }
 
   return 0;
@@ -95,49 +93,48 @@ int MessageFieldItemModel::rowCount(const QModelIndex& parent) const {
 
 int MessageFieldItemModel::columnCount(const QModelIndex& parent) const {
   if (parent.isValid()) {
-    MessageFieldItem* parentItem = static_cast<MessageFieldItem*>(
-      parent.internalPointer());
-    
-    if (parentItem)
-      return parentItem->getNumColumns();
+    auto* parentItem = static_cast<MessageFieldItem*>(parent.internalPointer());
+
+    if (parentItem != nullptr) {
+      return rqt_multiplot::MessageFieldItem::getNumColumns();
+    }
+  } else if (rootItem_ != nullptr) {
+    return rqt_multiplot::MessageFieldItem::getNumColumns();
   }
-  else if (rootItem_)
-    return rootItem_->getNumColumns();
-  
 
   return 0;
 }
 
-QVariant MessageFieldItemModel::data(const QModelIndex& index, int role)
-    const {
+QVariant MessageFieldItemModel::data(const QModelIndex& index, int role) const {
   if (index.isValid()) {
     if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
-      MessageFieldItem* item = static_cast<MessageFieldItem*>(
-        index.internalPointer());
+      auto* item = static_cast<MessageFieldItem*>(index.internalPointer());
 
-      if (item)
+      if (item != nullptr) {
         return item->getName();
+      }
     }
   }
 
   return QVariant();
 }
 
-QModelIndex MessageFieldItemModel::index(int row, int column, const
-    QModelIndex& parent) const {
+QModelIndex MessageFieldItemModel::index(int row, int column, const QModelIndex& parent) const {
   if (hasIndex(row, column, parent)) {
-    MessageFieldItem* parentItem = 0;
+    MessageFieldItem* parentItem = nullptr;
 
-    if (!parent.isValid())
+    if (!parent.isValid()) {
       parentItem = rootItem_;
-    else
+    } else {
       parentItem = static_cast<MessageFieldItem*>(parent.internalPointer());
+    }
 
-    if (parentItem) {
+    if (parentItem != nullptr) {
       MessageFieldItem* childItem = parentItem->getChild(row);
-      
-      if (childItem)
+
+      if (childItem != nullptr) {
         return createIndex(row, column, childItem);
+      }
     }
   }
 
@@ -146,23 +143,24 @@ QModelIndex MessageFieldItemModel::index(int row, int column, const
 
 QModelIndex MessageFieldItemModel::parent(const QModelIndex& index) const {
   if (index.isValid()) {
-    MessageFieldItem* childItem = static_cast<MessageFieldItem*>(
-      index.internalPointer());
+    auto* childItem = static_cast<MessageFieldItem*>(index.internalPointer());
 
-    if (childItem) {
+    if (childItem != nullptr) {
       MessageFieldItem* parentItem = childItem->getParent();
 
-      if (parentItem != rootItem_)
+      if (parentItem != rootItem_) {
         return createIndex(parentItem->getRow(), 0, parentItem);
+      }
     }
   }
-  
+
   return QModelIndex();
 }
 
 void MessageFieldItemModel::update(const QString& path) {
-  if (rootItem_)
-    rootItem_->update(path);    
+  if (rootItem_ != nullptr) {
+    rootItem_->update(path);
+  }
 }
 
-}
+}  // namespace rqt_multiplot

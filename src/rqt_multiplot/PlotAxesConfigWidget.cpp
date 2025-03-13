@@ -26,10 +26,7 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotAxesConfigWidget::PlotAxesConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::PlotAxesConfigWidget()),
-  config_(0) {
+PlotAxesConfigWidget::PlotAxesConfigWidget(QWidget* parent) : QWidget(parent), ui_(new Ui::PlotAxesConfigWidget()), config_(nullptr) {
   ui_->setupUi(this);
 }
 
@@ -44,16 +41,13 @@ PlotAxesConfigWidget::~PlotAxesConfigWidget() {
 void PlotAxesConfigWidget::setConfig(PlotAxesConfig* config) {
   if (config != config_) {
     config_ = config;
-    
-    if (config) {
-      ui_->plotAxisConfigWidgetX->setConfig(config_->
-        getAxisConfig(PlotAxesConfig::X));
-      ui_->plotAxisConfigWidgetY->setConfig(config_->
-        getAxisConfig(PlotAxesConfig::Y));
-    }
-    else {
-      ui_->plotAxisConfigWidgetX->setConfig(0);
-      ui_->plotAxisConfigWidgetY->setConfig(0);
+
+    if (config != nullptr) {
+      ui_->plotAxisConfigWidgetX->setConfig(config_->getAxisConfig(PlotAxesConfig::X));
+      ui_->plotAxisConfigWidgetY->setConfig(config_->getAxisConfig(PlotAxesConfig::Y));
+    } else {
+      ui_->plotAxisConfigWidgetX->setConfig(nullptr);
+      ui_->plotAxisConfigWidgetY->setConfig(nullptr);
     }
   }
 }
@@ -62,4 +56,4 @@ PlotAxesConfig* PlotAxesConfigWidget::getConfig() const {
   return config_;
 }
 
-}
+}  // namespace rqt_multiplot

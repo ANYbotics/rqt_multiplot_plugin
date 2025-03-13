@@ -24,34 +24,33 @@
 #include <rqt_multiplot/PlotAxisConfig.h>
 
 namespace Ui {
-  class PlotAxisConfigWidget;
-};
+class PlotAxisConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotAxisConfigWidget :
-    public QWidget {
+class PlotAxisConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    PlotAxisConfigWidget(QWidget* parent = 0);
-    virtual ~PlotAxisConfigWidget();
-    
-    void setConfig(PlotAxisConfig* range);
-    PlotAxisConfig* getConfig() const;
-    
-  private:
-    Ui::PlotAxisConfigWidget* ui_;
-    
-    PlotAxisConfig* config_;
-    
-  private slots:
-    void configTitleTypeChanged(int type);
-    void configCustomTitleChanged(const QString& title);
-    void configTitleVisibleChanged(bool visible);
-    
-    void checkBoxTitleAutoStateChanged(int state);
-    void lineEditTitleEditingFinished();
-    void checkBoxTitleVisibleStateChanged(int state);
-  };
+ public:
+  explicit PlotAxisConfigWidget(QWidget* parent = nullptr);
+  ~PlotAxisConfigWidget() override;
+
+  void setConfig(PlotAxisConfig* range);
+  PlotAxisConfig* getConfig() const;
+
+ private:
+  Ui::PlotAxisConfigWidget* ui_;
+
+  PlotAxisConfig* config_;
+
+ private slots:
+  void configTitleTypeChanged(int type);
+  void configCustomTitleChanged(const QString& title);
+  void configTitleVisibleChanged(bool visible);
+
+  void checkBoxTitleAutoStateChanged(int state);
+  void lineEditTitleEditingFinished();
+  void checkBoxTitleVisibleStateChanged(int state);
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -31,54 +31,56 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotZoomer::PlotZoomer(QwtPlotCanvas* canvas, bool doReplot) :
-  QwtPlotZoomer(canvas, doReplot) {
-  if (canvas)
+PlotZoomer::PlotZoomer(QwtPlotCanvas* canvas, bool doReplot) : QwtPlotZoomer(canvas, doReplot) {
+  if (canvas != nullptr) {
     setStateMachine(new PlotZoomerMachine());
+  }
 }
 
-PlotZoomer::~PlotZoomer() {
-}
+PlotZoomer::~PlotZoomer() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
 void PlotZoomer::drawRubberBand(QPainter* painter) const {
-  if (!isActive())
+  if (!isActive()) {
     return;
+  }
 
-  if ((stateMachine()->selectionType() == QwtPickerMachine::RectSelection) &&
-      (rubberBand() == RectRubberBand)) {
-    if (pickedPoints().count() < 2)
+  if ((stateMachine()->selectionType() == QwtPickerMachine::RectSelection) && (rubberBand() == RectRubberBand)) {
+    if (pickedPoints().count() < 2) {
       return;
+    }
 
     QPoint p1 = pickedPoints()[0];
-    QPoint p2 = pickedPoints()[pickedPoints().count()-1];
+    QPoint p2 = pickedPoints()[pickedPoints().count() - 1];
 
     QRect rect = QRect(p1, p2).normalized();
     rect.adjust(0, 0, -1, -1);
 
     QwtPainter::drawRect(painter, rect);
-  }
-  else
+  } else {
     QwtPlotZoomer::drawRubberBand(painter);
+  }
 }
 
 void PlotZoomer::widgetMousePressEvent(QMouseEvent* event) {
-  if (mouseMatch(MouseSelect2, event))
+  if (mouseMatch(MouseSelect2, event)) {
     position_ = event->pos();
+  }
 
   QwtPlotZoomer::widgetMousePressEvent(event);
 }
 
 void PlotZoomer::widgetMouseReleaseEvent(QMouseEvent* event) {
   if (mouseMatch(MouseSelect2, event)) {
-    if (position_ == event->pos())
+    if (position_ == event->pos()) {
       zoom(0);
-  }
-  else
+    }
+  } else {
     QwtPlotZoomer::widgetMouseReleaseEvent(event);
+  }
 }
 
-}
+}  // namespace rqt_multiplot

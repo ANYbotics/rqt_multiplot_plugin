@@ -25,41 +25,40 @@
 #include <rqt_multiplot/MessageTopicRegistry.h>
 
 namespace Ui {
-  class CurveConfigWidget;
-};
+class CurveConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveConfigWidget :
-    public QWidget {
+class CurveConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveConfigWidget(QWidget* parent = 0);
-    virtual ~CurveConfigWidget();
+ public:
+  explicit CurveConfigWidget(QWidget* parent = nullptr);
+  ~CurveConfigWidget() override;
 
-    void setConfig(const CurveConfig& config);
-    CurveConfig& getConfig();
-    const CurveConfig& getConfig() const;
-    
-  private:
-    Ui::CurveConfigWidget* ui_;
-    
-    CurveConfig* config_;
-    
-    MessageTopicRegistry* messageTopicRegistry_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configSubscriberQueueSizeChanged(size_t queueSize);
-    
-    void configAxisConfigTopicChanged(const QString& topic);
-    void configAxisConfigTypeChanged(const QString& type);
-    
-    void lineEditTitleEditingFinished();
-    void pushButtonCopyRightClicked();
-    void pushButtonCopyLeftClicked();
-    void pushButtonSwapClicked();
-    void spinBoxSubscriberQueueSizeValueChanged(int value);
-  };
+  void setConfig(const CurveConfig& config);
+  CurveConfig& getConfig();
+  const CurveConfig& getConfig() const;
+
+ private:
+  Ui::CurveConfigWidget* ui_;
+
+  CurveConfig* config_;
+
+  MessageTopicRegistry* messageTopicRegistry_;
+
+ private slots:
+  void configTitleChanged(const QString& title);
+  void configSubscriberQueueSizeChanged(size_t queueSize);
+
+  void configAxisConfigTopicChanged(const QString& topic);
+  void configAxisConfigTypeChanged(const QString& type);
+
+  void lineEditTitleEditingFinished();
+  void pushButtonCopyRightClicked();
+  void pushButtonCopyLeftClicked();
+  void pushButtonSwapClicked();
+  void spinBoxSubscriberQueueSizeValueChanged(int value);
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -25,5 +25,5 @@ namespace rqt_multiplot {
 /*****************************************************************************/
 
 QMutex DataTypeRegistry::mutex_;
-  
-}
+
+}  // namespace rqt_multiplot

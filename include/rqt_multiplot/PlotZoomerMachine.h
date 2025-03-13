@@ -22,15 +22,13 @@
 #include <qwt/qwt_picker_machine.h>
 
 namespace rqt_multiplot {
-  class PlotZoomerMachine :
-    public QwtPickerDragRectMachine {
-  public:
-    PlotZoomerMachine();
-    ~PlotZoomerMachine();
+class PlotZoomerMachine : public QwtPickerDragRectMachine {
+ public:
+  PlotZoomerMachine();
+  ~PlotZoomerMachine() override;
 
-    QList<Command> transition(const QwtEventPattern& pattern,
-      const QEvent* event);
-  };
+  QList<Command> transition(const QwtEventPattern& pattern, const QEvent* event) override;
 };
+}  // namespace rqt_multiplot
 
 #endif

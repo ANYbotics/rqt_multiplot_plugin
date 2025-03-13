@@ -24,24 +24,23 @@
 #include <rqt_multiplot/UrlItemModel.h>
 
 namespace rqt_multiplot {
-  class UrlCompleter :
-    public QCompleter {
+class UrlCompleter : public QCompleter {
   Q_OBJECT
-  public:
-    UrlCompleter(QObject* parent = 0);
-    virtual ~UrlCompleter();
-    
-    UrlItemModel* getModel() const;
-    
-    QStringList splitPath(const QString& url) const;
-    QString pathFromIndex(const QModelIndex& index) const;
-    
-  private:
-    UrlItemModel* model_;
-    
-  private slots:
-    void modelUrlLoaded(const QString& url);
-  };
+ public:
+  explicit UrlCompleter(QObject* parent = nullptr);
+  ~UrlCompleter() override;
+
+  UrlItemModel* getModel() const;
+
+  QStringList splitPath(const QString& url) const override;
+  QString pathFromIndex(const QModelIndex& index) const override;
+
+ private:
+  UrlItemModel* model_;
+
+ private slots:
+  void modelUrlLoaded(const QString& url);
 };
+}  // namespace rqt_multiplot
 
 #endif

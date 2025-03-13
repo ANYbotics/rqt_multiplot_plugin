@@ -24,19 +24,15 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-FileScheme::FileScheme(QObject* parent, const QString& prefix, const QString&
-    rootPath, QDir::Filters filter) :
-  UrlScheme(prefix),
-  model_(new QFileSystemModel(this)) {
+FileScheme::FileScheme(QObject* /*parent*/, const QString& prefix, const QString& rootPath, QDir::Filters filter)
+    : UrlScheme(prefix), model_(new QFileSystemModel(this)) {
   model_->setRootPath(rootPath);
   model_->setFilter(filter);
-  
-  connect(model_, SIGNAL(directoryLoaded(const QString&)), this,
-    SLOT(modelDirectoryLoaded(const QString&)));
+
+  connect(model_, SIGNAL(directoryLoaded(const QString&)), this, SLOT(modelDirectoryLoaded(const QString&)));
 }
 
-FileScheme::~FileScheme() {
-}
+FileScheme::~FileScheme() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -62,67 +58,65 @@ size_t FileScheme::getNumHosts() const {
   return 0;
 }
 
-QModelIndex FileScheme::getHostIndex(size_t row) const {
+QModelIndex FileScheme::getHostIndex(size_t /*row*/) const {
   return QModelIndex();
 }
 
-QVariant FileScheme::getHostData(const QModelIndex& index, int role) const {
+QVariant FileScheme::getHostData(const QModelIndex& /*index*/, int /*role*/) const {
   return QVariant();
 }
 
-size_t FileScheme::getNumPaths(const QModelIndex& hostIndex, const
-    QModelIndex& parent) const {
-  if (!parent.isValid())
+size_t FileScheme::getNumPaths(const QModelIndex& /*hostIndex*/, const QModelIndex& parent) const {
+  if (!parent.isValid()) {
     return 1;
-  else if (!parent.parent().isValid())
+  } else if (!parent.parent().isValid()) {
     return model_->rowCount(model_->index(model_->rootPath()));
-  else {
-    if (model_->canFetchMore(parent))
+  } else {
+    if (model_->canFetchMore(parent)) {
       model_->fetchMore(parent);
-    
+    }
+
     return model_->rowCount(parent);
   }
 }
 
-QModelIndex FileScheme::getPathIndex(const QModelIndex& hostIndex, size_t
-    row, const QModelIndex& parent) const {
-  if (!parent.isValid())
+QModelIndex FileScheme::getPathIndex(const QModelIndex& /*hostIndex*/, size_t row, const QModelIndex& parent) const {
+  if (!parent.isValid()) {
     return model_->index(model_->rootPath());
-  else
+  } else {
     return model_->index(row, 0, parent);
+  }
 }
 
 QVariant FileScheme::getPathData(const QModelIndex& index, int role) const {
   if (index == model_->index(model_->rootPath())) {
-    if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+    if ((role == Qt::DisplayRole) || (role == Qt::EditRole)) {
       return "/";
-  }
-  else
+    }
+  } else {
     return model_->data(index, role);
-  
+  }
+
   return QVariant();
 }
 
-QString FileScheme::getHost(const QModelIndex& hostIndex) const {
+QString FileScheme::getHost(const QModelIndex& /*hostIndex*/) const {
   return QString();
 }
 
-QString FileScheme::getPath(const QModelIndex& hostIndex, const QModelIndex&
-    pathIndex) const {
-  return model_->rootDirectory().relativeFilePath(model_->filePath(
-    pathIndex));
+QString FileScheme::getPath(const QModelIndex& /*hostIndex*/, const QModelIndex& pathIndex) const {
+  return model_->rootDirectory().relativeFilePath(model_->filePath(pathIndex));
 }
 
-QString FileScheme::getFilePath(const QModelIndex& hostIndex, const
-    QModelIndex& pathIndex) const {
-  if (pathIndex.isValid())
+QString FileScheme::getFilePath(const QModelIndex& /*hostIndex*/, const QModelIndex& pathIndex) const {
+  if (pathIndex.isValid()) {
     return model_->filePath(pathIndex);
-  
+  }
+
   return QString();
 }
 
-QString FileScheme::getFilePath(const QString& host, const QString& path)
-    const {
+QString FileScheme::getFilePath(const QString& /*host*/, const QString& path) const {
   return model_->rootDirectory().absoluteFilePath(path);
 }
 
@@ -134,4 +128,4 @@ void FileScheme::modelDirectoryLoaded(const QString& path) {
   emit pathLoaded(QString(), model_->rootDirectory().relativeFilePath(path));
 }
 
-}
+}  // namespace rqt_multiplot

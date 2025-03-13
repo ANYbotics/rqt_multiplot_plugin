@@ -24,47 +24,42 @@
 #include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class CurveColorConfig :
-    public Config {
+class CurveColorConfig : public Config {
   Q_OBJECT
-  public:
-    enum Type {
-      Auto,
-      Custom
-    };
-    
-    CurveColorConfig(QObject* parent = 0, Type type = Auto, unsigned char
-      autoColorIndex = 0, const QColor& customColor = Qt::black);
-    ~CurveColorConfig();
-    
-    void setType(Type type);
-    Type getType() const;
-    void setAutoColorIndex(unsigned char index);
-    unsigned char getAutoColorIndex() const;
-    void setCustomColor(const QColor& color);
-    const QColor& getCustomColor() const;
-    QColor getCurrentColor() const;
-  
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    CurveColorConfig& operator=(const CurveColorConfig& src);
-    
-  signals:
-    void typeChanged(int type);
-    void autoColorIndexChanged(unsigned char index);
-    void customColorChanged(const QColor& color);
-    void currentColorChanged(const QColor& color);
-    
-  private:
-    Type type_;
-    unsigned char autoColorIndex_;
-    QColor customColor_;
-  };
+ public:
+  enum Type { Auto, Custom };
+
+  explicit CurveColorConfig(QObject* parent = nullptr, Type type = Auto, unsigned char autoColorIndex = 0, QColor customColor = Qt::black);
+  ~CurveColorConfig() override;
+
+  void setType(Type type);
+  Type getType() const;
+  void setAutoColorIndex(unsigned char index);
+  unsigned char getAutoColorIndex() const;
+  void setCustomColor(const QColor& color);
+  const QColor& getCustomColor() const;
+  QColor getCurrentColor() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  CurveColorConfig& operator=(const CurveColorConfig& src);
+
+ signals:
+  void typeChanged(int type);
+  void autoColorIndexChanged(unsigned char index);
+  void customColorChanged(const QColor& color);
+  void currentColorChanged(const QColor& color);
+
+ private:
+  Type type_;
+  unsigned char autoColorIndex_;
+  QColor customColor_;
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -29,57 +29,50 @@
 #include <QWidget>
 
 namespace rqt_multiplot {
-  class StatusWidget :
-    public QWidget {
+class StatusWidget : public QWidget {
   Q_OBJECT
-  public:
-    enum Role {
-      Okay,
-      Error,
-      Busy
-    };
+ public:
+  enum Role { Okay, Error, Busy };
 
-    StatusWidget(QWidget* parent = 0, Role role = Okay);
-    virtual ~StatusWidget();
+  explicit StatusWidget(QWidget* parent = nullptr, Role role = Okay);
+  ~StatusWidget() override;
 
-    void setIcon(Role role, const QPixmap& icon);
-    const QPixmap& getIcon(Role role) const;
-    void setFrames(Role role, const QPixmap& frames, size_t numFrames,
-      double frameRate = 10.0);
-    void setFrames(Role role, const QList<QPixmap>& frameList, double
-      frameRate = 10.0);
-    const QList<QPixmap>& getFrames(Role role) const;
-    void setFrameRate(Role role, double frameRate);
-    double getFrameRate(Role role) const;
-    void setCurrentRole(Role role, const QString& toolTip = QString());
-    Role getCurrentRole() const;
+  void setIcon(Role role, const QPixmap& icon);
+  const QPixmap& getIcon(Role role) const;
+  void setFrames(Role role, const QPixmap& frames, size_t numFrames, double frameRate = 10.0);
+  void setFrames(Role role, const QList<QPixmap>& frameList, double frameRate = 10.0);
+  const QList<QPixmap>& getFrames(Role role) const;
+  void setFrameRate(Role role, double frameRate);
+  double getFrameRate(Role role) const;
+  void setCurrentRole(Role role, const QString& toolTip = QString());
+  Role getCurrentRole() const;
 
-    void pushCurrentRole();
-    bool popCurrentRole();
+  void pushCurrentRole();
+  bool popCurrentRole();
 
-  signals:
-    void currentRoleChanged(Role role);
+ signals:
+  void currentRoleChanged(Role role);
 
-  private:
-    QGridLayout* layout_;
-    QLabel* labelIcon_;
-    QTimer* timer_;
+ private:
+  QGridLayout* layout_;
+  QLabel* labelIcon_;
+  QTimer* timer_;
 
-    QMap<Role, QList<QPixmap> > frames_;
-    QMap<Role, double> frameRates_;
-    QList<Role> roleStack_;
-    QList<QString> toolTipStack_;
+  QMap<Role, QList<QPixmap> > frames_;
+  QMap<Role, double> frameRates_;
+  QList<Role> roleStack_;
+  QList<QString> toolTipStack_;
 
-    Role currentRole_;
-    size_t currentFrame_;
+  Role currentRole_;
+  size_t currentFrame_;
 
-    void start();
-    void step();
-    void stop();
+  void start();
+  void step();
+  void stop();
 
-  private slots:
-    void timerTimeout();
-  };
+ private slots:
+  void timerTimeout();
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -30,15 +30,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageSubscriber::MessageSubscriber(QObject* parent, const ros::NodeHandle&
-    nodeHandle) :
-  QObject(parent),
-  nodeHandle_(nodeHandle),
-  queueSize_(100) {
-}
+MessageSubscriber::MessageSubscriber(QObject* parent, const ros::NodeHandle& nodeHandle)
+    : QObject(parent), nodeHandle_(nodeHandle), queueSize_(100) {}
 
-MessageSubscriber::~MessageSubscriber() {
-}
+MessageSubscriber::~MessageSubscriber() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -55,8 +50,8 @@ const QString& MessageSubscriber::getTopic() const {
 void MessageSubscriber::setTopic(const QString& topic) {
   if (topic != topic_) {
     topic_ = topic;
-    
-    if (subscriber_) {
+
+    if (subscriber_ != nullptr) {
       unsubscribe();
       subscribe();
     }
@@ -66,8 +61,8 @@ void MessageSubscriber::setTopic(const QString& topic) {
 void MessageSubscriber::setQueueSize(size_t queueSize) {
   if (queueSize != queueSize_) {
     queueSize_ = queueSize;
-    
-    if (subscriber_) {
+
+    if (subscriber_ != nullptr) {
       unsubscribe();
       subscribe();
     }
@@ -83,7 +78,7 @@ size_t MessageSubscriber::getNumPublishers() const {
 }
 
 bool MessageSubscriber::isValid() const {
-  return subscriber_;
+  return subscriber_ != nullptr;
 }
 
 /*****************************************************************************/
@@ -92,61 +87,61 @@ bool MessageSubscriber::isValid() const {
 
 bool MessageSubscriber::event(QEvent* event) {
   if (event->type() == MessageEvent::Type) {
-    MessageEvent* messageEvent = static_cast<MessageEvent*>(event);
+    auto* messageEvent = dynamic_cast<MessageEvent*>(event);
 
-    emit messageReceived(messageEvent->getTopic(), messageEvent->
-      getMessage());
-    
+    emit messageReceived(messageEvent->getTopic(), messageEvent->getMessage());
+
     return true;
   }
-  
+
   return QObject::event(event);
 }
 
 void MessageSubscriber::subscribe() {
   variant_topic_tools::MessageType type;
-  
-  subscriber_ = type.subscribe(nodeHandle_, topic_.toStdString(), queueSize_,
-    boost::bind(&MessageSubscriber::callback, this, _1, _2));
-  
-  if (subscriber_)
+
+  subscriber_ = type.subscribe(nodeHandle_, topic_.toStdString(), queueSize_, [this](auto&& PH1, auto&& PH2) {
+    callback(std::forward<decltype(PH1)>(PH1), std::forward<decltype(PH2)>(PH2));
+  });
+
+  if (subscriber_ != nullptr) {
     emit subscribed(topic_);
+  }
 }
 
 void MessageSubscriber::unsubscribe() {
-  if (subscriber_) {
+  if (subscriber_ != nullptr) {
     subscriber_.shutdown();
-    
+
     QApplication::removePostedEvents(this, MessageEvent::Type);
-    
+
     emit unsubscribed(topic_);
   }
 }
 
-void MessageSubscriber::callback(const variant_topic_tools::MessageVariant&
-    variant, const ros::Time& receiptTime) {
+void MessageSubscriber::callback(const variant_topic_tools::MessageVariant& variant, const ros::Time& receiptTime) {
   Message message;
-  
+
   message.setReceiptTime(receiptTime);
   message.setVariant(variant);
 
-  MessageEvent* messageEvent = new MessageEvent(topic_, message);
-  
+  auto* messageEvent = new MessageEvent(topic_, message);
+
   QApplication::postEvent(this, messageEvent);
 }
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 void MessageSubscriber::connectNotify(const QMetaMethod& signal) {
-  if (signal == QMetaMethod::fromSignal(&MessageSubscriber::messageReceived) &&
-      !subscriber_)
+  if (signal == QMetaMethod::fromSignal(&MessageSubscriber::messageReceived) && (subscriber_ == nullptr)) {
     subscribe();
+  }
 }
 
-void MessageSubscriber::disconnectNotify(const QMetaMethod& signal) {
-  if (!receivers(QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&))))) {
-    if (subscriber_)
+void MessageSubscriber::disconnectNotify(const QMetaMethod& /*signal*/) {
+  if (receivers(QMetaObject::normalizedSignature(SIGNAL(messageReceived(const QString&, const Message&)))) == 0) {
+    if (subscriber_ != nullptr) {
       unsubscribe();
+    }
 
     emit aboutToBeDestroyed();
 
@@ -155,23 +150,19 @@ void MessageSubscriber::disconnectNotify(const QMetaMethod& signal) {
 }
 #else
 void MessageSubscriber::connectNotify(const char* signal) {
-  if ((QByteArray(signal) == QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&)))) &&
-      !subscriber_)
+  if ((QByteArray(signal) == QMetaObject::normalizedSignature(SIGNAL(messageReceived(const QString&, const Message&)))) && !subscriber_)
     subscribe();
 }
 
 void MessageSubscriber::disconnectNotify(const char* signal) {
-  if (!receivers(QMetaObject::normalizedSignature(
-      SIGNAL(messageReceived(const QString&, const Message&))))) {
-    if (subscriber_)
-      unsubscribe();
-    
+  if (!receivers(QMetaObject::normalizedSignature(SIGNAL(messageReceived(const QString&, const Message&))))) {
+    if (subscriber_) unsubscribe();
+
     emit aboutToBeDestroyed();
-  
+
     deleteLater();
   }
 }
 #endif
 
-}
+}  // namespace rqt_multiplot

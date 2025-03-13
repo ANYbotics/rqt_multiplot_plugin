@@ -24,56 +24,54 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveData::CurveData() {
-}
+CurveData::CurveData() = default;
 
-CurveData::~CurveData() {
-}
+CurveData::~CurveData() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
 double CurveData::getValue(size_t index, CurveConfig::Axis axis) const {
-  if (axis == CurveConfig::X)
+  if (axis == CurveConfig::X) {
     return getPoint(index).x();
-  else if (axis == CurveConfig::Y)
+  } else if (axis == CurveConfig::Y) {
     return getPoint(index).y();
-    
+  }
+
   return std::numeric_limits<double>::quiet_NaN();
 }
 
-QVector<size_t> CurveData::getPointsInDistance(double x, double maxDistance)
-    const {
+QVector<size_t> CurveData::getPointsInDistance(double x, double maxDistance) const {
   QVector<size_t> indexes;
-  
+
   if (!isEmpty()) {
     for (size_t index = 0; index < getNumPoints(); ++index) {
-      double distance = fabs(x-getPoint(index).x());
-      
-      if (distance <= maxDistance)
+      double distance = fabs(x - getPoint(index).x());
+
+      if (distance <= maxDistance) {
         indexes.append(index);
+      }
     }
   }
-  
+
   return indexes;
 }
 
 QPair<double, double> CurveData::getAxisBounds(CurveConfig::Axis axis) const {
   BoundingRectangle bounds = getBounds();
-  
-  if (axis == CurveConfig::X)
-    return QPair<double, double>(bounds.getMinimum().x(),
-      bounds.getMaximum().x());
-  else if (axis == CurveConfig::Y)
-    return QPair<double, double>(bounds.getMinimum().y(),
-      bounds.getMaximum().y());
-  
+
+  if (axis == CurveConfig::X) {
+    return QPair<double, double>(bounds.getMinimum().x(), bounds.getMaximum().x());
+  } else if (axis == CurveConfig::Y) {
+    return QPair<double, double>(bounds.getMinimum().y(), bounds.getMaximum().y());
+  }
+
   return QPair<double, double>();
 }
 
 bool CurveData::isEmpty() const {
-  return !getNumPoints();
+  return getNumPoints() == 0u;
 }
 
 /*****************************************************************************/
@@ -96,17 +94,16 @@ void CurveData::appendPoint(double x, double y) {
   appendPoint(QPointF(x, y));
 }
 
-void CurveData::writeFormatted(QStringList& formattedX, QStringList&
-    formattedY) const {
+void CurveData::writeFormatted(QStringList& formattedX, QStringList& formattedY) const {
   formattedX.clear();
   formattedY.clear();
-  
+
   for (size_t index = 0; index < getNumPoints(); ++index) {
     QPointF point = getPoint(index);
-    
+
     formattedX.append(QString::number(point.x(), 'g', 20));
     formattedY.append(QString::number(point.y(), 'g', 20));
   }
 }
 
-}
+}  // namespace rqt_multiplot

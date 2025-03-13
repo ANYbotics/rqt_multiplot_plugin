@@ -23,35 +23,31 @@
 #include <rqt_multiplot/PlotAxisConfig.h>
 
 namespace rqt_multiplot {
-  class PlotAxesConfig :
-    public Config {
+class PlotAxesConfig : public Config {
   Q_OBJECT
-  public:
-    enum Axis {
-      X,
-      Y
-    };
-    
-    PlotAxesConfig(QObject* parent = 0);
-    ~PlotAxesConfig();
-    
-    PlotAxisConfig* getAxisConfig(Axis axis) const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    PlotAxesConfig& operator=(const PlotAxesConfig& src);
-    
-  private:
-    QMap<Axis, PlotAxisConfig*> axisConfig_;
-    
-  private slots:
-    void axisConfigChanged();
-  };
+ public:
+  enum Axis { X, Y };
+
+  explicit PlotAxesConfig(QObject* parent = nullptr);
+  ~PlotAxesConfig() override;
+
+  PlotAxisConfig* getAxisConfig(Axis axis) const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  PlotAxesConfig& operator=(const PlotAxesConfig& src);
+
+ private:
+  QMap<Axis, PlotAxisConfig*> axisConfig_;
+
+ private slots:
+  void axisConfigChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

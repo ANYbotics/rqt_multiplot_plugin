@@ -28,43 +28,42 @@
 #include <rqt_multiplot/PackageRegistry.h>
 
 namespace Ui {
-  class MultiplotWidget;
-};
+class MultiplotWidget;
+}
 
 namespace rqt_multiplot {
-  class MultiplotWidget :
-    public QWidget {
+class MultiplotWidget : public QWidget {
   Q_OBJECT
-  public:
-    MultiplotWidget(QWidget* parent = 0);
-    virtual ~MultiplotWidget();
+ public:
+  explicit MultiplotWidget(QWidget* parent = nullptr);
+  ~MultiplotWidget() override;
 
-    MultiplotConfig* getConfig() const;
-    QDockWidget* getDockWidget() const;
+  MultiplotConfig* getConfig() const;
+  QDockWidget* getDockWidget() const;
 
-    void setMaxConfigHistoryLength(size_t length);
-    size_t getMaxConfigHistoryLength() const;
-    void setConfigHistory(const QStringList& history);
-    QStringList getConfigHistory() const;
-    void runPlots();
+  void setMaxConfigHistoryLength(size_t length);
+  size_t getMaxConfigHistoryLength() const;
+  void setConfigHistory(const QStringList& history);
+  QStringList getConfigHistory() const;
+  void runPlots();
 
-    void loadConfig(const QString& url);
-    void readBag(const QString& url);
+  void loadConfig(const QString& url);
+  void readBag(const QString& url);
 
-    bool confirmClose();
+  bool confirmClose();
 
-  private:
-    Ui::MultiplotWidget* ui_;
+ private:
+  Ui::MultiplotWidget* ui_;
 
-    MultiplotConfig* config_;
+  MultiplotConfig* config_;
 
-    MessageTypeRegistry* messageTypeRegistry_;
-    PackageRegistry* packageRegistry_;
+  MessageTypeRegistry* messageTypeRegistry_;
+  PackageRegistry* packageRegistry_;
 
-  private slots:
-    void configWidgetCurrentConfigModifiedChanged(bool modified);
-    void configWidgetCurrentConfigUrlChanged(const QString& url);
-  };
+ private slots:
+  void configWidgetCurrentConfigModifiedChanged(bool modified);
+  void configWidgetCurrentConfigUrlChanged(const QString& url);
 };
+}  // namespace rqt_multiplot
 
 #endif

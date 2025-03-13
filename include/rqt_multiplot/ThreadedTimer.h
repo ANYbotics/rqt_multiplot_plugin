@@ -23,26 +23,25 @@
 #include <QTimer>
 
 namespace rqt_multiplot {
-  class ThreadedTimer :
-    public QThread {
+class ThreadedTimer : public QThread {
   Q_OBJECT
-  public:
-    ThreadedTimer(QObject* parent = 0);
-    virtual ~ThreadedTimer();
-    
-    int getTimerId() const;
-    void setRate(double rate);
-    double getRate() const;
-    
-  protected:
-    void run();
-    
-  private:
-    QTimer* timer_;
-    
-  private slots:
-    void timerTimeout();
-  };
+ public:
+  explicit ThreadedTimer(QObject* parent = nullptr);
+  ~ThreadedTimer() override;
+
+  int getTimerId() const;
+  void setRate(double rate);
+  double getRate() const;
+
+ protected:
+  void run() override;
+
+ private:
+  QTimer* timer_;
+
+ private slots:
+  void timerTimeout();
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -28,9 +28,7 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) :
-  QObject(parent),
-  impl_(this) {
+MessageDefinitionLoader::MessageDefinitionLoader(QObject* parent) : QObject(parent), impl_(this) {
   connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
   connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
@@ -40,9 +38,7 @@ MessageDefinitionLoader::~MessageDefinitionLoader() {
   impl_.wait();
 }
 
-MessageDefinitionLoader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
+MessageDefinitionLoader::Impl::Impl(QObject* parent) : QThread(parent) {}
 
 MessageDefinitionLoader::Impl::~Impl() {
   terminate();
@@ -55,20 +51,19 @@ MessageDefinitionLoader::Impl::~Impl() {
 
 QString MessageDefinitionLoader::getType() const {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.type_;
 }
 
-variant_topic_tools::MessageDefinition MessageDefinitionLoader::
-    getDefinition() const {
+variant_topic_tools::MessageDefinition MessageDefinitionLoader::getDefinition() const {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.definition_;
 }
 
 QString MessageDefinitionLoader::getError() const {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.error_;
 }
 
@@ -82,7 +77,7 @@ bool MessageDefinitionLoader::isLoading() const {
 
 void MessageDefinitionLoader::load(const QString& type) {
   impl_.wait();
-  
+
   impl_.type_ = type;
   impl_.start();
 }
@@ -93,15 +88,14 @@ void MessageDefinitionLoader::wait() {
 
 void MessageDefinitionLoader::Impl::run() {
   QMutexLocker lock(&mutex_);
-  
+
   error_.clear();
-  
+
   try {
     QMutexLocker lock(&DataTypeRegistry::mutex_);
-    
+
     definition_.load(type_.toStdString());
-  }
-  catch (const ros::Exception& exception) {
+  } catch (const ros::Exception& exception) {
     definition_.clear();
     error_ = QString::fromStdString(exception.what());
   }
@@ -114,12 +108,13 @@ void MessageDefinitionLoader::Impl::run() {
 void MessageDefinitionLoader::threadStarted() {
   emit loadingStarted();
 }
-  
+
 void MessageDefinitionLoader::threadFinished() {
-  if (impl_.error_.isEmpty())
+  if (impl_.error_.isEmpty()) {
     emit loadingFinished();
-  else
+  } else {
     emit loadingFailed(impl_.error_);
+  }
 }
-  
-}
+
+}  // namespace rqt_multiplot

@@ -24,37 +24,36 @@
 #include <rqt_multiplot/CurveColorConfig.h>
 
 namespace Ui {
-  class CurveColorConfigWidget;
-};
+class CurveColorConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class CurveColorConfigWidget :
-    public QWidget {
+class CurveColorConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    CurveColorConfigWidget(QWidget* parent = 0);
-    virtual ~CurveColorConfigWidget();
-    
-    void setConfig(CurveColorConfig* config);
-    CurveColorConfig* getConfig() const;
-  
-  signals:
-    void currentColorChanged(const QColor& color);  
-    
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
-    
-  private:
-    Ui::CurveColorConfigWidget* ui_;
-    
-    CurveColorConfig* config_;
-    
-  private slots:
-    void configTypeChanged(int type);
-    void configCurrentColorChanged(const QColor& color);
-    
-    void checkBoxAutoStateChanged(int state);
-  };
+ public:
+  explicit CurveColorConfigWidget(QWidget* parent = nullptr);
+  ~CurveColorConfigWidget() override;
+
+  void setConfig(CurveColorConfig* config);
+  CurveColorConfig* getConfig() const;
+
+ signals:
+  void currentColorChanged(const QColor& color);
+
+ protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
+
+ private:
+  Ui::CurveColorConfigWidget* ui_;
+
+  CurveColorConfig* config_;
+
+ private slots:
+  void configTypeChanged(int type);
+  void configCurrentColorChanged(const QColor& color);
+
+  void checkBoxAutoStateChanged(int state);
 };
+}  // namespace rqt_multiplot
 
 #endif

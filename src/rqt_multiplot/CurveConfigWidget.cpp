@@ -28,63 +28,47 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveConfigWidget::CurveConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveConfigWidget()),
-  config_(new CurveConfig(this)),
-  messageTopicRegistry_(new MessageTopicRegistry(this)) {
+CurveConfigWidget::CurveConfigWidget(QWidget* parent)
+    : QWidget(parent),
+      ui_(new Ui::CurveConfigWidget()),
+      config_(new CurveConfig(this)),
+      messageTopicRegistry_(new MessageTopicRegistry(this)) {
   ui_->setupUi(this);
 
   ui_->pushButtonCopyRight->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/arrow_right.png"))));
+      QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/22x22/arrow_right.png"))));
   ui_->pushButtonCopyLeft->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/arrow_left.png"))));
+      QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/22x22/arrow_left.png"))));
   ui_->pushButtonSwap->setIcon(
-    QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").
-    append("/resource/22x22/arrows_right_left.png"))));
-  
-  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(
-    CurveConfig::X));
-  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(
-    CurveConfig::Y));
+      QIcon(QString::fromStdString(ros::package::getPath("rqt_multiplot").append("/resource/22x22/arrows_right_left.png"))));
+
+  ui_->curveAxisConfigWidgetX->setConfig(config_->getAxisConfig(CurveConfig::X));
+  ui_->curveAxisConfigWidgetY->setConfig(config_->getAxisConfig(CurveConfig::Y));
   ui_->curveColorConfigWidget->setConfig(config_->getColorConfig());
   ui_->curveStyleConfigWidget->setConfig(config_->getStyleConfig());
   ui_->curveDataConfigWidget->setConfig(config_->getDataConfig());
-  
-  connect(config_, SIGNAL(titleChanged(const QString&)), this,
-    SLOT(configTitleChanged(const QString&)));
-  connect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)), this,
-    SLOT(configSubscriberQueueSizeChanged(size_t)));
-  
-  connect(config_->getAxisConfig(CurveConfig::X),
-    SIGNAL(topicChanged(const QString&)), this,
-    SLOT(configAxisConfigTopicChanged(const QString&)));
-  connect(config_->getAxisConfig(CurveConfig::Y),
-    SIGNAL(topicChanged(const QString&)), this,
-    SLOT(configAxisConfigTopicChanged(const QString&)));
 
-  connect(config_->getAxisConfig(CurveConfig::X),
-    SIGNAL(typeChanged(const QString&)), this,
-    SLOT(configAxisConfigTypeChanged(const QString&)));
-  connect(config_->getAxisConfig(CurveConfig::Y),
-    SIGNAL(typeChanged(const QString&)), this,
-    SLOT(configAxisConfigTypeChanged(const QString&)));
-  
-  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this,
-    SLOT(lineEditTitleEditingFinished()));
-  connect(ui_->pushButtonCopyRight, SIGNAL(clicked()), this,
-    SLOT(pushButtonCopyRightClicked()));
-  connect(ui_->pushButtonCopyLeft, SIGNAL(clicked()), this,
-    SLOT(pushButtonCopyLeftClicked()));
-  connect(ui_->pushButtonSwap, SIGNAL(clicked()), this,
-    SLOT(pushButtonSwapClicked()));
-  connect(ui_->spinBoxSubscriberQueueSize, SIGNAL(valueChanged(int)),
-    this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
-  
-  messageTopicRegistry_->update();
-  
+  connect(config_, SIGNAL(titleChanged(const QString&)), this, SLOT(configTitleChanged(const QString&)));
+  connect(config_, SIGNAL(subscriberQueueSizeChanged(size_t)), this, SLOT(configSubscriberQueueSizeChanged(size_t)));
+
+  connect(config_->getAxisConfig(CurveConfig::X), SIGNAL(topicChanged(const QString&)), this,
+          SLOT(configAxisConfigTopicChanged(const QString&)));
+  connect(config_->getAxisConfig(CurveConfig::Y), SIGNAL(topicChanged(const QString&)), this,
+          SLOT(configAxisConfigTopicChanged(const QString&)));
+
+  connect(config_->getAxisConfig(CurveConfig::X), SIGNAL(typeChanged(const QString&)), this,
+          SLOT(configAxisConfigTypeChanged(const QString&)));
+  connect(config_->getAxisConfig(CurveConfig::Y), SIGNAL(typeChanged(const QString&)), this,
+          SLOT(configAxisConfigTypeChanged(const QString&)));
+
+  connect(ui_->lineEditTitle, SIGNAL(editingFinished()), this, SLOT(lineEditTitleEditingFinished()));
+  connect(ui_->pushButtonCopyRight, SIGNAL(clicked()), this, SLOT(pushButtonCopyRightClicked()));
+  connect(ui_->pushButtonCopyLeft, SIGNAL(clicked()), this, SLOT(pushButtonCopyLeftClicked()));
+  connect(ui_->pushButtonSwap, SIGNAL(clicked()), this, SLOT(pushButtonSwapClicked()));
+  connect(ui_->spinBoxSubscriberQueueSize, SIGNAL(valueChanged(int)), this, SLOT(spinBoxSubscriberQueueSizeValueChanged(int)));
+
+  rqt_multiplot::MessageTopicRegistry::update();
+
   configTitleChanged(config_->getTitle());
   configSubscriberQueueSizeChanged(config_->getSubscriberQueueSize());
 }
@@ -122,29 +106,33 @@ void CurveConfigWidget::configSubscriberQueueSizeChanged(size_t queueSize) {
 }
 
 void CurveConfigWidget::configAxisConfigTopicChanged(const QString& topic) {
-  CurveAxisConfig* source = static_cast<CurveAxisConfig*>(sender());
-  CurveAxisConfig* destination = 0;
-  
-  if (source == config_->getAxisConfig(CurveConfig::X))
+  auto* source = dynamic_cast<CurveAxisConfig*>(sender());
+  CurveAxisConfig* destination = nullptr;
+
+  if (source == config_->getAxisConfig(CurveConfig::X)) {
     destination = config_->getAxisConfig(CurveConfig::Y);
-  else
-    destination = config_->getAxisConfig(CurveConfig::X);  
-  
-  if (destination->getTopic().isEmpty())
+  } else {
+    destination = config_->getAxisConfig(CurveConfig::X);
+  }
+
+  if (destination->getTopic().isEmpty()) {
     destination->setTopic(topic);
+  }
 }
 
 void CurveConfigWidget::configAxisConfigTypeChanged(const QString& type) {
-  CurveAxisConfig* source = static_cast<CurveAxisConfig*>(sender());
-  CurveAxisConfig* destination = 0;
-  
-  if (source == config_->getAxisConfig(CurveConfig::X))
+  auto* source = dynamic_cast<CurveAxisConfig*>(sender());
+  CurveAxisConfig* destination = nullptr;
+
+  if (source == config_->getAxisConfig(CurveConfig::X)) {
     destination = config_->getAxisConfig(CurveConfig::Y);
-  else
-    destination = config_->getAxisConfig(CurveConfig::X);  
-  
-  if (destination->getType().isEmpty())
+  } else {
+    destination = config_->getAxisConfig(CurveConfig::X);
+  }
+
+  if (destination->getType().isEmpty()) {
     destination->setType(type);
+  }
 }
 
 void CurveConfigWidget::lineEditTitleEditingFinished() {
@@ -152,21 +140,18 @@ void CurveConfigWidget::lineEditTitleEditingFinished() {
 }
 
 void CurveConfigWidget::pushButtonCopyRightClicked() {
-  *config_->getAxisConfig(CurveConfig::Y) = *config_->getAxisConfig(
-    CurveConfig::X);
+  *config_->getAxisConfig(CurveConfig::Y) = *config_->getAxisConfig(CurveConfig::X);
 }
 
 void CurveConfigWidget::pushButtonCopyLeftClicked() {
-  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(
-    CurveConfig::Y);
+  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(CurveConfig::Y);
 }
 
 void CurveConfigWidget::pushButtonSwapClicked() {
   CurveAxisConfig xAxisConfig;
-  
+
   xAxisConfig = *config_->getAxisConfig(CurveConfig::X);
-  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(
-    CurveConfig::Y);
+  *config_->getAxisConfig(CurveConfig::X) = *config_->getAxisConfig(CurveConfig::Y);
   *config_->getAxisConfig(CurveConfig::Y) = xAxisConfig;
 }
 
@@ -174,4 +159,4 @@ void CurveConfigWidget::spinBoxSubscriberQueueSizeValueChanged(int value) {
   config_->setSubscriberQueueSize(value);
 }
 
-}
+}  // namespace rqt_multiplot

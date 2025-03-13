@@ -18,18 +18,17 @@
 
 #include "rqt_multiplot/UrlScheme.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-UrlScheme::UrlScheme(const QString& prefix, QObject* parent) :
-  prefix_(prefix) {
-}
+UrlScheme::UrlScheme(QString prefix, QObject* /*parent*/) : prefix_(std::move(prefix)) {}
 
-UrlScheme::~UrlScheme() {
-}
+UrlScheme::~UrlScheme() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -39,4 +38,4 @@ const QString& UrlScheme::getPrefix() const {
   return prefix_;
 }
 
-}
+}  // namespace rqt_multiplot

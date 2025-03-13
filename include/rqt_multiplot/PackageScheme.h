@@ -29,50 +29,44 @@
 #include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class PackageScheme :
-    public UrlScheme {
+class PackageScheme : public UrlScheme {
   Q_OBJECT
-  public:
-    PackageScheme(QObject* parent = 0, const QString& prefix = "package",
-      QDir::Filters filter = QDir::NoFilter);
-    virtual ~PackageScheme();
+ public:
+  explicit PackageScheme(QObject* parent = nullptr, const QString& prefix = "package", QDir::Filters filter = QDir::NoFilter);
+  ~PackageScheme() override;
 
-    void setFilter(QDir::Filters filter);
-    QDir::Filters getFilter() const;
+  void setFilter(QDir::Filters filter);
+  QDir::Filters getFilter() const;
 
-    size_t getNumHosts() const;
-    QModelIndex getHostIndex(size_t row) const;
-    QVariant getHostData(const QModelIndex& index, int role) const;
-      
-    size_t getNumPaths(const QModelIndex& hostIndex, const QModelIndex&
-      parent) const;
-    QModelIndex getPathIndex(const QModelIndex& hostIndex, size_t row,
-      const QModelIndex& parent = QModelIndex()) const;
-    QVariant getPathData(const QModelIndex& index, int role) const;
-      
-    QString getHost(const QModelIndex& hostIndex) const;
-    QString getPath(const QModelIndex& hostIndex, const QModelIndex&
-      pathIndex) const;
-    
-    QString getFilePath(const QModelIndex& hostIndex, const QModelIndex&
-      pathIndex) const;
-    QString getFilePath(const QString& host, const QString& path) const;
-      
-  private:
-    PackageRegistry* registry_;
-    
-    QFileSystemModel* fileSystemModel_;
-    QStringListModel* packageListModel_;
-    
-    QList<QString> packages_;
-    QMap<QString, QString> packagePaths_;    
-    
-  private slots:
-    void registryUpdateStarted();
-    void registryUpdateFinished();
-    
-    void modelDirectoryLoaded(const QString& path);
-  };
+  size_t getNumHosts() const override;
+  QModelIndex getHostIndex(size_t row) const override;
+  QVariant getHostData(const QModelIndex& index, int role) const override;
+
+  size_t getNumPaths(const QModelIndex& hostIndex, const QModelIndex& parent) const override;
+  QModelIndex getPathIndex(const QModelIndex& hostIndex, size_t row, const QModelIndex& parent = QModelIndex()) const override;
+  QVariant getPathData(const QModelIndex& index, int role) const override;
+
+  QString getHost(const QModelIndex& hostIndex) const override;
+  QString getPath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const override;
+
+  QString getFilePath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const override;
+  QString getFilePath(const QString& host, const QString& path) const override;
+
+ private:
+  PackageRegistry* registry_;
+
+  QFileSystemModel* fileSystemModel_;
+  QStringListModel* packageListModel_;
+
+  QList<QString> packages_;
+  QMap<QString, QString> packagePaths_;
+
+ private slots:
+  void registryUpdateStarted();
+  void registryUpdateFinished();
+
+  void modelDirectoryLoaded(const QString& path);
 };
+}  // namespace rqt_multiplot
 
 #endif

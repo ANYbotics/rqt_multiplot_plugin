@@ -25,50 +25,49 @@
 #include <rqt_multiplot/PlotConfig.h>
 
 namespace Ui {
-  class PlotConfigWidget;
-};
+class PlotConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotConfigWidget :
-    public QWidget {
+class PlotConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    PlotConfigWidget(QWidget* parent = 0);
-    virtual ~PlotConfigWidget();
+ public:
+  explicit PlotConfigWidget(QWidget* parent = nullptr);
+  ~PlotConfigWidget() override;
 
-    void setConfig(const PlotConfig& config);
-    const PlotConfig& getConfig() const;
-    
-    void copySelectedCurves();
-    void pasteCurves();
+  void setConfig(const PlotConfig& config);
+  const PlotConfig& getConfig() const;
 
-    bool eventFilter(QObject* object, QEvent* event);
-    
-  private:
-    Ui::PlotConfigWidget* ui_;
-    
-    PlotConfig* config_;
-  
-  private slots:
-    void configTitleChanged(const QString& title);
-    void configPlotRateChanged(double rate);
+  void copySelectedCurves();
+  void pasteCurves();
 
-    void lineEditTitleEditingFinished();
-    
-    void pushButtonAddCurveClicked();
-    void pushButtonEditCurveClicked();
-    void pushButtonRemoveCurvesClicked();
-    
-    void pushButtonCopyCurvesClicked();
-    void pushButtonPasteCurvesClicked();
-    
-    void curveListWidgetItemSelectionChanged();
-    void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
-    
-    void doubleSpinBoxPlotRateValueChanged(double value);
-    
-    void clipboardDataChanged();
-  };
+  bool eventFilter(QObject* object, QEvent* event) override;
+
+ private:
+  Ui::PlotConfigWidget* ui_;
+
+  PlotConfig* config_;
+
+ private slots:
+  void configTitleChanged(const QString& title);
+  void configPlotRateChanged(double rate);
+
+  void lineEditTitleEditingFinished();
+
+  void pushButtonAddCurveClicked();
+  void pushButtonEditCurveClicked();
+  void pushButtonRemoveCurvesClicked();
+
+  void pushButtonCopyCurvesClicked();
+  void pushButtonPasteCurvesClicked();
+
+  void curveListWidgetItemSelectionChanged();
+  void curveListWidgetItemDoubleClicked(QListWidgetItem* item);
+
+  void doubleSpinBoxPlotRateValueChanged(double value);
+
+  void clipboardDataChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

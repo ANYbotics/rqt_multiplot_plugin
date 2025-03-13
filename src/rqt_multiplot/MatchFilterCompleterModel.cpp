@@ -18,21 +18,18 @@
 
 #include "rqt_multiplot/MatchFilterCompleterModel.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MatchFilterCompleterModel::MatchFilterCompleterModel(QObject* parent,
-    Qt::MatchFlags filterMatchFlags, const QString& filterKey) :
-  QSortFilterProxyModel(parent),
-  filterMatchFlags_(filterMatchFlags),
-  filterKey_(filterKey) {
-}
+MatchFilterCompleterModel::MatchFilterCompleterModel(QObject* parent, Qt::MatchFlags filterMatchFlags, QString filterKey)
+    : QSortFilterProxyModel(parent), filterMatchFlags_(filterMatchFlags), filterKey_(std::move(filterKey)) {}
 
-MatchFilterCompleterModel::~MatchFilterCompleterModel() {
-}
+MatchFilterCompleterModel::~MatchFilterCompleterModel() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -41,7 +38,7 @@ MatchFilterCompleterModel::~MatchFilterCompleterModel() {
 void MatchFilterCompleterModel::setFilterMatchFlags(Qt::MatchFlags flags) {
   if (flags != filterMatchFlags_) {
     filterMatchFlags_ = flags;
-    
+
     filterChanged();
   }
 }
@@ -53,7 +50,7 @@ Qt::MatchFlags MatchFilterCompleterModel::getFilterMatchFlags() const {
 void MatchFilterCompleterModel::setFilterKey(const QString& key) {
   if (key != filterKey_) {
     filterKey_ = key;
-    
+
     filterChanged();
   }
 }
@@ -66,30 +63,32 @@ const QString& MatchFilterCompleterModel::getFilterKey() const {
 /* Methods                                                                   */
 /*****************************************************************************/
 
-bool MatchFilterCompleterModel::filterAcceptsRow(int sourceRow, const
-    QModelIndex& sourceParent) const {
-  if (filterMatchFlags_ & Qt::MatchRegExp)
+bool MatchFilterCompleterModel::filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const {
+  if (static_cast<bool>(filterMatchFlags_ & Qt::MatchRegExp)) {
     return QSortFilterProxyModel::filterAcceptsRow(sourceRow, sourceParent);
-      
-  if (filterKeyColumn() == -1)
+  }
+
+  if (filterKeyColumn() == -1) {
     return true;
-  
-  QModelIndex sourceIndex = sourceModel()->index(sourceRow, filterKeyColumn(),
-    sourceParent);
-  
-  if (!sourceIndex.isValid())
+  }
+
+  QModelIndex sourceIndex = sourceModel()->index(sourceRow, filterKeyColumn(), sourceParent);
+
+  if (!sourceIndex.isValid()) {
     return true;
-  
-  QString key = sourceModel()->data(sourceIndex, filterRole()).toString();  
-  
-  if (filterMatchFlags_ & Qt::MatchContains)
+  }
+
+  QString key = sourceModel()->data(sourceIndex, filterRole()).toString();
+
+  if (static_cast<bool>(filterMatchFlags_ & Qt::MatchContains)) {
     return key.contains(filterKey_, filterCaseSensitivity());
-  else if (filterMatchFlags_ & Qt::MatchStartsWith)
+  } else if (static_cast<bool>(filterMatchFlags_ & Qt::MatchStartsWith)) {
     return key.startsWith(filterKey_, filterCaseSensitivity());
-  else if (filterMatchFlags_ & Qt::MatchEndsWith)
+  } else if (static_cast<bool>(filterMatchFlags_ & Qt::MatchEndsWith)) {
     return key.endsWith(filterKey_, filterCaseSensitivity());
-  else
+  } else {
     return true;
+  }
 }
 
-}
+}  // namespace rqt_multiplot

@@ -20,9 +20,9 @@
 #define RQT_MULTIPLOT_MESSAGE_SUBSCRIBER_H
 
 #include <QMap>
+#include <QMetaMethod>
 #include <QObject>
 #include <QString>
-#include <QMetaMethod>
 
 #include <ros/node_handle.h>
 
@@ -31,56 +31,51 @@
 #include <rqt_multiplot/Message.h>
 
 namespace rqt_multiplot {
-  class MessageSubscriber :
-    public QObject {
+class MessageSubscriber : public QObject {
   Q_OBJECT
-  public:
-    enum Property {
-      QueueSize
-    };
-    
-    MessageSubscriber(QObject* parent = 0, const ros::NodeHandle&
-      nodeHandle = ros::NodeHandle("~"));
-    ~MessageSubscriber();
-    
-    const ros::NodeHandle& getNodeHandle() const;
-    void setTopic(const QString& topic);
-    const QString& getTopic() const;
-    void setQueueSize(size_t queueSize);
-    size_t getQueueSize() const;
-    size_t getNumPublishers() const;  
-    bool isValid() const;
+ public:
+  enum Property { QueueSize };
 
-    bool event(QEvent* event);
-    
-  signals:
-    void subscribed(const QString& topic);
-    void messageReceived(const QString& topic, const Message& message);
-    void unsubscribed(const QString& topic);
-    void aboutToBeDestroyed();
-  
-  private:
-    ros::NodeHandle nodeHandle_;
-    
-    QString topic_;
-    size_t queueSize_;
-    
-    variant_topic_tools::Subscriber subscriber_;  
-      
-    void subscribe();
-    void unsubscribe();
+  explicit MessageSubscriber(QObject* parent = nullptr, const ros::NodeHandle& nodeHandle = ros::NodeHandle("~"));
+  ~MessageSubscriber() override;
 
-    void callback(const variant_topic_tools::MessageVariant& variant,
-      const ros::Time& receiptTime);
+  const ros::NodeHandle& getNodeHandle() const;
+  void setTopic(const QString& topic);
+  const QString& getTopic() const;
+  void setQueueSize(size_t queueSize);
+  size_t getQueueSize() const;
+  size_t getNumPublishers() const;
+  bool isValid() const;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-    void connectNotify(const QMetaMethod& signal);
-    void disconnectNotify(const QMetaMethod& signal);
+  bool event(QEvent* event) override;
+
+ signals:
+  void subscribed(const QString& topic);
+  void messageReceived(const QString& topic, const Message& message);
+  void unsubscribed(const QString& topic);
+  void aboutToBeDestroyed();
+
+ private:
+  ros::NodeHandle nodeHandle_;
+
+  QString topic_;
+  size_t queueSize_;
+
+  variant_topic_tools::Subscriber subscriber_;
+
+  void subscribe();
+  void unsubscribe();
+
+  void callback(const variant_topic_tools::MessageVariant& variant, const ros::Time& receiptTime);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  void connectNotify(const QMetaMethod& signal) override;
+  void disconnectNotify(const QMetaMethod& signal) override;
 #else
-    void connectNotify(const char* signal);
-    void disconnectNotify(const char* signal);
+  void connectNotify(const char* signal);
+  void disconnectNotify(const char* signal);
 #endif
-  };
 };
+}  // namespace rqt_multiplot
 
 #endif

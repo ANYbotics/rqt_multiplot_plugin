@@ -22,16 +22,14 @@
 #include <QItemDelegate>
 
 namespace rqt_multiplot {
-  class PenStyleItemDelegate :
-    public QItemDelegate {
+class PenStyleItemDelegate : public QItemDelegate {
   Q_OBJECT
-  public:
-    PenStyleItemDelegate(QWidget* parent = 0);
-    virtual ~PenStyleItemDelegate();
-    
-    void paint(QPainter* painter, const QStyleOptionViewItem& option,
-      const QModelIndex& index) const;
-  };
+ public:
+  explicit PenStyleItemDelegate(QWidget* parent = nullptr);
+  ~PenStyleItemDelegate() override;
+
+  void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
+}  // namespace rqt_multiplot
 
 #endif

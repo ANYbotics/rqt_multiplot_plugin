@@ -19,8 +19,8 @@
 #include <QApplication>
 #include <QMutexLocker>
 
-#include <rosbag/bag.h>
 #include <ros/console.h>
+#include <rosbag/bag.h>
 #include <rosbag/view.h>
 
 #include <rqt_multiplot/ProgressChangeEvent.h>
@@ -33,9 +33,7 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-BagReader::BagReader(QObject* parent) :
-  MessageBroker(parent),
-  impl_(this) {
+BagReader::BagReader(QObject* parent) : MessageBroker(parent), impl_(this) {
   connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
   connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
@@ -45,9 +43,7 @@ BagReader::~BagReader() {
   impl_.wait();
 }
 
-BagReader::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
+BagReader::Impl::Impl(QObject* parent) : QThread(parent) {}
 
 BagReader::Impl::~Impl() {
   terminate();
@@ -76,10 +72,10 @@ bool BagReader::isReading() const {
 
 void BagReader::read(const QString& fileName) {
   impl_.wait();
-  
+
   impl_.fileName_ = fileName;
   impl_.error_.clear();
-   
+
   impl_.start();
 }
 
@@ -87,90 +83,82 @@ void BagReader::wait() {
   impl_.wait();
 }
 
-bool BagReader::subscribe(const QString& topic, QObject* receiver, const
-    char* method, const PropertyMap& properties, Qt::ConnectionType type) {
+bool BagReader::subscribe(const QString& topic, QObject* receiver, const char* method, const PropertyMap& /*properties*/,
+                          Qt::ConnectionType type) {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   QMap<QString, BagQuery*>::iterator it = impl_.queries_.find(topic);
-  
+
   if (it == impl_.queries_.end()) {
     it = impl_.queries_.insert(topic, new BagQuery(this));
-    
-    connect(it.value(), SIGNAL(aboutToBeDestroyed()), this,
-      SLOT(queryAboutToBeDestroyed()));
+
+    connect(it.value(), SIGNAL(aboutToBeDestroyed()), this, SLOT(queryAboutToBeDestroyed()));
   }
-  
-  return receiver->connect(it.value(), SIGNAL(messageRead(const
-    QString&, const Message&)), method, type);
+
+  return receiver->connect(it.value(), SIGNAL(messageRead(const QString&, const Message&)), method, type) != nullptr;
 }
 
-bool BagReader::unsubscribe(const QString& topic, QObject* receiver,
-    const char* method) {
+bool BagReader::unsubscribe(const QString& topic, QObject* receiver, const char* method) {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   QMap<QString, BagQuery*>::iterator it = impl_.queries_.find(topic);
-    
+
   if (it != impl_.queries_.end()) {
-    return it.value()->disconnect(SIGNAL(messageRead(const QString&,
-      const Message&)), receiver, method);
-  }
-  else
+    return it.value()->disconnect(SIGNAL(messageRead(const QString&, const Message&)), receiver, method);
+  } else {
     return false;
+  }
 }
 
 bool BagReader::event(QEvent* event) {
   if (event->type() == ProgressChangeEvent::Type) {
-    ProgressChangeEvent* progressChangeEvent = static_cast<
-      ProgressChangeEvent*>(event);
+    auto* progressChangeEvent = dynamic_cast<ProgressChangeEvent*>(event);
 
     emit readingProgressChanged(progressChangeEvent->getProgress());
-    
+
     return true;
   }
-  
+
   return QObject::event(event);
 }
 
 void BagReader::Impl::run() {
-  if (queries_.isEmpty())
+  if (queries_.isEmpty()) {
     return;
-  
+  }
+
   try {
     rosbag::Bag bag;
-    
+
     bag.open(fileName_.toStdString(), rosbag::bagmode::Read);
-    
+
     std::vector<std::string> queriedTopics;
     queriedTopics.reserve(queries_.count());
-    
-    for (QMap<QString, BagQuery*>::const_iterator jt = queries_.begin();
-        jt != queries_.end(); ++jt)
+
+    for (QMap<QString, BagQuery*>::const_iterator jt = queries_.begin(); jt != queries_.end(); ++jt) {
       queriedTopics.push_back(jt.key().toStdString());
-    
+    }
+
     rosbag::View view(bag, rosbag::TopicQuery(queriedTopics));
-    
-    for (rosbag::View::iterator it = view.begin(); it != view.end();
-        ++it) {
+
+    for (rosbag::View::iterator it = view.begin(); it != view.end(); ++it) {
       mutex_.lock();
-    
-      QMap<QString, BagQuery*>::const_iterator jt = queries_.find(
-        QString::fromStdString(it->getTopic()));
-      
-      if (jt != queries_.end())
+
+      QMap<QString, BagQuery*>::const_iterator jt = queries_.find(QString::fromStdString(it->getTopic()));
+
+      if (jt != queries_.end()) {
         jt.value()->callback(*it);
+      }
 
       mutex_.unlock();
-      
-      double progress = (it->getTime()-view.getBeginTime()).toSec()/
-        (view.getEndTime()-view.getBeginTime()).toSec();
 
-      ProgressChangeEvent* progressChangeEvent = new
-        ProgressChangeEvent(progress);
-        
+      double progress = (it->getTime() - view.getBeginTime()).toSec() / (view.getEndTime() - view.getBeginTime()).toSec();
+
+      auto* progressChangeEvent = new ProgressChangeEvent(progress);
+
       QApplication::postEvent(parent(), progressChangeEvent);
     }
-  }
-  catch (const ros::Exception& exception) {
+  } catch (const ros::Exception& exception) {
     error_ = QString::fromStdString(exception.what());
   }
 }
@@ -182,31 +170,26 @@ void BagReader::Impl::run() {
 void BagReader::threadStarted() {
   emit readingStarted();
 }
-  
+
 void BagReader::threadFinished() {
   if (impl_.error_.isEmpty()) {
-    ROS_INFO_STREAM("Read bag from [file://" <<
-      impl_.fileName_.toStdString() << "]");
-    
+    ROS_INFO_STREAM("Read bag from [file://" << impl_.fileName_.toStdString() << "]");
+
     emit readingFinished();
-  }
-  else {
-    ROS_ERROR_STREAM("Failed to read bag from [file://" <<
-      impl_.fileName_.toStdString() << "]: " <<
-      impl_.error_.toStdString());
-  
+  } else {
+    ROS_ERROR_STREAM("Failed to read bag from [file://" << impl_.fileName_.toStdString() << "]: " << impl_.error_.toStdString());
+
     emit readingFailed(impl_.error_);
   }
 }
 
 void BagReader::queryAboutToBeDestroyed() {
-  for (QMap<QString, BagQuery*>::iterator it = impl_.queries_.begin();
-      it != impl_.queries_.end(); ++it) {
-    if (it.value() == static_cast<BagQuery*>(sender())) {
-      impl_.queries_.erase(it);      
+  for (QMap<QString, BagQuery*>::iterator it = impl_.queries_.begin(); it != impl_.queries_.end(); ++it) {
+    if (it.value() == dynamic_cast<BagQuery*>(sender())) {
+      impl_.queries_.erase(it);
       break;
     }
   }
 }
 
-}
+}  // namespace rqt_multiplot

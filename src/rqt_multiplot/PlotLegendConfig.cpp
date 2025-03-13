@@ -24,13 +24,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotLegendConfig::PlotLegendConfig(QObject* parent, bool visible) :
-  Config(parent),
-  visible_(visible) {
-}
+PlotLegendConfig::PlotLegendConfig(QObject* parent, bool visible) : Config(parent), visible_(visible) {}
 
-PlotLegendConfig::~PlotLegendConfig() {
-}
+PlotLegendConfig::~PlotLegendConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -39,7 +35,7 @@ PlotLegendConfig::~PlotLegendConfig() {
 void PlotLegendConfig::setVisible(bool visible) {
   if (visible != visible_) {
     visible_ = visible;
-    
+
     emit visibleChanged(visible);
     emit changed();
   }
@@ -70,8 +66,8 @@ void PlotLegendConfig::write(QDataStream& stream) const {
 }
 
 void PlotLegendConfig::read(QDataStream& stream) {
-  bool visible;
-  
+  bool visible = false;
+
   stream >> visible;
   setVisible(visible);
 }
@@ -82,8 +78,8 @@ void PlotLegendConfig::read(QDataStream& stream) {
 
 PlotLegendConfig& PlotLegendConfig::operator=(const PlotLegendConfig& src) {
   setVisible(src.visible_);
-  
+
   return *this;
 }
 
-}
+}  // namespace rqt_multiplot

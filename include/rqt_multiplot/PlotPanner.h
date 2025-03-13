@@ -30,29 +30,28 @@
 class QwtPlotCanvas;
 
 namespace rqt_multiplot {
-  class PlotPanner :
-    public QObject {
+class PlotPanner : public QObject {
   Q_OBJECT
-  public:
-    PlotPanner(QwtPlotCanvas* canvas);
-    ~PlotPanner();
+ public:
+  explicit PlotPanner(QwtPlotCanvas* canvas);
+  ~PlotPanner() override;
 
-  protected:
-    bool eventFilter(QObject* object, QEvent* event);
+ protected:
+  bool eventFilter(QObject* object, QEvent* event) override;
 
-  private:
-    QwtPlotCanvas* canvas_;
+ private:
+  QwtPlotCanvas* canvas_;
 
-    bool panning_;
+  bool panning_;
 
-    QPoint position_;
-    QCursor cursor_;
-    QCursor canvasCursor_;
+  QPoint position_;
+  QCursor cursor_;
+  QCursor canvasCursor_;
 
-    QwtScaleMap xMap_;
-    QwtScaleMap yMap_;
-    BoundingRectangle bounds_;
-  };
+  QwtScaleMap xMap_;
+  QwtScaleMap yMap_;
+  BoundingRectangle bounds_;
 };
+}  // namespace rqt_multiplot
 
 #endif

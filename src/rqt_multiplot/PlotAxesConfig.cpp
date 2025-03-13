@@ -24,17 +24,15 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotAxesConfig::PlotAxesConfig(QObject* parent) :
-  Config(parent) {
+PlotAxesConfig::PlotAxesConfig(QObject* parent) : Config(parent) {
   axisConfig_[X] = new PlotAxisConfig(this);
   axisConfig_[Y] = new PlotAxisConfig(this);
-    
+
   connect(axisConfig_[X], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
   connect(axisConfig_[Y], SIGNAL(changed()), this, SLOT(axisConfigChanged()));
 }
 
-PlotAxesConfig::~PlotAxesConfig() {
-}
+PlotAxesConfig::~PlotAxesConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -42,11 +40,12 @@ PlotAxesConfig::~PlotAxesConfig() {
 
 PlotAxisConfig* PlotAxesConfig::getAxisConfig(Axis axis) const {
   QMap<Axis, PlotAxisConfig*>::const_iterator it = axisConfig_.find(axis);
-  
-  if (it != axisConfig_.end())
+
+  if (it != axisConfig_.end()) {
     return it.value();
-  else
-    return 0;
+  } else {
+    return nullptr;
+  }
 }
 
 /*****************************************************************************/
@@ -97,7 +96,7 @@ void PlotAxesConfig::read(QDataStream& stream) {
 PlotAxesConfig& PlotAxesConfig::operator=(const PlotAxesConfig& src) {
   *axisConfig_[X] = *src.axisConfig_[X];
   *axisConfig_[Y] = *src.axisConfig_[Y];
-  
+
   return *this;
 }
 
@@ -109,4 +108,4 @@ void PlotAxesConfig::axisConfigChanged() {
   emit changed();
 }
 
-}
+}  // namespace rqt_multiplot

@@ -26,10 +26,8 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotConfigDialog::PlotConfigDialog(QWidget* parent, Qt::WindowFlags flags) :
-  QDialog(parent, flags),
-  ui_(new Ui::PlotConfigDialog()) {
-  ui_->setupUi(this);  
+PlotConfigDialog::PlotConfigDialog(QWidget* parent, Qt::WindowFlags flags) : QDialog(parent, flags), ui_(new Ui::PlotConfigDialog()) {
+  ui_->setupUi(this);
 }
 
 PlotConfigDialog::~PlotConfigDialog() {
@@ -44,4 +42,4 @@ PlotConfigWidget* PlotConfigDialog::getWidget() const {
   return ui_->widgetPlotConfig;
 }
 
-}
+}  // namespace rqt_multiplot

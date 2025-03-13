@@ -25,41 +25,36 @@
 #include <rqt_multiplot/UrlScheme.h>
 
 namespace rqt_multiplot {
-  class UrlItem {
-  public:
-    enum Type {
-      Scheme,
-      Host,
-      Path
-    };
-    
-    UrlItem(UrlScheme* scheme = 0, Type type = Scheme, const QModelIndex&
-      index = QModelIndex(), UrlItem* parent = 0);
-    ~UrlItem();
-  
-    UrlItem* getParent() const;
-    size_t getNumChildren() const;
-    UrlItem* getChild(size_t row) const;
-    int getRow() const;
-    
-    void setScheme(UrlScheme* scheme);
-    UrlScheme* getScheme() const;
-    void setType(Type type);
-    Type getType() const;
-    void setIndex(const QModelIndex& index);
-    const QModelIndex& getIndex() const;
-    QModelIndex getIndex(Type type) const;
+class UrlItem {
+ public:
+  enum Type { Scheme, Host, Path };
 
-    UrlItem* addChild(size_t row, Type type, const QModelIndex& index);
-    
-  private:
-    UrlItem* parent_;
-    QMap<size_t, UrlItem*> children_;
-    
-    UrlScheme* scheme_;
-    Type type_;
-    QModelIndex index_;
-  };
+  explicit UrlItem(UrlScheme* scheme = nullptr, Type type = Scheme, const QModelIndex& index = QModelIndex(), UrlItem* parent = nullptr);
+  ~UrlItem();
+
+  UrlItem* getParent() const;
+  size_t getNumChildren() const;
+  UrlItem* getChild(size_t row) const;
+  int getRow() const;
+
+  void setScheme(UrlScheme* scheme);
+  UrlScheme* getScheme() const;
+  void setType(Type type);
+  Type getType() const;
+  void setIndex(const QModelIndex& index);
+  const QModelIndex& getIndex() const;
+  QModelIndex getIndex(Type type) const;
+
+  UrlItem* addChild(size_t row, Type type, const QModelIndex& index);
+
+ private:
+  UrlItem* parent_;
+  QMap<size_t, UrlItem*> children_;
+
+  UrlScheme* scheme_;
+  Type type_;
+  QModelIndex index_;
 };
+}  // namespace rqt_multiplot
 
 #endif

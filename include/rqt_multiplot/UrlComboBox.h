@@ -24,32 +24,31 @@
 #include <rqt_multiplot/UrlCompleter.h>
 
 namespace rqt_multiplot {
-  class UrlComboBox :
-    public QComboBox {
+class UrlComboBox : public QComboBox {
   Q_OBJECT
-  public:
-    UrlComboBox(QWidget* parent = 0);
-    virtual ~UrlComboBox();
-    
-    void setEditable(bool editable);
-    UrlCompleter* getCompleter() const;
-    void setCurrentUrl(const QString& url);
-    QString getCurrentUrl() const;
-    bool isCurrentUrlSelectable() const;
-    
-  signals:
-    void currentUrlChanged(const QString& url);
-    
-  private:
-    QString currentUrl_;
-    
-    UrlCompleter* completer_;
-    
-  private slots:
-    void activated(int index);
-    void currentIndexChanged(const QString& text);
-    void lineEditEditingFinished();
-  };
+ public:
+  explicit UrlComboBox(QWidget* parent = nullptr);
+  ~UrlComboBox() override;
+
+  void setEditable(bool editable);
+  UrlCompleter* getCompleter() const;
+  void setCurrentUrl(const QString& url);
+  QString getCurrentUrl() const;
+  bool isCurrentUrlSelectable() const;
+
+ signals:
+  void currentUrlChanged(const QString& url);
+
+ private:
+  QString currentUrl_;
+
+  UrlCompleter* completer_;
+
+ private slots:
+  void activated(int index);
+  void currentIndexChanged(const QString& text);
+  void lineEditEditingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

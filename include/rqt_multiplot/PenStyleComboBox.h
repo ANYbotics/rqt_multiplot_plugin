@@ -22,25 +22,24 @@
 #include <QComboBox>
 
 namespace rqt_multiplot {
-  class PenStyleComboBox :
-    public QComboBox {
+class PenStyleComboBox : public QComboBox {
   Q_OBJECT
-  public:
-    PenStyleComboBox(QWidget* parent = 0);
-    virtual ~PenStyleComboBox();
-    
-    void setCurrentStyle(Qt::PenStyle style);
-    Qt::PenStyle getCurrentStyle() const;
-    
-  signals:
-    void currentStyleChanged(int style);
-  
-  protected:
-    void paintEvent(QPaintEvent* event);
- 
-  private slots:
-    void currentIndexChanged(int index);
-  };
+ public:
+  explicit PenStyleComboBox(QWidget* parent = nullptr);
+  ~PenStyleComboBox() override;
+
+  void setCurrentStyle(Qt::PenStyle style);
+  Qt::PenStyle getCurrentStyle() const;
+
+ signals:
+  void currentStyleChanged(int style);
+
+ protected:
+  void paintEvent(QPaintEvent* event) override;
+
+ private slots:
+  void currentIndexChanged(int index);
 };
+}  // namespace rqt_multiplot
 
 #endif

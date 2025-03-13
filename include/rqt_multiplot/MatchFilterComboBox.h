@@ -24,27 +24,26 @@
 #include <rqt_multiplot/MatchFilterCompleter.h>
 
 namespace rqt_multiplot {
-  class MatchFilterComboBox :
-    public QComboBox {
+class MatchFilterComboBox : public QComboBox {
   Q_OBJECT
-  public:
-    MatchFilterComboBox(QWidget* parent = 0);
-    virtual ~MatchFilterComboBox();
-    
-    void setEditable(bool editable);
-    MatchFilterCompleter* getMatchFilterCompleter() const;
-    
-  protected:
-    void keyPressEvent(QKeyEvent* event);
+ public:
+  explicit MatchFilterComboBox(QWidget* parent = nullptr);
+  ~MatchFilterComboBox() override;
 
-  private:
-    MatchFilterCompleter* matchFilterCompleter_;
-    
-  private slots:
-    void matchFilterCompleterActivated(const QString& text);
-    
-    void lineEditEditingFinished();
-  };
+  void setEditable(bool editable);
+  MatchFilterCompleter* getMatchFilterCompleter() const;
+
+ protected:
+  void keyPressEvent(QKeyEvent* event) override;
+
+ private:
+  MatchFilterCompleter* matchFilterCompleter_;
+
+ private slots:
+  void matchFilterCompleterActivated(const QString& text);
+
+  void lineEditEditingFinished();
 };
+}  // namespace rqt_multiplot
 
 #endif

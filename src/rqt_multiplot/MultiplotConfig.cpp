@@ -24,14 +24,11 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MultiplotConfig::MultiplotConfig(QObject* parent) :
-  Config(parent),
-  tableConfig_(new PlotTableConfig(this)) {
+MultiplotConfig::MultiplotConfig(QObject* parent) : Config(parent), tableConfig_(new PlotTableConfig(this)) {
   connect(tableConfig_, SIGNAL(changed()), this, SLOT(tableConfigChanged()));
 }
 
-MultiplotConfig::~MultiplotConfig() {
-}
+MultiplotConfig::~MultiplotConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -75,7 +72,7 @@ void MultiplotConfig::read(QDataStream& stream) {
 
 MultiplotConfig& MultiplotConfig::operator=(const MultiplotConfig& src) {
   *tableConfig_ = *src.tableConfig_;
-  
+
   return *this;
 }
 
@@ -87,4 +84,4 @@ void MultiplotConfig::tableConfigChanged() {
   emit changed();
 }
 
-}
+}  // namespace rqt_multiplot

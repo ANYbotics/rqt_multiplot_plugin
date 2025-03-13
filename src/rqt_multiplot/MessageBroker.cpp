@@ -26,12 +26,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageBroker::MessageBroker(QObject* parent) :
-  QObject(parent) {
+MessageBroker::MessageBroker(QObject* parent) : QObject(parent) {
   qRegisterMetaType<Message>("Message");
 }
 
-MessageBroker::~MessageBroker() {
-}
-  
-}
+MessageBroker::~MessageBroker() = default;
+
+}  // namespace rqt_multiplot

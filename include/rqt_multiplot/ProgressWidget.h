@@ -22,30 +22,29 @@
 #include <QWidget>
 
 namespace Ui {
-  class ProgressWidget;
-};
+class ProgressWidget;
+}
 
 namespace rqt_multiplot {
-  class ProgressWidget :
-    public QWidget {
+class ProgressWidget : public QWidget {
   Q_OBJECT
-  public:
-    ProgressWidget(QWidget* parent = 0);
-    virtual ~ProgressWidget();
+ public:
+  explicit ProgressWidget(QWidget* parent = nullptr);
+  ~ProgressWidget() override;
 
-    void setCurrentProgress(double progress);
-    double getCurrentProgress() const;
-    bool isStarted() const;
-    
-    void start(const QString& toolTip = QString());
-    void finish(const QString& toolTip = QString());
-    void fail(const QString& toolTip = QString());
-    
-  private:
-    Ui::ProgressWidget* ui_;
-    
-    bool started_;
-  };
+  void setCurrentProgress(double progress);
+  double getCurrentProgress() const;
+  bool isStarted() const;
+
+  void start(const QString& toolTip = QString());
+  void finish(const QString& toolTip = QString());
+  void fail(const QString& toolTip = QString());
+
+ private:
+  Ui::ProgressWidget* ui_;
+
+  bool started_;
 };
+}  // namespace rqt_multiplot
 
 #endif

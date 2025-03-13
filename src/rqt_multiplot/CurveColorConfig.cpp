@@ -18,6 +18,8 @@
 
 #include <rqt_multiplot/ColorOperations.h>
 
+#include <utility>
+
 #include "rqt_multiplot/CurveColorConfig.h"
 
 namespace rqt_multiplot {
@@ -26,16 +28,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveColorConfig::CurveColorConfig(QObject* parent, Type type, unsigned char
-    autoColorIndex, const QColor& customColor) :
-  Config(parent),
-  type_(type),
-  autoColorIndex_(autoColorIndex),
-  customColor_(customColor) {
-}
+CurveColorConfig::CurveColorConfig(QObject* parent, Type type, unsigned char autoColorIndex, QColor customColor)
+    : Config(parent), type_(type), autoColorIndex_(autoColorIndex), customColor_(std::move(customColor)) {}
 
-CurveColorConfig::~CurveColorConfig() {
-}
+CurveColorConfig::~CurveColorConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -44,7 +40,7 @@ CurveColorConfig::~CurveColorConfig() {
 void CurveColorConfig::setType(Type type) {
   if (type != type_) {
     type_ = type;
-    
+
     emit typeChanged(type);
     emit currentColorChanged(getCurrentColor());
     emit changed();
@@ -58,7 +54,7 @@ CurveColorConfig::Type CurveColorConfig::getType() const {
 void CurveColorConfig::setAutoColorIndex(unsigned char index) {
   if (index != autoColorIndex_) {
     autoColorIndex_ = index;
-    
+
     emit autoColorIndexChanged(index);
     emit currentColorChanged(getCurrentColor());
     emit changed();
@@ -72,10 +68,11 @@ unsigned char CurveColorConfig::getAutoColorIndex() const {
 void CurveColorConfig::setCustomColor(const QColor& color) {
   if (color != customColor_) {
     customColor_ = color;
-    
+
     emit customColorChanged(color);
-    if (type_ == Custom)
+    if (type_ == Custom) {
       emit currentColorChanged(getCurrentColor());
+    }
     emit changed();
   }
 }
@@ -85,10 +82,11 @@ const QColor& CurveColorConfig::getCustomColor() const {
 }
 
 QColor CurveColorConfig::getCurrentColor() const {
-  if (type_ == Auto)
+  if (type_ == Auto) {
     return ColorOperations::intToRgb(autoColorIndex_);
-  else
+  } else {
     return customColor_;
+  }
 }
 
 /*****************************************************************************/
@@ -97,14 +95,12 @@ QColor CurveColorConfig::getCurrentColor() const {
 
 void CurveColorConfig::save(QSettings& settings) const {
   settings.setValue("type", type_);
-  settings.setValue("custom_color", QVariant::fromValue<QColor>(
-    customColor_));
+  settings.setValue("custom_color", QVariant::fromValue<QColor>(customColor_));
 }
 
 void CurveColorConfig::load(QSettings& settings) {
   setType(static_cast<Type>(settings.value("type", Auto).toInt()));
-  setCustomColor(settings.value("custom_color", QColor(Qt::black)).
-    value<QColor>());
+  setCustomColor(settings.value("custom_color", QColor(Qt::black)).value<QColor>());
 }
 
 void CurveColorConfig::reset() {
@@ -118,9 +114,9 @@ void CurveColorConfig::write(QDataStream& stream) const {
 }
 
 void CurveColorConfig::read(QDataStream& stream) {
-  int type;
+  int type = 0;
   QColor customColor;
-  
+
   stream >> type;
   setType(static_cast<Type>(type));
   stream >> customColor;
@@ -135,8 +131,8 @@ CurveColorConfig& CurveColorConfig::operator=(const CurveColorConfig& src) {
   setType(src.type_);
   setAutoColorIndex(src.autoColorIndex_);
   setCustomColor(src.customColor_);
-  
+
   return *this;
 }
 
-}
+}  // namespace rqt_multiplot

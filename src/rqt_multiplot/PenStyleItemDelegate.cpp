@@ -26,45 +26,42 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PenStyleItemDelegate::PenStyleItemDelegate(QWidget* parent) :
-  QItemDelegate(parent) {
-}
+PenStyleItemDelegate::PenStyleItemDelegate(QWidget* parent) : QItemDelegate(parent) {}
 
-PenStyleItemDelegate::~PenStyleItemDelegate() {
-}
+PenStyleItemDelegate::~PenStyleItemDelegate() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-void PenStyleItemDelegate::paint(QPainter* painter, const
-    QStyleOptionViewItem& option, const QModelIndex& index) const {
+void PenStyleItemDelegate::paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const {
   QVariant data = index.model()->data(index, Qt::UserRole);
 
-  if (option.state & QStyle::State_Selected)
+  if (option.state & static_cast<int>(QStyle::State_Selected != 0u != 0u)) {
     painter->fillRect(option.rect, option.palette.highlight());
-  
+  }
+
   if (data.isValid()) {
     painter->save();
 
     QPen pen = painter->pen();
 
-    if (option.state & QStyle::State_Selected)
+    if (option.state & static_cast<int>(QStyle::State_Selected != 0u != 0u)) {
       pen.setColor(option.palette.color(QPalette::HighlightedText));
-    else
+    } else {
       pen.setColor(option.palette.color(QPalette::Text));
-    
+    }
+
     pen.setWidth(1);
     pen.setStyle(static_cast<Qt::PenStyle>(data.toInt()));
-    
+
     painter->setPen(pen);
-    painter->drawLine(option.rect.left(), option.rect.center().y(),
-      option.rect.right(), option.rect.center().y());
+    painter->drawLine(option.rect.left(), option.rect.center().y(), option.rect.right(), option.rect.center().y());
 
     painter->restore();
-  }
-  else
+  } else {
     QItemDelegate::paint(painter, option, index);
+  }
 }
 
-}
+}  // namespace rqt_multiplot

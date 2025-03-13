@@ -18,6 +18,7 @@
 
 #include <QRegExp>
 #include <QStringList>
+#include <utility>
 
 #include <variant_topic_tools/ArrayDataType.h>
 #include <variant_topic_tools/BuiltinDataType.h>
@@ -31,39 +32,34 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageFieldItem::MessageFieldItem(const variant_topic_tools::DataType&
-    dataType, MessageFieldItem* parent, const QString& name) :
-  parent_(parent),
-  name_(name),
-  dataType_(dataType) {
+MessageFieldItem::MessageFieldItem(const variant_topic_tools::DataType& dataType, MessageFieldItem* parent, QString name)
+    : parent_(parent), name_(std::move(name)), dataType_(dataType) {
   if (dataType_.isMessage()) {
     variant_topic_tools::MessageDataType messageType = dataType_;
-    
-    for (size_t i = 0; i < messageType.getNumVariableMembers(); ++i)
-      appendChild(new MessageFieldItem(messageType.getVariableMember(i).
-        getType(), this, QString::fromStdString(messageType.
-        getVariableMember(i).getName())));
-  }
-  else if (dataType_.isArray()) {
-    variant_topic_tools::ArrayDataType arrayType = dataType_;
-    
-    if (!arrayType.isDynamic()) {
-      for (size_t i = 0; i < arrayType.getNumMembers(); ++i)
-        appendChild(new MessageFieldItem(arrayType.getMemberType(), this,
-          QString::number(i)));
+
+    for (size_t i = 0; i < messageType.getNumVariableMembers(); ++i) {
+      appendChild(new MessageFieldItem(messageType.getVariableMember(i).getType(), this,
+                                       QString::fromStdString(messageType.getVariableMember(i).getName())));
     }
-    else {
-      for (size_t i = 0; i <= 9; ++i)
-        appendChild(new MessageFieldItem(arrayType.getMemberType(), this,
-          QString::number(i)));
+  } else if (dataType_.isArray()) {
+    variant_topic_tools::ArrayDataType arrayType = dataType_;
+
+    if (!arrayType.isDynamic()) {
+      for (size_t i = 0; i < arrayType.getNumMembers(); ++i) {
+        appendChild(new MessageFieldItem(arrayType.getMemberType(), this, QString::number(i)));
+      }
+    } else {
+      for (size_t i = 0; i <= 9; ++i) {
+        appendChild(new MessageFieldItem(arrayType.getMemberType(), this, QString::number(i)));
+      }
     }
   }
 }
 
 MessageFieldItem::~MessageFieldItem() {
-  for (QList<MessageFieldItem*>::iterator it = children_.begin();
-       it != children_.end(); ++it)
-    delete *it;
+  for (auto& it : children_) {
+    delete it;
+  }
 }
 
 /*****************************************************************************/
@@ -83,38 +79,39 @@ MessageFieldItem* MessageFieldItem::getChild(size_t row) const {
 }
 
 MessageFieldItem* MessageFieldItem::getChild(const QString& name) const {
-  for (QList<MessageFieldItem*>::const_iterator it = children_.begin();
-      it != children_.end(); ++it) {
-    if ((*it)->name_ == name)
-      return *it;
+  for (auto* it : children_) {
+    if (it->name_ == name) {
+      return it;
+    }
   }
-  
-  return 0;
+
+  return nullptr;
 }
 
 MessageFieldItem* MessageFieldItem::getDescendant(const QString& path) const {
   QStringList names = path.split("/");
-  
+
   if (!names.isEmpty()) {
     MessageFieldItem* child = getChild(names.first());
-    
-    if (child) {
+
+    if (child != nullptr) {
       names.removeFirst();
       return child->getDescendant(names.join("/"));
     }
   }
-  
-  return 0;
+
+  return nullptr;
 }
 
 int MessageFieldItem::getRow() const {
-  if (parent_)
+  if (parent_ != nullptr) {
     return parent_->children_.indexOf(const_cast<MessageFieldItem*>(this));
+  }
 
   return -1;
 }
 
-size_t MessageFieldItem::getNumColumns() const {
+size_t MessageFieldItem::getNumColumns() {
   return 1;
 }
 
@@ -137,48 +134,49 @@ void MessageFieldItem::appendChild(MessageFieldItem* child) {
 void MessageFieldItem::update(const QString& path) {
   QStringList names = path.split("/");
 
-  if (dataType_.isArray() && QRegExp("[1-9][0-9]*").exactMatch(
-      names.first())) {
+  if (dataType_.isArray() && QRegExp("[1-9][0-9]*").exactMatch(names.first())) {
     variant_topic_tools::ArrayDataType arrayType = dataType_;
-    
-    if (arrayType.isDynamic()) {        
-      if (children_.count() < 11)
-        appendChild(new MessageFieldItem(arrayType.getMemberType(), this));          
-      
+
+    if (arrayType.isDynamic()) {
+      if (children_.count() < 11) {
+        appendChild(new MessageFieldItem(arrayType.getMemberType(), this));
+      }
+
       children_[0]->name_ = names.first();
-      
-      for (size_t i = 0; i <= 9; ++i)
-        children_[i+1]->name_ = names.first()+QString::number(i);
-    }
-  }
-  
-  for (size_t row = 0; row < children_.count(); ++row) {
-    MessageFieldItem* child = children_[row];
-    
-    if (child->dataType_.isArray()) {
-      variant_topic_tools::ArrayDataType arrayType = child->dataType_;
-      
-      if (arrayType.isDynamic()) {
-        if (child->children_.count() > 10) {
-          for (size_t i = 0; i <= 9; ++i)
-            child->children_[i]->name_ = QString::number(i);
-          
-          delete child->children_.last();        
-          child->children_.removeLast();
-        }
-        
+
+      for (size_t i = 0; i <= 9; ++i) {
+        children_[i + 1]->name_ = names.first() + QString::number(i);
       }
     }
   }
-  
+
+  for (size_t row = 0; row < children_.count(); ++row) {
+    MessageFieldItem* child = children_[row];
+
+    if (child->dataType_.isArray()) {
+      variant_topic_tools::ArrayDataType arrayType = child->dataType_;
+
+      if (arrayType.isDynamic()) {
+        if (child->children_.count() > 10) {
+          for (size_t i = 0; i <= 9; ++i) {
+            child->children_[i]->name_ = QString::number(i);
+          }
+
+          delete child->children_.last();
+          child->children_.removeLast();
+        }
+      }
+    }
+  }
+
   if (!names.isEmpty()) {
     MessageFieldItem* child = getChild(names.first());
-    
-    if (child) {
+
+    if (child != nullptr) {
       names.removeFirst();
       child->update(names.join("/"));
     }
   }
 }
 
-}
+}  // namespace rqt_multiplot

@@ -22,31 +22,30 @@
 #include <rqt_multiplot/Config.h>
 
 namespace rqt_multiplot {
-  class PlotLegendConfig :
-    public Config {
+class PlotLegendConfig : public Config {
   Q_OBJECT
-  public:
-    PlotLegendConfig(QObject* parent = 0, bool visible = true);
-    ~PlotLegendConfig();
-    
-    void setVisible(bool visible);
-    bool isVisible() const;
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-    PlotLegendConfig& operator=(const PlotLegendConfig& src);
-    
-  signals:
-    void visibleChanged(bool visible);
-    
-  private:
-    bool visible_;
-  };
+ public:
+  explicit PlotLegendConfig(QObject* parent = nullptr, bool visible = true);
+  ~PlotLegendConfig() override;
+
+  void setVisible(bool visible);
+  bool isVisible() const;
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+  PlotLegendConfig& operator=(const PlotLegendConfig& src);
+
+ signals:
+  void visibleChanged(bool visible);
+
+ private:
+  bool visible_;
 };
+}  // namespace rqt_multiplot
 
 #endif

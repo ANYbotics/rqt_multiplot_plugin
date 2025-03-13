@@ -24,24 +24,22 @@
 #include <rqt_multiplot/MatchFilterCompleterModel.h>
 
 namespace rqt_multiplot {
-  class MatchFilterCompleter :
-    public QCompleter {
+class MatchFilterCompleter : public QCompleter {
   Q_OBJECT
-  public:
-    MatchFilterCompleter(QObject* parent = 0, Qt::MatchFlags
-      filterMatchFlags = Qt::MatchStartsWith);
-    virtual ~MatchFilterCompleter();
-  
-    void setFilterMatchFlags(Qt::MatchFlags flags);
-    Qt::MatchFlags getFilterMatchFlags() const;
-    void setFilterCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
-    Qt::CaseSensitivity getFilterCaseSensitivity() const;
-    
-    QStringList splitPath(const QString& path) const;
-    
-  private:
-    MatchFilterCompleterModel* proxyModel_;
-  };
+ public:
+  explicit MatchFilterCompleter(QObject* parent = nullptr, Qt::MatchFlags filterMatchFlags = Qt::MatchStartsWith);
+  ~MatchFilterCompleter() override;
+
+  void setFilterMatchFlags(Qt::MatchFlags flags);
+  Qt::MatchFlags getFilterMatchFlags() const;
+  void setFilterCaseSensitivity(Qt::CaseSensitivity caseSensitivity);
+  Qt::CaseSensitivity getFilterCaseSensitivity() const;
+
+  QStringList splitPath(const QString& path) const override;
+
+ private:
+  MatchFilterCompleterModel* proxyModel_;
 };
+}  // namespace rqt_multiplot
 
 #endif

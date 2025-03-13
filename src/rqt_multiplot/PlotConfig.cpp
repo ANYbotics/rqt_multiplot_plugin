@@ -18,27 +18,27 @@
 
 #include "rqt_multiplot/PlotConfig.h"
 
+#include <utility>
+
+#include <cmath>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotConfig::PlotConfig(QObject* parent, const QString& title, double
-    plotRate) :
-  Config(parent),
-  title_(title),
-  axesConfig_(new PlotAxesConfig(this)),
-  legendConfig_(new PlotLegendConfig(this)),
-  plotRate_(plotRate) {
-  connect(axesConfig_, SIGNAL(changed()), this,
-    SLOT(axesConfigChanged()));
-  connect(legendConfig_, SIGNAL(changed()), this,
-    SLOT(legendConfigChanged()));
+PlotConfig::PlotConfig(QObject* parent, QString title, double plotRate)
+    : Config(parent),
+      title_(std::move(title)),
+      axesConfig_(new PlotAxesConfig(this)),
+      legendConfig_(new PlotLegendConfig(this)),
+      plotRate_(plotRate) {
+  connect(axesConfig_, SIGNAL(changed()), this, SLOT(axesConfigChanged()));
+  connect(legendConfig_, SIGNAL(changed()), this, SLOT(legendConfigChanged()));
 }
 
-PlotConfig::~PlotConfig() {
-}
+PlotConfig::~PlotConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -47,7 +47,7 @@ PlotConfig::~PlotConfig() {
 void PlotConfig::setTitle(const QString& title) {
   if (title != title_) {
     title_ = title;
-    
+
     emit titleChanged(title);
     emit changed();
   }
@@ -58,11 +58,13 @@ const QString& PlotConfig::getTitle() const {
 }
 
 void PlotConfig::setNumCurves(size_t numCurves) {
-  while (curveConfig_.count() > numCurves)
-    removeCurve(curveConfig_.count()-1);
-  
-  while (curveConfig_.count() < numCurves)
+  while (curveConfig_.count() > numCurves) {
+    removeCurve(curveConfig_.count() - 1);
+  }
+
+  while (curveConfig_.count() < numCurves) {
     addCurve();
+  }
 }
 
 size_t PlotConfig::getNumCurves() const {
@@ -70,10 +72,11 @@ size_t PlotConfig::getNumCurves() const {
 }
 
 CurveConfig* PlotConfig::getCurveConfig(size_t index) const {
-  if (index < curveConfig_.count())
+  if (index < curveConfig_.count()) {
     return curveConfig_[index];
-  else
-    return 0;
+  } else {
+    return nullptr;
+  }
 }
 
 PlotAxesConfig* PlotConfig::getAxesConfig() const {
@@ -87,7 +90,7 @@ PlotLegendConfig* PlotConfig::getLegendConfig() const {
 void PlotConfig::setPlotRate(double rate) {
   if (rate != plotRate_) {
     plotRate_ = rate;
-    
+
     emit plotRateChanged(rate);
     emit changed();
   }
@@ -102,41 +105,42 @@ double PlotConfig::getPlotRate() const {
 /*****************************************************************************/
 
 CurveConfig* PlotConfig::addCurve() {
-  CurveConfig* curveConfig = new CurveConfig(this);
+  auto* curveConfig = new CurveConfig(this);
   curveConfig->getColorConfig()->setAutoColorIndex(curveConfig_.count());
-  
+
   curveConfig_.append(curveConfig);
-  
-  connect(curveConfig, SIGNAL(changed()), this,
-    SLOT(curveConfigChanged()));
-  connect(curveConfig, SIGNAL(destroyed()), this,
-    SLOT(curveConfigDestroyed()));
-  
-  emit curveAdded(curveConfig_.count()-1);
+
+  connect(curveConfig, SIGNAL(changed()), this, SLOT(curveConfigChanged()));
+  connect(curveConfig, SIGNAL(destroyed()), this, SLOT(curveConfigDestroyed()));
+
+  emit curveAdded(curveConfig_.count() - 1);
   emit changed();
-  
+
   return curveConfig;
 }
 
 void PlotConfig::removeCurve(CurveConfig* curveConfig) {
   int index = curveConfig_.indexOf(curveConfig);
-  
-  if (index >= 0)
+
+  if (index >= 0) {
     removeCurve(index);
+  }
 }
 
 void PlotConfig::removeCurve(size_t index) {
-  if (index < curveConfig_.count())
+  if (index < curveConfig_.count()) {
     delete curveConfig_[index];
+  }
 }
 
 void PlotConfig::clearCurves() {
   if (!curveConfig_.isEmpty()) {
-    for (size_t i = 0; i < curveConfig_.count(); ++i)
+    for (size_t i = 0; i < curveConfig_.count(); ++i) {
       delete curveConfig_[i];
-    
+    }
+
     curveConfig_.clear();
-    
+
     emit curvesCleared();
     emit changed();
   }
@@ -144,117 +148,123 @@ void PlotConfig::clearCurves() {
 
 QVector<CurveConfig*> PlotConfig::findCurves(const QString& title) const {
   QVector<CurveConfig*> curves;
-  
-  for (size_t i = 0; i < curveConfig_.count(); ++i)
-    if (curveConfig_[i]->getTitle() == title)
+
+  for (size_t i = 0; i < curveConfig_.count(); ++i) {
+    if (curveConfig_[i]->getTitle() == title) {
       curves.append(curveConfig_[i]);
-  
+    }
+  }
+
   return curves;
 }
 
 void PlotConfig::save(QSettings& settings) const {
   settings.setValue("title", title_);
-  
+
   settings.beginGroup("curves");
-  
+
   for (size_t index = 0; index < curveConfig_.count(); ++index) {
-    settings.beginGroup("curve_"+QString::number(index));
+    settings.beginGroup("curve_" + QString::number(index));
     curveConfig_[index]->save(settings);
     settings.endGroup();
   }
-  
+
   settings.endGroup();
 
   settings.beginGroup("axes");
   axesConfig_->save(settings);
   settings.endGroup();
-  
+
   settings.beginGroup("legend");
   legendConfig_->save(settings);
   settings.endGroup();
-  
-  settings.setValue("plot_rate", plotRate_);  
+
+  settings.setValue("plot_rate", plotRate_);
 }
 
 void PlotConfig::load(QSettings& settings) {
   setTitle(settings.value("title", "Untitled Curve").toString());
-  
+
   settings.beginGroup("curves");
-  
+
   QStringList groups = settings.childGroups();
   size_t index = 0;
-  
-  for (QStringList::iterator it = groups.begin(); it != groups.end(); ++it) {
-    CurveConfig* curveConfig = 0;
-    
-    if (index < curveConfig_.count())
+
+  for (auto& group : groups) {
+    CurveConfig* curveConfig = nullptr;
+
+    if (index < curveConfig_.count()) {
       curveConfig = curveConfig_[index];
-    else
+    } else {
       curveConfig = addCurve();
-    
-    settings.beginGroup(*it);
+    }
+
+    settings.beginGroup(group);
     curveConfig->load(settings);
     settings.endGroup();
-    
+
     ++index;
   }
 
   settings.endGroup();
-  
-  while (index < curveConfig_.count())
+
+  while (index < curveConfig_.count()) {
     removeCurve(index);
-  
+  }
+
   settings.beginGroup("axes");
   axesConfig_->load(settings);
   settings.endGroup();
-  
+
   settings.beginGroup("legend");
   legendConfig_->load(settings);
   settings.endGroup();
-  
+
   setPlotRate(settings.value("plot_rate", 30.0).toDouble());
 }
 
 void PlotConfig::reset() {
   setTitle("Untitled Plot");
-  
+
   clearCurves();
-  
+
   axesConfig_->reset();
   legendConfig_->reset();
-  
+
   setPlotRate(30.0);
 }
 
 void PlotConfig::write(QDataStream& stream) const {
   stream << title_;
-  
-  stream << (quint64)getNumCurves();  
-  for (size_t index = 0; index < curveConfig_.count(); ++index)
+
+  stream << (quint64)getNumCurves();
+  for (size_t index = 0; index < curveConfig_.count(); ++index) {
     curveConfig_[index]->write(stream);
-  
+  }
+
   axesConfig_->write(stream);
   legendConfig_->write(stream);
-  
+
   stream << plotRate_;
 }
 
 void PlotConfig::read(QDataStream& stream) {
   QString title;
-  quint64 numCurves;
-  double plotRate;
-  
+  quint64 numCurves = 0;
+  double plotRate = NAN;
+
   stream >> title;
   setTitle(title);
-  
+
   stream >> numCurves;
-  setNumCurves(numCurves);  
-  for (size_t index = 0; index < curveConfig_.count(); ++index)
+  setNumCurves(numCurves);
+  for (size_t index = 0; index < curveConfig_.count(); ++index) {
     curveConfig_[index]->read(stream);
-  
+  }
+
   axesConfig_->write(stream);
   legendConfig_->write(stream);
-  
+
   stream >> plotRate;
   setPlotRate(plotRate);
 }
@@ -265,20 +275,23 @@ void PlotConfig::read(QDataStream& stream) {
 
 PlotConfig& PlotConfig::operator=(const PlotConfig& src) {
   setTitle(src.title_);
-  
-  while (curveConfig_.count() < src.curveConfig_.count())
+
+  while (curveConfig_.count() < src.curveConfig_.count()) {
     addCurve();
-  while (curveConfig_.count() > src.curveConfig_.count())
-    removeCurve(curveConfig_.count()-1);
-  
-  for (size_t index = 0; index < curveConfig_.count(); ++index)
+  }
+  while (curveConfig_.count() > src.curveConfig_.count()) {
+    removeCurve(curveConfig_.count() - 1);
+  }
+
+  for (size_t index = 0; index < curveConfig_.count(); ++index) {
     *curveConfig_[index] = *src.curveConfig_[index];
-  
+  }
+
   *axesConfig_ = *src.axesConfig_;
   *legendConfig_ = *src.legendConfig_;
-  
+
   setPlotRate(src.plotRate_);
-  
+
   return *this;
 }
 
@@ -290,23 +303,24 @@ void PlotConfig::curveConfigChanged() {
   for (size_t index = 0; index < curveConfig_.count(); ++index) {
     if (curveConfig_[index] == sender()) {
       emit curveConfigChanged(index);
-      
+
       break;
     }
   }
-  
+
   emit changed();
 }
 
 void PlotConfig::curveConfigDestroyed() {
-  int index = curveConfig_.indexOf(static_cast<CurveConfig*>(sender()));
+  int index = curveConfig_.indexOf(dynamic_cast<CurveConfig*>(sender()));
 
   if (index >= 0) {
     curveConfig_.remove(index);
-    
-    for (size_t i = 0; i < curveConfig_.count(); ++i)
+
+    for (size_t i = 0; i < curveConfig_.count(); ++i) {
       curveConfig_[i]->getColorConfig()->setAutoColorIndex(i);
-    
+    }
+
     emit curveRemoved(index);
     emit changed();
   }
@@ -320,4 +334,4 @@ void PlotConfig::legendConfigChanged() {
   emit changed();
 }
 
-}
+}  // namespace rqt_multiplot

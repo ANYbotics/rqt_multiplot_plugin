@@ -22,16 +22,16 @@
 #include <QColor>
 
 namespace rqt_multiplot {
-  class ColorOperations {
-  public:
-    static float intToHue(unsigned char val);
-    static unsigned char hueToInt(float hue);
-    
-    static QColor hsvToRgb(const QColor& hsv);
-    static QColor intToRgb(unsigned char val);
+class ColorOperations {
+ public:
+  static float intToHue(unsigned char val);
+  static unsigned char hueToInt(float hue);
 
-    static QColor invertRgb(const QColor& rgb);
-  };
+  static QColor hsvToRgb(const QColor& hsv);
+  static QColor intToRgb(unsigned char val);
+
+  static QColor invertRgb(const QColor& rgb);
 };
+}  // namespace rqt_multiplot
 
 #endif

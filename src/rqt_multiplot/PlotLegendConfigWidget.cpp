@@ -26,14 +26,10 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotLegendConfigWidget::PlotLegendConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::PlotLegendConfigWidget()),
-  config_(0) {
+PlotLegendConfigWidget::PlotLegendConfigWidget(QWidget* parent) : QWidget(parent), ui_(new Ui::PlotLegendConfigWidget()), config_(nullptr) {
   ui_->setupUi(this);
-  
-  connect(ui_->checkBoxVisible, SIGNAL(stateChanged(int)),
-    this, SLOT(checkBoxVisibleStateChanged(int)));
+
+  connect(ui_->checkBoxVisible, SIGNAL(stateChanged(int)), this, SLOT(checkBoxVisibleStateChanged(int)));
 }
 
 PlotLegendConfigWidget::~PlotLegendConfigWidget() {
@@ -46,17 +42,15 @@ PlotLegendConfigWidget::~PlotLegendConfigWidget() {
 
 void PlotLegendConfigWidget::setConfig(PlotLegendConfig* config) {
   if (config != config_) {
-    if (config_) {
-      disconnect(config_, SIGNAL(visibleChanged(bool)),
-        this, SLOT(configVisibleChanged(bool)));
+    if (config_ != nullptr) {
+      disconnect(config_, SIGNAL(visibleChanged(bool)), this, SLOT(configVisibleChanged(bool)));
     }
-    
+
     config_ = config;
-    
-    if (config) {
-      connect(config, SIGNAL(visibleChanged(bool)),
-        this, SLOT(configVisibleChanged(bool)));
-      
+
+    if (config != nullptr) {
+      connect(config, SIGNAL(visibleChanged(bool)), this, SLOT(configVisibleChanged(bool)));
+
       configVisibleChanged(config->isVisible());
     }
   }
@@ -71,13 +65,13 @@ PlotLegendConfig* PlotLegendConfigWidget::getConfig() const {
 /*****************************************************************************/
 
 void PlotLegendConfigWidget::configVisibleChanged(bool visible) {
-  ui_->checkBoxVisible->setCheckState(visible ? Qt::Checked :
-    Qt::Unchecked);
+  ui_->checkBoxVisible->setCheckState(visible ? Qt::Checked : Qt::Unchecked);
 }
 
 void PlotLegendConfigWidget::checkBoxVisibleStateChanged(int state) {
-  if (config_)
+  if (config_ != nullptr) {
     config_->setVisible(state == Qt::Checked);
+  }
 }
 
-}
+}  // namespace rqt_multiplot

@@ -22,19 +22,18 @@
 #include <QEvent>
 
 namespace rqt_multiplot {
-  class ProgressChangeEvent :
-    public QEvent {
-  public:
-    static const QEvent::Type Type;
+class ProgressChangeEvent : public QEvent {
+ public:
+  static const QEvent::Type Type;
 
-    ProgressChangeEvent(double progress);
-    virtual ~ProgressChangeEvent();
+  explicit ProgressChangeEvent(double progress);
+  ~ProgressChangeEvent() override;
 
-    double getProgress() const;
+  double getProgress() const;
 
-  private:
-    double progress_;
-  };
+ private:
+  double progress_;
 };
+}  // namespace rqt_multiplot
 
 #endif

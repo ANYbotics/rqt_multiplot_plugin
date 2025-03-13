@@ -26,53 +26,41 @@
 #include <rqt_multiplot/CurveData.h>
 
 namespace rqt_multiplot {
-  class CurveDataVector :
-    public CurveData {
-  public:
-    CurveDataVector();
-    ~CurveDataVector();
+class CurveDataVector : public CurveData {
+ public:
+  CurveDataVector();
+  ~CurveDataVector() override;
 
-    size_t getNumPoints() const;
-    QPointF getPoint(size_t index) const;
-    QVector<size_t> getPointsInDistance(double x, double maxDistance)
-      const;
-    BoundingRectangle getBounds() const;
-    
-    void appendPoint(const QPointF& point);
-    void clearPoints();
-  
-  private:
-    class XCoordinateRef {
-    public:
-      inline XCoordinateRef(double x = 0.0, size_t index = 0) :
-        x_(x),
-        index_(index) {
-      };
+  size_t getNumPoints() const override;
+  QPointF getPoint(size_t index) const override;
+  QVector<size_t> getPointsInDistance(double x, double maxDistance) const override;
+  BoundingRectangle getBounds() const override;
 
-      inline XCoordinateRef(const XCoordinateRef& src) :
-        x_(src.x_),
-        index_(src.index_) {
-      };
-      
-      inline bool operator==(const XCoordinateRef& reference) const {
-        return (x_ == reference.x_);
-      };
-      
-      inline bool operator<(const XCoordinateRef& reference) const {
-        return (x_ < reference.x_);
-      };
-      
-      double x_;
-      size_t index_;
-    };
-    
-    typedef boost::container::flat_set<XCoordinateRef> XCoordinateRefSet;
-    
-    QVector<QPointF> points_;
-    XCoordinateRefSet x_;
-    
-    BoundingRectangle bounds_;
+  void appendPoint(const QPointF& point) override;
+  void clearPoints() override;
+
+ private:
+  class XCoordinateRef {
+   public:
+    inline XCoordinateRef(double x = 0.0, size_t index = 0) : x_(x), index_(index){};
+
+    inline XCoordinateRef(const XCoordinateRef& src) = default;
+
+    inline bool operator==(const XCoordinateRef& reference) const { return (x_ == reference.x_); };
+
+    inline bool operator<(const XCoordinateRef& reference) const { return (x_ < reference.x_); };
+
+    double x_;
+    size_t index_;
   };
+
+  using XCoordinateRefSet = boost::container::flat_set<XCoordinateRef>;
+
+  QVector<QPointF> points_;
+  XCoordinateRefSet x_;
+
+  BoundingRectangle bounds_;
 };
+}  // namespace rqt_multiplot
 
 #endif

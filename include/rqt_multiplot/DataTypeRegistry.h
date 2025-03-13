@@ -22,14 +22,14 @@
 #include <QMutex>
 
 namespace rqt_multiplot {
-  class DataTypeRegistry {
-  public:
-    friend class BagQuery;
-    friend class MessageDefinitionLoader;
-    
-  private:
-    static QMutex mutex_;
-  };
+class DataTypeRegistry {
+ public:
+  friend class BagQuery;
+  friend class MessageDefinitionLoader;
+
+ private:
+  static QMutex mutex_;
 };
+}  // namespace rqt_multiplot
 
 #endif

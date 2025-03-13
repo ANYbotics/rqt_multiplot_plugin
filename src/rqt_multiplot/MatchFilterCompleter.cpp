@@ -26,15 +26,12 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MatchFilterCompleter::MatchFilterCompleter(QObject* parent, Qt::MatchFlags
-    filterMatchFlags) :
-  QCompleter(parent),
-  proxyModel_(new MatchFilterCompleterModel(this, filterMatchFlags)) {
+MatchFilterCompleter::MatchFilterCompleter(QObject* parent, Qt::MatchFlags filterMatchFlags)
+    : QCompleter(parent), proxyModel_(new MatchFilterCompleterModel(this, filterMatchFlags)) {
   setCompletionMode(QCompleter::UnfilteredPopupCompletion);
 }
 
-MatchFilterCompleter::~MatchFilterCompleter() {
-}
+MatchFilterCompleter::~MatchFilterCompleter() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -48,8 +45,7 @@ Qt::MatchFlags MatchFilterCompleter::getFilterMatchFlags() const {
   return proxyModel_->getFilterMatchFlags();
 }
 
-void MatchFilterCompleter::setFilterCaseSensitivity(Qt::CaseSensitivity
-    caseSensitivity) {
+void MatchFilterCompleter::setFilterCaseSensitivity(Qt::CaseSensitivity caseSensitivity) {
   proxyModel_->setFilterCaseSensitivity(caseSensitivity);
 }
 
@@ -63,17 +59,17 @@ Qt::CaseSensitivity MatchFilterCompleter::getFilterCaseSensitivity() const {
 
 QStringList MatchFilterCompleter::splitPath(const QString& path) const {
   QAbstractItemModel* sourceModel = model();
-  
-  if (sourceModel && (sourceModel != proxyModel_)) {
+
+  if ((sourceModel != nullptr) && (sourceModel != proxyModel_)) {
     sourceModel->setParent(proxyModel_);
     proxyModel_->setSourceModel(sourceModel);
-    
+
     const_cast<MatchFilterCompleter*>(this)->setModel(proxyModel_);
   }
-  
+
   proxyModel_->setFilterKey(path);
-  
+
   return QStringList();
 }
 
-}
+}  // namespace rqt_multiplot

@@ -23,30 +23,29 @@
 #include <rqt_multiplot/PlotTableConfig.h>
 
 namespace rqt_multiplot {
-  class MultiplotConfig :
-    public Config {
+class MultiplotConfig : public Config {
   Q_OBJECT
-  public:
-    MultiplotConfig(QObject* parent);
-    ~MultiplotConfig();
+ public:
+  explicit MultiplotConfig(QObject* parent);
+  ~MultiplotConfig() override;
 
-    PlotTableConfig* getTableConfig() const;
-    
-    MultiplotConfig& operator=(const MultiplotConfig& src);
-    
-    void save(QSettings& settings) const;
-    void load(QSettings& settings);
-    void reset();
-    
-    void write(QDataStream& stream) const;
-    void read(QDataStream& stream);
-    
-  private:
-    PlotTableConfig* tableConfig_;
-    
-  private slots:
-    void tableConfigChanged();
-  };
+  PlotTableConfig* getTableConfig() const;
+
+  MultiplotConfig& operator=(const MultiplotConfig& src);
+
+  void save(QSettings& settings) const override;
+  void load(QSettings& settings) override;
+  void reset() override;
+
+  void write(QDataStream& stream) const override;
+  void read(QDataStream& stream) override;
+
+ private:
+  PlotTableConfig* tableConfig_;
+
+ private slots:
+  void tableConfigChanged();
 };
+}  // namespace rqt_multiplot
 
 #endif

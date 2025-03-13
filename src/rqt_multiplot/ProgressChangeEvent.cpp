@@ -24,20 +24,15 @@ namespace rqt_multiplot {
 /* Static initializations                                                    */
 /*****************************************************************************/
 
-const QEvent::Type ProgressChangeEvent::Type = static_cast<QEvent::Type>(
-  QEvent::registerEventType());
+const QEvent::Type ProgressChangeEvent::Type = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-ProgressChangeEvent::ProgressChangeEvent(double progress) :
-  QEvent(Type),
-  progress_(progress) {
-}
+ProgressChangeEvent::ProgressChangeEvent(double progress) : QEvent(Type), progress_(progress) {}
 
-ProgressChangeEvent::~ProgressChangeEvent() {
-}
+ProgressChangeEvent::~ProgressChangeEvent() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -47,4 +42,4 @@ double ProgressChangeEvent::getProgress() const {
   return progress_;
 }
 
-}
+}  // namespace rqt_multiplot

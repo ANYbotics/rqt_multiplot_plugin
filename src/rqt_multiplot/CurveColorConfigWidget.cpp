@@ -28,17 +28,13 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveColorConfigWidget::CurveColorConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveColorConfigWidget()),
-  config_(0) {
+CurveColorConfigWidget::CurveColorConfigWidget(QWidget* parent) : QWidget(parent), ui_(new Ui::CurveColorConfigWidget()), config_(nullptr) {
   ui_->setupUi(this);
-    
+
   ui_->labelColor->setAutoFillBackground(true);
-  
-  connect(ui_->checkBoxAuto, SIGNAL(stateChanged(int)), this,
-    SLOT(checkBoxAutoStateChanged(int)));
-  
+
+  connect(ui_->checkBoxAuto, SIGNAL(stateChanged(int)), this, SLOT(checkBoxAutoStateChanged(int)));
+
   ui_->labelColor->installEventFilter(this);
 }
 
@@ -52,21 +48,17 @@ CurveColorConfigWidget::~CurveColorConfigWidget() {
 
 void CurveColorConfigWidget::setConfig(CurveColorConfig* config) {
   if (config_ != config) {
-    if (config_) {
-      disconnect(config_, SIGNAL(typeChanged(int)), this,
-        SLOT(colorTypeChanged(int)));
-      disconnect(config_, SIGNAL(currentColorChanged(const QColor&)), this,
-        SLOT(colorCurrentColorChanged(const QColor&)));
+    if (config_ != nullptr) {
+      disconnect(config_, SIGNAL(typeChanged(int)), this, SLOT(colorTypeChanged(int)));
+      disconnect(config_, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(colorCurrentColorChanged(const QColor&)));
     }
-    
+
     config_ = config;
-    
-    if (config) {
-      connect(config, SIGNAL(typeChanged(int)), this,
-        SLOT(configTypeChanged(int)));
-      connect(config, SIGNAL(currentColorChanged(const QColor&)), this,
-        SLOT(configCurrentColorChanged(const QColor&)));
-      
+
+    if (config != nullptr) {
+      connect(config, SIGNAL(typeChanged(int)), this, SLOT(configTypeChanged(int)));
+      connect(config, SIGNAL(currentColorChanged(const QColor&)), this, SLOT(configCurrentColorChanged(const QColor&)));
+
       configTypeChanged(config->getType());
       configCurrentColorChanged(config->getCurrentColor());
     }
@@ -78,16 +70,17 @@ void CurveColorConfigWidget::setConfig(CurveColorConfig* config) {
 /*****************************************************************************/
 
 bool CurveColorConfigWidget::eventFilter(QObject* object, QEvent* event) {
-  if ((object == ui_->labelColor) && (ui_->labelColor->isEnabled()) &&
-      config_ && (event->type() == QEvent::MouseButtonPress)) {
+  if ((object == ui_->labelColor) && (ui_->labelColor->isEnabled()) && (config_ != nullptr) &&
+      (event->type() == QEvent::MouseButtonPress)) {
     QColorDialog dialog(this);
-  
+
     dialog.setCurrentColor(config_->getCustomColor());
-  
-    if (dialog.exec() == QDialog::Accepted)
+
+    if (dialog.exec() == QDialog::Accepted) {
       config_->setCustomColor(dialog.currentColor());
+    }
   }
-  
+
   return false;
 }
 
@@ -96,26 +89,24 @@ bool CurveColorConfigWidget::eventFilter(QObject* object, QEvent* event) {
 /*****************************************************************************/
 
 void CurveColorConfigWidget::configTypeChanged(int type) {
-  ui_->checkBoxAuto->setCheckState((type == CurveColorConfig::Auto) ?
-    Qt::Checked : Qt::Unchecked);
+  ui_->checkBoxAuto->setCheckState((type == CurveColorConfig::Auto) ? Qt::Checked : Qt::Unchecked);
 }
 
 void CurveColorConfigWidget::configCurrentColorChanged(const QColor& color) {
   QPalette palette = ui_->labelColor->palette();
   palette.setColor(QPalette::Window, color);
-  palette.setColor(QPalette::WindowText, (color.lightnessF() > 0.5) ?
-    Qt::black : Qt::white);
-  
+  palette.setColor(QPalette::WindowText, (color.lightnessF() > 0.5) ? Qt::black : Qt::white);
+
   ui_->labelColor->setPalette(palette);
   ui_->labelColor->setText(color.name().toUpper());
 }
 
 void CurveColorConfigWidget::checkBoxAutoStateChanged(int state) {
   ui_->labelColor->setEnabled(state != Qt::Checked);
-  
-  if (config_)
-    config_->setType((state == Qt::Checked) ? CurveColorConfig::Auto :
-      CurveColorConfig::Custom);
+
+  if (config_ != nullptr) {
+    config_->setType((state == Qt::Checked) ? CurveColorConfig::Auto : CurveColorConfig::Custom);
+  }
 }
 
-}
+}  // namespace rqt_multiplot

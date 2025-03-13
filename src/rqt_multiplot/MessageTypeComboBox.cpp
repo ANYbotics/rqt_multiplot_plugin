@@ -26,30 +26,25 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageTypeComboBox::MessageTypeComboBox(QWidget* parent) :
-  MatchFilterComboBox(parent),
-  registry_(new MessageTypeRegistry(this)),
-  isUpdating_(false) {    
+MessageTypeComboBox::MessageTypeComboBox(QWidget* parent)
+    : MatchFilterComboBox(parent), registry_(new MessageTypeRegistry(this)), isUpdating_(false) {
   getMatchFilterCompleter()->setFilterCaseSensitivity(Qt::CaseInsensitive);
-    
-  connect(registry_, SIGNAL(updateStarted()), this,
-    SLOT(registryUpdateStarted()));
-  connect(registry_, SIGNAL(updateFinished()), this,
-    SLOT(registryUpdateFinished()));
-  
-  connect(this, SIGNAL(currentIndexChanged(const QString&)), this,
-    SLOT(currentIndexChanged(const QString&)));
-  
-  if (registry_->isUpdating())
+
+  connect(registry_, SIGNAL(updateStarted()), this, SLOT(registryUpdateStarted()));
+  connect(registry_, SIGNAL(updateFinished()), this, SLOT(registryUpdateFinished()));
+
+  connect(this, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(currentIndexChanged(const QString&)));
+
+  if (rqt_multiplot::MessageTypeRegistry::isUpdating()) {
     registryUpdateStarted();
-  else if (!registry_->isEmpty())
+  } else if (!rqt_multiplot::MessageTypeRegistry::isEmpty()) {
     registryUpdateFinished();
-  else
-    registry_->update();
+  } else {
+    rqt_multiplot::MessageTypeRegistry::update();
+  }
 }
 
-MessageTypeComboBox::~MessageTypeComboBox() {
-}
+MessageTypeComboBox::~MessageTypeComboBox() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -58,21 +53,21 @@ MessageTypeComboBox::~MessageTypeComboBox() {
 void MessageTypeComboBox::setEditable(bool editable) {
   if (editable != QComboBox::isEditable()) {
     MatchFilterComboBox::setEditable(editable);
-    
-    if (lineEdit()) {
+
+    if (lineEdit() != nullptr) {
       blockSignals(true);
-  
+
       int index = findText(currentType_);
-      
-      if (index < 0)
+
+      if (index < 0) {
         setEditText(currentType_);
-      else
+      } else {
         setCurrentIndex(index);
-      
+      }
+
       blockSignals(false);
-      
-      connect(lineEdit(), SIGNAL(editingFinished()), this,
-        SLOT(lineEditEditingFinished()));
+
+      connect(lineEdit(), SIGNAL(editingFinished()), this, SLOT(lineEditEditingFinished()));
     }
   }
 }
@@ -80,14 +75,15 @@ void MessageTypeComboBox::setEditable(bool editable) {
 void MessageTypeComboBox::setCurrentType(const QString& type) {
   if (type != currentType_) {
     currentType_ = type;
-    
+
     int index = findText(type);
-    
-    if (index < 0)
+
+    if (index < 0) {
       setEditText(type);
-    else
+    } else {
       setCurrentIndex(index);
-    
+    }
+
     emit currentTypeChanged(type);
   }
 }
@@ -109,7 +105,7 @@ bool MessageTypeComboBox::isCurrentTypeRegistered() const {
 /*****************************************************************************/
 
 void MessageTypeComboBox::updateTypes() {
-  registry_->update();
+  rqt_multiplot::MessageTypeRegistry::update();
 }
 
 /*****************************************************************************/
@@ -118,44 +114,46 @@ void MessageTypeComboBox::updateTypes() {
 
 void MessageTypeComboBox::registryUpdateStarted() {
   setEnabled(false);
-  
-  isUpdating_= true;
+
+  isUpdating_ = true;
   emit updateStarted();
-  
+
   clear();
 }
 
 void MessageTypeComboBox::registryUpdateFinished() {
-  QList<QString> types = registry_->getTypes();
-  
+  QList<QString> types = rqt_multiplot::MessageTypeRegistry::getTypes();
+
   blockSignals(true);
-  
-  for (QList<QString>::const_iterator it = types.begin();
-      it != types.end(); ++it)
+
+  for (QList<QString>::const_iterator it = types.begin(); it != types.end(); ++it) {
     addItem(*it);
-  
+  }
+
   int index = findText(currentType_);
-  
-  if (index < 0)
+
+  if (index < 0) {
     setEditText(currentType_);
-  else
+  } else {
     setCurrentIndex(index);
+  }
 
   blockSignals(false);
-  
-  isUpdating_= false;
+
+  isUpdating_ = false;
   emit updateFinished();
-  
+
   setEnabled(true);
 }
 
 void MessageTypeComboBox::currentIndexChanged(const QString& text) {
-  if (currentIndex() >= 0)
+  if (currentIndex() >= 0) {
     setCurrentType(text);
+  }
 }
 
 void MessageTypeComboBox::lineEditEditingFinished() {
   setCurrentType(currentText());
 }
 
-}
+}  // namespace rqt_multiplot

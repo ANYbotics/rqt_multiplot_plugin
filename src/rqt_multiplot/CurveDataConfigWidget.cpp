@@ -26,28 +26,19 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-CurveDataConfigWidget::CurveDataConfigWidget(QWidget* parent) :
-  QWidget(parent),
-  ui_(new Ui::CurveDataConfigWidget()),
-  config_(0) {
+CurveDataConfigWidget::CurveDataConfigWidget(QWidget* parent) : QWidget(parent), ui_(new Ui::CurveDataConfigWidget()), config_(nullptr) {
   ui_->setupUi(this);
-  
+
   ui_->spinBoxCircularBufferCapacity->setEnabled(false);
   ui_->doubleSpinBoxTimeFrameLength->setEnabled(false);
-  
-  connect(ui_->radioButtonVector, SIGNAL(toggled(bool)), this,
-    SLOT(radioButtonVectorToggled(bool)));
-  connect(ui_->radioButtonList, SIGNAL(toggled(bool)), this,
-    SLOT(radioButtonListToggled(bool)));
-  connect(ui_->radioButtonCircularBuffer, SIGNAL(toggled(bool)), this,
-    SLOT(radioButtonCircularBufferToggled(bool)));
-  connect(ui_->radioButtonTimeFrame, SIGNAL(toggled(bool)), this,
-    SLOT(radioButtonTimeFrameToggled(bool)));
-  
-  connect(ui_->spinBoxCircularBufferCapacity, SIGNAL(valueChanged(int)),
-    this, SLOT(spinBoxCircularBufferCapacityValueChanged(int)));
-  connect(ui_->doubleSpinBoxTimeFrameLength, SIGNAL(valueChanged(double)),
-    this, SLOT(doubleSpinBoxTimeFrameLengthValueChanged(double)));
+
+  connect(ui_->radioButtonVector, SIGNAL(toggled(bool)), this, SLOT(radioButtonVectorToggled(bool)));
+  connect(ui_->radioButtonList, SIGNAL(toggled(bool)), this, SLOT(radioButtonListToggled(bool)));
+  connect(ui_->radioButtonCircularBuffer, SIGNAL(toggled(bool)), this, SLOT(radioButtonCircularBufferToggled(bool)));
+  connect(ui_->radioButtonTimeFrame, SIGNAL(toggled(bool)), this, SLOT(radioButtonTimeFrameToggled(bool)));
+
+  connect(ui_->spinBoxCircularBufferCapacity, SIGNAL(valueChanged(int)), this, SLOT(spinBoxCircularBufferCapacityValueChanged(int)));
+  connect(ui_->doubleSpinBoxTimeFrameLength, SIGNAL(valueChanged(double)), this, SLOT(doubleSpinBoxTimeFrameLengthValueChanged(double)));
 }
 
 CurveDataConfigWidget::~CurveDataConfigWidget() {
@@ -60,28 +51,21 @@ CurveDataConfigWidget::~CurveDataConfigWidget() {
 
 void CurveDataConfigWidget::setConfig(CurveDataConfig* config) {
   if (config != config_) {
-    if (config_) {
-      disconnect(config_, SIGNAL(typeChanged(int)), this,
-        SLOT(configTypeChanged(int)));
-      disconnect(config_, SIGNAL(circularBufferCapacityChanged(size_t)),
-        this, SLOT(configCircularBufferCapacityChanged(size_t)));
-      disconnect(config_, SIGNAL(timeFrameLengthChanged(double)),
-        this, SLOT(configTimeFrameLengthChanged(double)));
+    if (config_ != nullptr) {
+      disconnect(config_, SIGNAL(typeChanged(int)), this, SLOT(configTypeChanged(int)));
+      disconnect(config_, SIGNAL(circularBufferCapacityChanged(size_t)), this, SLOT(configCircularBufferCapacityChanged(size_t)));
+      disconnect(config_, SIGNAL(timeFrameLengthChanged(double)), this, SLOT(configTimeFrameLengthChanged(double)));
     }
-    
+
     config_ = config;
-    
-    if (config) {
-      connect(config, SIGNAL(typeChanged(int)), this,
-        SLOT(configTypeChanged(int)));
-      connect(config, SIGNAL(circularBufferCapacityChanged(size_t)),
-        this, SLOT(configCircularBufferCapacityChanged(size_t)));
-      connect(config, SIGNAL(timeFrameLengthChanged(double)),
-        this, SLOT(configTimeFrameLengthChanged(double)));
-      
+
+    if (config != nullptr) {
+      connect(config, SIGNAL(typeChanged(int)), this, SLOT(configTypeChanged(int)));
+      connect(config, SIGNAL(circularBufferCapacityChanged(size_t)), this, SLOT(configCircularBufferCapacityChanged(size_t)));
+      connect(config, SIGNAL(timeFrameLengthChanged(double)), this, SLOT(configTimeFrameLengthChanged(double)));
+
       configTypeChanged(config->getType());
-      configCircularBufferCapacityChanged(config->
-        getCircularBufferCapacity());
+      configCircularBufferCapacityChanged(config->getCircularBufferCapacity());
       configTimeFrameLengthChanged(config->getTimeFrameLength());
     }
   }
@@ -96,18 +80,18 @@ CurveDataConfig* CurveDataConfigWidget::getConfig() const {
 /*****************************************************************************/
 
 void CurveDataConfigWidget::configTypeChanged(int type) {
-  if (type == CurveDataConfig::List)
+  if (type == CurveDataConfig::List) {
     ui_->radioButtonList->setChecked(true);
-  else if (type == CurveDataConfig::CircularBuffer)
+  } else if (type == CurveDataConfig::CircularBuffer) {
     ui_->radioButtonCircularBuffer->setChecked(true);
-  else if (type == CurveDataConfig::TimeFrame)
+  } else if (type == CurveDataConfig::TimeFrame) {
     ui_->radioButtonTimeFrame->setChecked(true);
-  else
+  } else {
     ui_->radioButtonVector->setChecked(true);
+  }
 }
 
-void CurveDataConfigWidget::configCircularBufferCapacityChanged(size_t
-    capacity) {
+void CurveDataConfigWidget::configCircularBufferCapacityChanged(size_t capacity) {
   ui_->spinBoxCircularBufferCapacity->setValue(capacity);
 }
 
@@ -116,40 +100,43 @@ void CurveDataConfigWidget::configTimeFrameLengthChanged(double length) {
 }
 
 void CurveDataConfigWidget::radioButtonVectorToggled(bool checked) {
-  if (config_ && checked)
+  if ((config_ != nullptr) && checked) {
     config_->setType(CurveDataConfig::Vector);
+  }
 }
 
 void CurveDataConfigWidget::radioButtonListToggled(bool checked) {
-  if (config_ && checked)
+  if ((config_ != nullptr) && checked) {
     config_->setType(CurveDataConfig::List);
+  }
 }
 
 void CurveDataConfigWidget::radioButtonCircularBufferToggled(bool checked) {
   ui_->spinBoxCircularBufferCapacity->setEnabled(checked);
-  
-  if (config_ && checked)
+
+  if ((config_ != nullptr) && checked) {
     config_->setType(CurveDataConfig::CircularBuffer);
+  }
 }
 
 void CurveDataConfigWidget::radioButtonTimeFrameToggled(bool checked) {
   ui_->doubleSpinBoxTimeFrameLength->setEnabled(checked);
 
-  if (config_ && checked)
+  if ((config_ != nullptr) && checked) {
     config_->setType(CurveDataConfig::TimeFrame);
+  }
 }
 
-void CurveDataConfigWidget::spinBoxCircularBufferCapacityValueChanged(
-    int value) {
-  if (config_)
+void CurveDataConfigWidget::spinBoxCircularBufferCapacityValueChanged(int value) {
+  if (config_ != nullptr) {
     config_->setCircularBufferCapacity(value);
+  }
 }
 
-void CurveDataConfigWidget::doubleSpinBoxTimeFrameLengthValueChanged(
-    double value) {
-  if (config_) {
+void CurveDataConfigWidget::doubleSpinBoxTimeFrameLengthValueChanged(double value) {
+  if (config_ != nullptr) {
     config_->setTimeFrameLength(value);
   }
 }
 
-}
+}  // namespace rqt_multiplot

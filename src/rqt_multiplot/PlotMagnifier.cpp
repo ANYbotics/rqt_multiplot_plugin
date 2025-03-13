@@ -32,13 +32,9 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotMagnifier::PlotMagnifier(QwtPlotCanvas* canvas) :
-  QwtPlotMagnifier(canvas),
-  magnifying_(false) {
-}
+PlotMagnifier::PlotMagnifier(QwtPlotCanvas* canvas) : QwtPlotMagnifier(canvas), magnifying_(false) {}
 
-PlotMagnifier::~PlotMagnifier() {
-}
+PlotMagnifier::~PlotMagnifier() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
@@ -48,81 +44,83 @@ void PlotMagnifier::rescale(double xFactor, double yFactor) {
   double fx = std::fabs(xFactor);
   double fy = std::fabs(yFactor);
 
-  if ((fx == 1.0) && (fy == 1.0))
+  if ((fx == 1.0) && (fy == 1.0)) {
     return;
+  }
 
   bool doReplot = false;
   bool autoReplot = plot()->autoReplot();
 
   plot()->setAutoReplot(false);
 
-  #if QWT_VERSION >= 0x060100
-    const QwtScaleDiv& xScaleDiv = plot()->axisScaleDiv(QwtPlot::xBottom);
-    const QwtScaleDiv& yScaleDiv = plot()->axisScaleDiv(QwtPlot::yLeft);
-  #else
-    const QwtScaleDiv& xScaleDiv = *plot()->axisScaleDiv(QwtPlot::xBottom);
-    const QwtScaleDiv& yScaleDiv = *plot()->axisScaleDiv(QwtPlot::yLeft);
-  #endif
+#if QWT_VERSION >= 0x060100
+  const QwtScaleDiv& xScaleDiv = plot()->axisScaleDiv(QwtPlot::xBottom);
+  const QwtScaleDiv& yScaleDiv = plot()->axisScaleDiv(QwtPlot::yLeft);
+#else
+  const QwtScaleDiv& xScaleDiv = *plot()->axisScaleDiv(QwtPlot::xBottom);
+  const QwtScaleDiv& yScaleDiv = *plot()->axisScaleDiv(QwtPlot::yLeft);
+#endif
 
-  #if QWT_VERSION < 0x060100
+#if QWT_VERSION < 0x060100
   if (xScaleDiv.isValid())
-  #endif
+#endif
   {
-    double center = xScaleDiv.lowerBound()+0.5*xScaleDiv.range();
-    double width = xScaleDiv.range()*fx;
+    double center = xScaleDiv.lowerBound() + 0.5 * xScaleDiv.range();
+    double width = xScaleDiv.range() * fx;
 
-    plot()->setAxisScale(QwtPlot::xBottom, center-0.5*width,
-      center+0.5*width);
+    plot()->setAxisScale(QwtPlot::xBottom, center - 0.5 * width, center + 0.5 * width);
     doReplot = true;
   }
 
-  #if QWT_VERSION < 0x060100
+#if QWT_VERSION < 0x060100
   if (yScaleDiv.isValid())
-  #endif
+#endif
   {
-    double center = yScaleDiv.lowerBound()+0.5*yScaleDiv.range();
-    double width = yScaleDiv.range()*fy;
+    double center = yScaleDiv.lowerBound() + 0.5 * yScaleDiv.range();
+    double width = yScaleDiv.range() * fy;
 
-    plot()->setAxisScale(QwtPlot::yLeft, center-0.5*width,
-      center+0.5*width);
+    plot()->setAxisScale(QwtPlot::yLeft, center - 0.5 * width, center + 0.5 * width);
     doReplot = true;
   }
 
   plot()->setAutoReplot(autoReplot);
 
-  if (doReplot)
+  if (doReplot) {
     plot()->replot();
+  }
 }
 
 void PlotMagnifier::widgetMousePressEvent(QMouseEvent* event) {
   QwtPlotMagnifier::widgetMousePressEvent(event);
 
-  #if QWT_VERSION >= 0x060100
-    Qt::MouseButton button;
-    Qt::KeyboardModifiers buttonState;
-  #else
-    int button, buttonState;
-  #endif
+#if QWT_VERSION >= 0x060100
+  Qt::MouseButton button;
+  Qt::KeyboardModifiers buttonState;
+#else
+  int button, buttonState;
+#endif
 
   getMouseButton(button, buttonState);
 
-  if (event->button() != button || !parentWidget())
+  if (event->button() != button || (parentWidget() == nullptr)) {
     return;
+  }
 
-  if ((event->modifiers() & Qt::KeyboardModifierMask) !=
-      (int)(buttonState & Qt::KeyboardModifierMask))
+  if ((event->modifiers() & Qt::KeyboardModifierMask) != (int)(buttonState & Qt::KeyboardModifierMask)) {
     return;
+  }
 
   magnifying_ = true;
   position_ = event->pos();
 }
 
 void PlotMagnifier::widgetMouseMoveEvent(QMouseEvent* event) {
-  if (!magnifying_)
+  if (!magnifying_) {
     return;
+  }
 
-  int dx = event->pos().x()-position_.x();
-  int dy = event->pos().y()-position_.y();
+  int dx = event->pos().x() - position_.x();
+  int dy = event->pos().y() - position_.y();
 
   double fx = 1.0;
   double fy = 1.0;
@@ -130,15 +128,17 @@ void PlotMagnifier::widgetMouseMoveEvent(QMouseEvent* event) {
   if (dx != 0) {
     fx = mouseFactor();
 
-    if (dx < 0)
-      fx = 1.0/fx;
+    if (dx < 0) {
+      fx = 1.0 / fx;
+    }
   }
 
   if (dy != 0) {
     fy = mouseFactor();
 
-    if (dy < 0)
-      fy = 1.0/fy;
+    if (dy < 0) {
+      fy = 1.0 / fy;
+    }
   }
 
   rescale(fx, fy);
@@ -152,4 +152,4 @@ void PlotMagnifier::widgetMouseReleaseEvent(QMouseEvent* event) {
   magnifying_ = false;
 }
 
-}
+}  // namespace rqt_multiplot

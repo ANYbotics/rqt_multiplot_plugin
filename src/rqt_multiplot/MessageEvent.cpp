@@ -18,27 +18,23 @@
 
 #include "rqt_multiplot/MessageEvent.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Static initializations                                                    */
 /*****************************************************************************/
 
-const QEvent::Type MessageEvent::Type = static_cast<QEvent::Type>(
-  QEvent::registerEventType());
+const QEvent::Type MessageEvent::Type = static_cast<QEvent::Type>(QEvent::registerEventType());
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageEvent::MessageEvent(const QString& topic, const Message& message) :
-  QEvent(Type),
-  topic_(topic),
-  message_(message) {
-}
+MessageEvent::MessageEvent(QString topic, const Message& message) : QEvent(Type), topic_(std::move(topic)), message_(message) {}
 
-MessageEvent::~MessageEvent() {
-}
+MessageEvent::~MessageEvent() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -52,4 +48,4 @@ const Message& MessageEvent::getMessage() const {
   return message_;
 }
 
-}
+}  // namespace rqt_multiplot

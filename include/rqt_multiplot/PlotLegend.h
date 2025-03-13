@@ -22,19 +22,18 @@
 #include <qwt/qwt_legend.h>
 
 namespace rqt_multiplot {
-  class PlotCurve;
+class PlotCurve;
 
-  class PlotLegend :
-    public QwtLegend {
+class PlotLegend : public QwtLegend {
   Q_OBJECT
-  public:
-    PlotLegend(QWidget* parent);
-    ~PlotLegend();
+ public:
+  explicit PlotLegend(QWidget* parent);
+  ~PlotLegend() override;
 
-    PlotCurve* findCurve(QWidget* widget) const;
+  PlotCurve* findCurve(QWidget* widget) const;
 
-    bool eventFilter(QObject* object, QEvent* event);
-  };
+  bool eventFilter(QObject* object, QEvent* event) override;
 };
+}  // namespace rqt_multiplot
 
 #endif

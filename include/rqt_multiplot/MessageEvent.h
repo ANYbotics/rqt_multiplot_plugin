@@ -25,21 +25,20 @@
 #include <rqt_multiplot/Message.h>
 
 namespace rqt_multiplot {
-  class MessageEvent :
-    public QEvent {
-  public:
-    static const QEvent::Type Type;
-    
-    MessageEvent(const QString& topic, const Message& message);
-    virtual ~MessageEvent();
-    
-    const QString& getTopic() const;
-    const Message& getMessage() const;
-    
-  private:
-    QString topic_;
-    Message message_;
-  };
+class MessageEvent : public QEvent {
+ public:
+  static const QEvent::Type Type;
+
+  MessageEvent(QString topic, const Message& message);
+  ~MessageEvent() override;
+
+  const QString& getTopic() const;
+  const Message& getMessage() const;
+
+ private:
+  QString topic_;
+  Message message_;
 };
+}  // namespace rqt_multiplot
 
 #endif

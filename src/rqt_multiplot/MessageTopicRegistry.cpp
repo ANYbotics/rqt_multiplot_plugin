@@ -35,18 +35,14 @@ MessageTopicRegistry::Impl MessageTopicRegistry::impl_;
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-MessageTopicRegistry::MessageTopicRegistry(QObject* parent) :
-  QObject(parent) {
+MessageTopicRegistry::MessageTopicRegistry(QObject* parent) : QObject(parent) {
   connect(&impl_, SIGNAL(started()), this, SLOT(threadStarted()));
   connect(&impl_, SIGNAL(finished()), this, SLOT(threadFinished()));
 }
 
-MessageTopicRegistry::~MessageTopicRegistry() {
-}
+MessageTopicRegistry::~MessageTopicRegistry() = default;
 
-MessageTopicRegistry::Impl::Impl(QObject* parent) :
-  QThread(parent) {
-}
+MessageTopicRegistry::Impl::Impl(QObject* parent) : QThread(parent) {}
 
 MessageTopicRegistry::Impl::~Impl() {
   terminate();
@@ -57,19 +53,19 @@ MessageTopicRegistry::Impl::~Impl() {
 /* Accessors                                                                 */
 /*****************************************************************************/
 
-QMap<QString, QString> MessageTopicRegistry::getTopics() const {
+QMap<QString, QString> MessageTopicRegistry::getTopics() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.topics_;
 }
 
-bool MessageTopicRegistry::isUpdating() const {
+bool MessageTopicRegistry::isUpdating() {
   return impl_.isRunning();
 }
 
-bool MessageTopicRegistry::isEmpty() const {
+bool MessageTopicRegistry::isEmpty() {
   QMutexLocker lock(&impl_.mutex_);
-  
+
   return impl_.topics_.isEmpty();
 }
 
@@ -87,12 +83,12 @@ void MessageTopicRegistry::Impl::run() {
   mutex_.lock();
   topics_.clear();
   mutex_.unlock();
-  
+
   if (ros::master::getTopics(topics)) {
-    for (size_t i = 0; i < topics.size(); ++i) {
-      QString topic = QString::fromStdString(topics[i].name);
-      QString type = QString::fromStdString(topics[i].datatype);
-      
+    for (auto& i : topics) {
+      QString topic = QString::fromStdString(i.name);
+      QString type = QString::fromStdString(i.datatype);
+
       topics_[topic] = type;
     }
   }
@@ -105,9 +101,9 @@ void MessageTopicRegistry::Impl::run() {
 void MessageTopicRegistry::threadStarted() {
   emit updateStarted();
 }
-  
+
 void MessageTopicRegistry::threadFinished() {
   emit updateFinished();
 }
-  
-}
+
+}  // namespace rqt_multiplot

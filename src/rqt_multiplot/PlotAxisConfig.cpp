@@ -18,22 +18,18 @@
 
 #include "rqt_multiplot/PlotAxisConfig.h"
 
+#include <utility>
+
 namespace rqt_multiplot {
 
 /*****************************************************************************/
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotAxisConfig::PlotAxisConfig(QObject* parent, TitleType titleType, const
-    QString& customTitle, bool titleVisible) :
-  Config(parent),
-  titleType_(titleType),
-  customTitle_(customTitle),
-  titleVisible_(titleVisible) {
-}
+PlotAxisConfig::PlotAxisConfig(QObject* parent, TitleType titleType, QString customTitle, bool titleVisible)
+    : Config(parent), titleType_(titleType), customTitle_(std::move(customTitle)), titleVisible_(titleVisible) {}
 
-PlotAxisConfig::~PlotAxisConfig() {
-}
+PlotAxisConfig::~PlotAxisConfig() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
@@ -42,7 +38,7 @@ PlotAxisConfig::~PlotAxisConfig() {
 void PlotAxisConfig::setTitleType(TitleType type) {
   if (type != titleType_) {
     titleType_ = type;
-    
+
     emit titleTypeChanged(type);
     emit changed();
   }
@@ -55,7 +51,7 @@ PlotAxisConfig::TitleType PlotAxisConfig::getTitleType() const {
 void PlotAxisConfig::setCustomTitle(const QString& title) {
   if (title != customTitle_) {
     customTitle_ = title;
-    
+
     emit customTitleChanged(title);
     emit changed();
   }
@@ -68,7 +64,7 @@ const QString& PlotAxisConfig::getCustomTitle() const {
 void PlotAxisConfig::setTitleVisible(bool visible) {
   if (visible != titleVisible_) {
     titleVisible_ = visible;
-    
+
     emit titleVisibleChanged(visible);
     emit changed();
   }
@@ -89,8 +85,7 @@ void PlotAxisConfig::save(QSettings& settings) const {
 }
 
 void PlotAxisConfig::load(QSettings& settings) {
-  setTitleType(static_cast<TitleType>(settings.value("title_type",
-    AutoTitle).toInt()));
+  setTitleType(static_cast<TitleType>(settings.value("title_type", AutoTitle).toInt()));
   setCustomTitle(settings.value("custom_title", "Untitled Axis").toString());
   setTitleVisible(settings.value("title_visible", true).toBool());
 }
@@ -108,10 +103,10 @@ void PlotAxisConfig::write(QDataStream& stream) const {
 }
 
 void PlotAxisConfig::read(QDataStream& stream) {
-  int titleType;
+  int titleType = 0;
   QString customTitle;
-  bool titleVisible;
-  
+  bool titleVisible = false;
+
   stream >> titleType;
   setTitleType(static_cast<TitleType>(titleType));
   stream >> customTitle;
@@ -128,8 +123,8 @@ PlotAxisConfig& PlotAxisConfig::operator=(const PlotAxisConfig& src) {
   setTitleType(src.titleType_);
   setCustomTitle(src.customTitle_);
   setTitleVisible(src.titleVisible_);
-  
+
   return *this;
 }
 
-}
+}  // namespace rqt_multiplot

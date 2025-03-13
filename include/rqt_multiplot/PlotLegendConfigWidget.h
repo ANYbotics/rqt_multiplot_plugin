@@ -24,30 +24,29 @@
 #include <rqt_multiplot/PlotLegendConfig.h>
 
 namespace Ui {
-  class PlotLegendConfigWidget;
-};
+class PlotLegendConfigWidget;
+}
 
 namespace rqt_multiplot {
-  class PlotLegendConfigWidget :
-    public QWidget {
+class PlotLegendConfigWidget : public QWidget {
   Q_OBJECT
-  public:
-    PlotLegendConfigWidget(QWidget* parent = 0);
-    virtual ~PlotLegendConfigWidget();
-    
-    void setConfig(PlotLegendConfig* range);
-    PlotLegendConfig* getConfig() const;
-    
-  private:
-    Ui::PlotLegendConfigWidget* ui_;
-    
-    PlotLegendConfig* config_;
-    
-  private slots:
-    void configVisibleChanged(bool visible);
-    
-    void checkBoxVisibleStateChanged(int state);
-  };
+ public:
+  explicit PlotLegendConfigWidget(QWidget* parent = nullptr);
+  ~PlotLegendConfigWidget() override;
+
+  void setConfig(PlotLegendConfig* range);
+  PlotLegendConfig* getConfig() const;
+
+ private:
+  Ui::PlotLegendConfigWidget* ui_;
+
+  PlotLegendConfig* config_;
+
+ private slots:
+  void configVisibleChanged(bool visible);
+
+  void checkBoxVisibleStateChanged(int state);
 };
+}  // namespace rqt_multiplot
 
 #endif

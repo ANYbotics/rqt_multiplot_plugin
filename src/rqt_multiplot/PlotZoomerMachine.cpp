@@ -29,36 +29,32 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotZoomerMachine::PlotZoomerMachine() {
-}
+PlotZoomerMachine::PlotZoomerMachine() = default;
 
-PlotZoomerMachine::~PlotZoomerMachine() {
-}
+PlotZoomerMachine::~PlotZoomerMachine() = default;
 
 /*****************************************************************************/
 /* Methods                                                                   */
 /*****************************************************************************/
 
-QList<QwtPickerMachine::Command> PlotZoomerMachine::transition(const
-    QwtEventPattern& pattern, const QEvent* event) {
+QList<QwtPickerMachine::Command> PlotZoomerMachine::transition(const QwtEventPattern& pattern, const QEvent* event) {
   QList<QwtPickerMachine::Command> commands;
-  
+
   if (event->type() == QEvent::MouseButtonDblClick) {
-    if (pattern.mouseMatch(QwtEventPattern::MouseSelect1,
-        static_cast<const QMouseEvent*>(event))) {
+    if (pattern.mouseMatch(QwtEventPattern::MouseSelect1, dynamic_cast<const QMouseEvent*>(event))) {
       if (state() == 0) {
         commands += Begin;
         commands += Append;
         commands += Append;
-        
+
         setState(2);
       }
     }
-  }
-  else if (event->type() != QEvent::MouseButtonPress)
+  } else if (event->type() != QEvent::MouseButtonPress) {
     commands = QwtPickerDragRectMachine::transition(pattern, event);
+  }
 
   return commands;
 }
 
-}
+}  // namespace rqt_multiplot

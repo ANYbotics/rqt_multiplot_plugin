@@ -30,32 +30,29 @@
 #include <rqt_multiplot/CurveConfig.h>
 
 namespace rqt_multiplot {
-  class CurveData :
-    public QwtSeriesData<QPointF> {
-  public:
-    CurveData();
-    ~CurveData();
+class CurveData : public QwtSeriesData<QPointF> {
+ public:
+  CurveData();
+  ~CurveData() override;
 
-    virtual size_t getNumPoints() const = 0;
-    double getValue(size_t index, CurveConfig::Axis axis) const;
-    virtual QPointF getPoint(size_t index) const = 0;
-    virtual QVector<size_t> getPointsInDistance(double x, double
-      maxDistance) const;
-    QPair<double, double> getAxisBounds(CurveConfig::Axis axis) const;
-    virtual BoundingRectangle getBounds() const = 0;
-    bool isEmpty() const;
-    
-    size_t size() const;
-    QPointF sample(size_t i) const;
-    QRectF boundingRect() const;
-    
-    virtual void appendPoint(const QPointF& point) = 0;
-    void appendPoint(double x, double y);
-    virtual void clearPoints() = 0;
-    
-    void writeFormatted(QStringList& formattedX, QStringList&
-      formattedY) const;
-  };
+  virtual size_t getNumPoints() const = 0;
+  double getValue(size_t index, CurveConfig::Axis axis) const;
+  virtual QPointF getPoint(size_t index) const = 0;
+  virtual QVector<size_t> getPointsInDistance(double x, double maxDistance) const;
+  QPair<double, double> getAxisBounds(CurveConfig::Axis axis) const;
+  virtual BoundingRectangle getBounds() const = 0;
+  bool isEmpty() const;
+
+  size_t size() const override;
+  QPointF sample(size_t i) const override;
+  QRectF boundingRect() const override;
+
+  virtual void appendPoint(const QPointF& point) = 0;
+  void appendPoint(double x, double y);
+  virtual void clearPoints() = 0;
+
+  void writeFormatted(QStringList& formattedX, QStringList& formattedY) const;
 };
+}  // namespace rqt_multiplot
 
 #endif

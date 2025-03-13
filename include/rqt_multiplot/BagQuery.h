@@ -27,37 +27,36 @@
 #include <rqt_multiplot/Message.h>
 
 namespace rosbag {
-  class MessageInstance;
-};
+class MessageInstance;
+}
 
 namespace rqt_multiplot {
-  class BagQuery :
-    public QObject {
+class BagQuery : public QObject {
   Q_OBJECT
-  public:
-    friend class BagReader;
-    
-    BagQuery(QObject* parent = 0);
-    ~BagQuery();
-    
-    bool event(QEvent* event);
-    
-  signals:
-    void messageRead(const QString& topic, const Message& message);
-    void aboutToBeDestroyed();
-  
-  private:
-    variant_topic_tools::MessageDataType dataType_;
-    variant_topic_tools::MessageSerializer serializer_;
-    
-    void callback(const rosbag::MessageInstance& instance);
+ public:
+  friend class BagReader;
 
-#if QT_VERSION >= QT_VERSION_CHECK(5,0,0)
-    void disconnectNotify(const QMetaMethod& signal);
+  explicit BagQuery(QObject* parent = nullptr);
+  ~BagQuery() override;
+
+  bool event(QEvent* event) override;
+
+ signals:
+  void messageRead(const QString& topic, const Message& message);
+  void aboutToBeDestroyed();
+
+ private:
+  variant_topic_tools::MessageDataType dataType_;
+  variant_topic_tools::MessageSerializer serializer_;
+
+  void callback(const rosbag::MessageInstance& instance);
+
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+  void disconnectNotify(const QMetaMethod& signal) override;
 #else
-    void disconnectNotify(const char* signal);
+  void disconnectNotify(const char* signal);
 #endif
-  };
 };
+}  // namespace rqt_multiplot
 
 #endif

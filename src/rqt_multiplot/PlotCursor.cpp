@@ -41,32 +41,27 @@ namespace rqt_multiplot {
 /* Constructors and Destructor                                               */
 /*****************************************************************************/
 
-PlotCursor::PlotCursor(QwtPlotCanvas* canvas) :
-  QwtPlotPicker(canvas),
-  trackPoints_(false),
-  mouseControl_(false) {
+PlotCursor::PlotCursor(QwtPlotCanvas* canvas) : QwtPlotPicker(canvas), trackPoints_(false), mouseControl_(false) {
   setTrackerMode(QwtPicker::AlwaysOn);
   setStateMachine(new PlotCursorMachine());
 
   setRubberBand(QwtPicker::CrossRubberBand);
   setRubberBandPen(Qt::DashLine);
 
-  connect(plot()->axisWidget(xAxis()), SIGNAL(scaleDivChanged()),
-    this, SLOT(plotXAxisScaleDivChanged()));
-  connect(plot()->axisWidget(yAxis()), SIGNAL(scaleDivChanged()),
-    this, SLOT(plotYAxisScaleDivChanged()));
+  connect(plot()->axisWidget(xAxis()), SIGNAL(scaleDivChanged()), this, SLOT(plotXAxisScaleDivChanged()));
+  connect(plot()->axisWidget(yAxis()), SIGNAL(scaleDivChanged()), this, SLOT(plotYAxisScaleDivChanged()));
 }
 
-PlotCursor::~PlotCursor() {
-}
+PlotCursor::~PlotCursor() = default;
 
 /*****************************************************************************/
 /* Accessors                                                                 */
 /*****************************************************************************/
 
 void PlotCursor::setActive(bool active, const QPointF& position) {
-  if (mouseControl_)
+  if (mouseControl_) {
     return;
+  }
 
   if (active && !isActive()) {
     setTrackerMode(QwtPicker::AlwaysOff);
@@ -77,8 +72,7 @@ void PlotCursor::setActive(bool active, const QPointF& position) {
     currentPosition_ = position;
 
     emit currentPositionChanged(position);
-  }
-  else if (!active && isActive()) {
+  } else if (!active && isActive()) {
     remove();
     end();
 
@@ -87,8 +81,9 @@ void PlotCursor::setActive(bool active, const QPointF& position) {
 }
 
 void PlotCursor::setCurrentPosition(const QPointF& position) {
-  if (mouseControl_)
+  if (mouseControl_) {
     return;
+  }
 
   if (isActive() && (position != currentPosition_)) {
     currentPosition_ = position;
@@ -107,8 +102,9 @@ void PlotCursor::setTrackPoints(bool track) {
   if (track != trackPoints_) {
     trackPoints_ = track;
 
-    if (isActive())
+    if (isActive()) {
       updateDisplay();
+    }
   }
 }
 
@@ -123,8 +119,9 @@ bool PlotCursor::hasMouseControl() const {
 QRect PlotCursor::getTextRect(const QPointF& point, const QFont& font) const {
   QwtText text = trackerTextF(point);
 
-  if (text.isEmpty())
+  if (text.isEmpty()) {
     return QRect();
+  }
 
   QSizeF textSize = text.textSize(font);
   QRect textRect(0, 0, qCeil(textSize.width()), qCeil(textSize.height()));
@@ -135,29 +132,31 @@ QRect PlotCursor::getTextRect(const QPointF& point, const QFont& font) const {
   int x = position.x();
   int y = position.y();
 
-  if (alignment & Qt::AlignLeft)
+  if ((alignment & Qt::AlignLeft) != 0) {
     x -= textRect.width() + margin;
-  else if (alignment & Qt::AlignRight)
+  } else if ((alignment & Qt::AlignRight) != 0) {
     x += margin;
+  }
 
-  if (alignment & Qt::AlignBottom)
+  if ((alignment & Qt::AlignBottom) != 0) {
     y += margin;
-  else if (alignment & Qt::AlignTop)
+  } else if ((alignment & Qt::AlignTop) != 0) {
     y -= textRect.height() + margin;
+  }
 
   textRect.moveTopLeft(QPoint(x, y));
 
-  #if QWT_VERSION >= 0x060100
-    int left = qMax(textRect.left(), trackerRect(font).left()+margin);
-    int right = qMin(textRect.right(), trackerRect(font).right()-margin);
-    int top = qMax(textRect.top(), trackerRect(font).top()+margin);
-    int bottom = qMin( textRect.bottom(), trackerRect(font).bottom()-margin);
-  #else
-    int left = qMax(textRect.left(), pickRect().left()+margin);
-    int right = qMin(textRect.right(), pickRect().right()-margin);
-    int top = qMax(textRect.top(), pickRect().top()+margin);
-    int bottom = qMin( textRect.bottom(), pickRect().bottom()-margin);
-  #endif
+#if QWT_VERSION >= 0x060100
+  int left = qMax(textRect.left(), trackerRect(font).left() + margin);
+  int right = qMin(textRect.right(), trackerRect(font).right() - margin);
+  int top = qMax(textRect.top(), trackerRect(font).top() + margin);
+  int bottom = qMin(textRect.bottom(), trackerRect(font).bottom() - margin);
+#else
+  int left = qMax(textRect.left(), pickRect().left() + margin);
+  int right = qMin(textRect.right(), pickRect().right() - margin);
+  int top = qMax(textRect.top(), pickRect().top() + margin);
+  int bottom = qMin(textRect.bottom(), pickRect().bottom() - margin);
+#endif
 
   textRect.moveBottomRight(QPoint(right, bottom));
   textRect.moveTopLeft(QPoint(left, top));
@@ -169,24 +168,25 @@ QwtText PlotCursor::trackerTextF(const QPointF& point) const {
   QwtScaleMap xMap = plot()->canvasMap(xAxis());
   QwtScaleMap yMap = plot()->canvasMap(yAxis());
 
-  double xPrecision = log10(fabs(xMap.invTransform(1.0)-
-    xMap.invTransform(0.0)));
-  double yPrecision = log10(fabs(yMap.invTransform(1.0)-
-    yMap.invTransform(0.0)));
+  double xPrecision = log10(fabs(xMap.invTransform(1.0) - xMap.invTransform(0.0)));
+  double yPrecision = log10(fabs(yMap.invTransform(1.0) - yMap.invTransform(0.0)));
 
-  QString x, y;
+  QString x;
+  QString y;
 
-  if ((xPrecision < 0.0) && (fabs(point.x()) >= 1.0))
+  if ((xPrecision < 0.0) && (fabs(point.x()) >= 1.0)) {
     x.sprintf("%.*f", (int)ceil(fabs(xPrecision)), point.x());
-  else
+  } else {
     x.sprintf("%g", point.x());
+  }
 
-  if ((yPrecision < 0.0) && (fabs(point.y()) >= 1.0))
+  if ((yPrecision < 0.0) && (fabs(point.y()) >= 1.0)) {
     y.sprintf("%.*f", (int)ceil(fabs(yPrecision)), point.y());
-  else
+  } else {
     y.sprintf("%g", point.y());
+  }
 
-  return QwtText(x+", "+y);
+  return QwtText(x + ", " + y);
 }
 
 /*****************************************************************************/
@@ -194,7 +194,7 @@ QwtText PlotCursor::trackerTextF(const QPointF& point) const {
 /*****************************************************************************/
 
 void PlotCursor::drawRubberBand(QPainter* painter) const {
-  if (dynamic_cast<QWidget*>(painter->device())) {
+  if (dynamic_cast<QWidget*>(painter->device()) != nullptr) {
     QPen pen = painter->pen();
     QColor penColor = pen.color();
 
@@ -214,8 +214,9 @@ void PlotCursor::begin() {
 
   QwtPlotPicker::begin();
 
-  if (!active && isActive())
+  if (!active && isActive()) {
     emit activeChanged(true);
+  }
 }
 
 void PlotCursor::move(const QPoint& point) {
@@ -237,27 +238,30 @@ bool PlotCursor::end(bool ok) {
 
   bool result = QwtPlotPicker::end(ok);
 
-  if (active && !isActive())
+  if (active && !isActive()) {
     emit activeChanged(false);
+  }
 
   return result;
 }
 
 bool PlotCursor::eventFilter(QObject* object, QEvent* event) {
   if (object == plot()->canvas()) {
-    if (event->type() == QEvent::Enter)
+    if (event->type() == QEvent::Enter) {
       mouseControl_ = true;
-    else if (event->type() == QEvent::Leave)
+    } else if (event->type() == QEvent::Leave) {
       mouseControl_ = false;
-    else if (event->type() == QEvent::MouseButtonRelease)
+    } else if (event->type() == QEvent::MouseButtonRelease) {
       updateDisplay();
+    }
   }
 
   bool result = QwtPlotPicker::eventFilter(object, event);
 
   if (isActive() && object == plot()->canvas()) {
-    if (event->type() == QEvent::Resize)
+    if (event->type() == QEvent::Resize) {
       transition(event);
+    }
   }
 
   return result;
@@ -272,21 +276,20 @@ void PlotCursor::updateDisplay() {
 void PlotCursor::updateTrackedPoints() {
   trackedPoints_.clear();
 
-  if (!trackPoints_ || !isActive())
+  if (!trackPoints_ || !isActive()) {
     return;
+  }
 
   QwtScaleMap map = plot()->canvasMap(xAxis());
-  double maxDistance = fabs(map.invTransform(1.0)-map.invTransform(0.0));
+  double maxDistance = fabs(map.invTransform(1.0) - map.invTransform(0.0));
 
-  for (QwtPlotItemIterator it = plot()->itemList().begin();
-      it != plot()->itemList().end(); ++it) {
-    if ((*it)->rtti() == QwtPlotItem::Rtti_PlotCurve) {
-      QwtPlotCurve* curve = (QwtPlotCurve*)(*it);
-      CurveData* data = dynamic_cast<CurveData*>(curve->data());
+  for (auto* it : plot()->itemList()) {
+    if (it->rtti() == QwtPlotItem::Rtti_PlotCurve) {
+      auto* curve = dynamic_cast<QwtPlotCurve*>(it);
+      auto* data = dynamic_cast<CurveData*>(curve->data());
 
-      if (data) {
-        QVector<size_t> indexes = data->getPointsInDistance(
-          currentPosition_.x(), maxDistance);
+      if (data != nullptr) {
+        QVector<size_t> indexes = data->getPointsInDistance(currentPosition_.x(), maxDistance);
 
         if (!indexes.isEmpty()) {
           TrackedPoint trackedPoint;
@@ -296,8 +299,8 @@ void PlotCursor::updateTrackedPoints() {
 
           for (size_t index = 0; index < indexes.count(); ++index) {
             QPointF point = data->getPoint(indexes[index]);
-            QPointF vector = currentPosition_-point;
-            double distance = vector.x()*vector.x()+vector.y()*vector.y();
+            QPointF vector = currentPosition_ - point;
+            double distance = vector.x() * vector.x() + vector.y() * vector.y();
 
             if (distance < minDistance) {
               trackedPoint.position = point;
@@ -313,30 +316,32 @@ void PlotCursor::updateTrackedPoints() {
 }
 
 void PlotCursor::drawTrackedPoints(QPainter* painter) const {
-  if (!trackPoints_)
+  if (!trackPoints_) {
     return;
+  }
 
   for (size_t index = 0; index < trackedPoints_.count(); ++index) {
     QPointF position = trackedPoints_[index].position;
     QPoint point = transform(position);
 
-    if (dynamic_cast<QWidget*>(painter->device()))
+    if (dynamic_cast<QWidget*>(painter->device()) != nullptr) {
       painter->setPen(trackedPoints_[index].color);
+    }
 
-    painter->fillRect(point.x()-3, point.y()-3, 6, 6,
-      painter->pen().color());
+    painter->fillRect(point.x() - 3, point.y() - 3, 6, 6, painter->pen().color());
 
     QRect textRect = getTextRect(position, painter->font());
 
     if (!textRect.isEmpty()) {
-      if (dynamic_cast<QWidget*>(painter->device())) {
+      if (dynamic_cast<QWidget*>(painter->device()) != nullptr) {
         QwtText label = trackerTextF(position);
 
-        if (!label.isEmpty())
+        if (!label.isEmpty()) {
           label.draw(painter, textRect);
-      }
-      else
+        }
+      } else {
         painter->fillRect(textRect, painter->pen().color());
+      }
     }
   }
 }
@@ -350,8 +355,7 @@ void PlotCursor::plotXAxisScaleDivChanged() {
     if (mouseControl_) {
       QPointF newPosition = currentPosition_;
 
-      newPosition.setX(plot()->canvasMap(xAxis()).invTransform(
-        pickedPoints()[0].x()));
+      newPosition.setX(plot()->canvasMap(xAxis()).invTransform(pickedPoints()[0].x()));
 
       if (newPosition != currentPosition_) {
         currentPosition_ = newPosition;
@@ -360,12 +364,10 @@ void PlotCursor::plotXAxisScaleDivChanged() {
 
         emit currentPositionChanged(newPosition);
       }
-    }
-    else {
+    } else {
       QPoint newPosition = pickedPoints()[0];
 
-      newPosition.setX(plot()->canvasMap(xAxis()).transform(
-        currentPosition_.x()));
+      newPosition.setX(plot()->canvasMap(xAxis()).transform(currentPosition_.x()));
 
       blockSignals(true);
       move(newPosition);
@@ -379,8 +381,7 @@ void PlotCursor::plotYAxisScaleDivChanged() {
     if (mouseControl_) {
       QPointF newPosition = currentPosition_;
 
-      newPosition.setY(plot()->canvasMap(yAxis()).invTransform(
-        pickedPoints()[0].y()));
+      newPosition.setY(plot()->canvasMap(yAxis()).invTransform(pickedPoints()[0].y()));
 
       if (newPosition != currentPosition_) {
         currentPosition_ = newPosition;
@@ -389,12 +390,10 @@ void PlotCursor::plotYAxisScaleDivChanged() {
 
         emit currentPositionChanged(newPosition);
       }
-    }
-    else {
+    } else {
       QPoint newPosition = pickedPoints()[0];
 
-      newPosition.setY(plot()->canvasMap(yAxis()).transform(
-        currentPosition_.y()));
+      newPosition.setY(plot()->canvasMap(yAxis()).transform(currentPosition_.y()));
 
       blockSignals(true);
       move(newPosition);
@@ -403,4 +402,4 @@ void PlotCursor::plotYAxisScaleDivChanged() {
   }
 }
 
-}
+}  // namespace rqt_multiplot

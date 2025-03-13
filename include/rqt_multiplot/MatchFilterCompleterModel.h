@@ -23,28 +23,25 @@
 #include <QString>
 
 namespace rqt_multiplot {
-  class MatchFilterCompleterModel :
-    public QSortFilterProxyModel {
+class MatchFilterCompleterModel : public QSortFilterProxyModel {
   Q_OBJECT
-  public:
-    MatchFilterCompleterModel(QObject* parent = 0, Qt::MatchFlags
-      filterMatchFlags = Qt::MatchStartsWith, const QString&
-      filterKey = QString());
-    virtual ~MatchFilterCompleterModel();
-  
-    void setFilterMatchFlags(Qt::MatchFlags flags);
-    Qt::MatchFlags getFilterMatchFlags() const;
-    void setFilterKey(const QString& key);
-    const QString& getFilterKey() const;
-    
-  protected:
-    bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent)
-      const;
+ public:
+  explicit MatchFilterCompleterModel(QObject* parent = nullptr, Qt::MatchFlags filterMatchFlags = Qt::MatchStartsWith,
+                                     QString filterKey = QString());
+  ~MatchFilterCompleterModel() override;
 
-  private:
-    Qt::MatchFlags filterMatchFlags_;
-    QString filterKey_;
-  };
+  void setFilterMatchFlags(Qt::MatchFlags flags);
+  Qt::MatchFlags getFilterMatchFlags() const;
+  void setFilterKey(const QString& key);
+  const QString& getFilterKey() const;
+
+ protected:
+  bool filterAcceptsRow(int sourceRow, const QModelIndex& sourceParent) const override;
+
+ private:
+  Qt::MatchFlags filterMatchFlags_;
+  QString filterKey_;
 };
+}  // namespace rqt_multiplot
 
 #endif

@@ -25,27 +25,26 @@
 #include <rqt_multiplot/CurveItemWidget.h>
 
 namespace rqt_multiplot {
-  class CurveListWidget :
-    public QListWidget {
+class CurveListWidget : public QListWidget {
   Q_OBJECT
-  public:
-    CurveListWidget(QWidget* parent = 0);
-    virtual ~CurveListWidget();
-    
-    size_t getNumCurves() const;
-    CurveItemWidget* getCurveItem(size_t index) const;
-    
-    void addCurve(CurveConfig* config);
-    void removeCurve(size_t index);
-    
-  signals:
-    void curveAdded(size_t index);
-    void curveConfigChanged(size_t index);
-    void curveRemoved(size_t index);
-    
-  protected:
-    void keyPressEvent(QKeyEvent* event);
-  };
+ public:
+  explicit CurveListWidget(QWidget* parent = nullptr);
+  ~CurveListWidget() override;
+
+  size_t getNumCurves() const;
+  CurveItemWidget* getCurveItem(size_t index) const;
+
+  void addCurve(CurveConfig* config);
+  void removeCurve(size_t index);
+
+ signals:
+  void curveAdded(size_t index);
+  void curveConfigChanged(size_t index);
+  void curveRemoved(size_t index);
+
+ protected:
+  void keyPressEvent(QKeyEvent* event) override;
 };
+}  // namespace rqt_multiplot
 
 #endif

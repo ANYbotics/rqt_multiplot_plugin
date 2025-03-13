@@ -19,50 +19,42 @@
 #ifndef RQT_MULTIPLOT_URL_SCHEME_H
 #define RQT_MULTIPLOT_URL_SCHEME_H
 
-#include <QObject>
 #include <QModelIndex>
+#include <QObject>
 #include <QString>
 #include <QVariant>
 
 namespace rqt_multiplot {
-  class UrlScheme :
-    public QObject {
+class UrlScheme : public QObject {
   Q_OBJECT
-  public:
-    UrlScheme(const QString& prefix, QObject* parent = 0);
-    virtual ~UrlScheme();
+ public:
+  explicit UrlScheme(QString prefix, QObject* parent = nullptr);
+  ~UrlScheme() override;
 
-    const QString& getPrefix() const;
-    
-    virtual size_t getNumHosts() const = 0;
-    virtual QModelIndex getHostIndex(size_t row) const = 0;
-    virtual QVariant getHostData(const QModelIndex& index, int role)
-      const = 0;
-      
-    virtual size_t getNumPaths(const QModelIndex& hostIndex, const
-      QModelIndex& parent = QModelIndex()) const = 0;
-    virtual QModelIndex getPathIndex(const QModelIndex& hostIndex,
-      size_t row, const QModelIndex& parent = QModelIndex()) const = 0;
-    virtual QVariant getPathData(const QModelIndex& index, int role)
-      const = 0;
-      
-    virtual QString getHost(const QModelIndex& hostIndex) const = 0;
-    virtual QString getPath(const QModelIndex& hostIndex, const
-      QModelIndex& pathIndex) const = 0;
-      
-    virtual QString getFilePath(const QModelIndex& hostIndex,
-      const QModelIndex& pathIndex) const = 0;
-    virtual QString getFilePath(const QString& host, const QString&
-      path) const = 0;
-    
-  signals:
-    void resetStarted();
-    void resetFinished();
-    void pathLoaded(const QString& host, const QString& path);
+  const QString& getPrefix() const;
 
-  private:
-    QString prefix_;
-  };
+  virtual size_t getNumHosts() const = 0;
+  virtual QModelIndex getHostIndex(size_t row) const = 0;
+  virtual QVariant getHostData(const QModelIndex& index, int role) const = 0;
+
+  virtual size_t getNumPaths(const QModelIndex& hostIndex, const QModelIndex& parent = QModelIndex()) const = 0;
+  virtual QModelIndex getPathIndex(const QModelIndex& hostIndex, size_t row, const QModelIndex& parent = QModelIndex()) const = 0;
+  virtual QVariant getPathData(const QModelIndex& index, int role) const = 0;
+
+  virtual QString getHost(const QModelIndex& hostIndex) const = 0;
+  virtual QString getPath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const = 0;
+
+  virtual QString getFilePath(const QModelIndex& hostIndex, const QModelIndex& pathIndex) const = 0;
+  virtual QString getFilePath(const QString& host, const QString& path) const = 0;
+
+ signals:
+  void resetStarted();
+  void resetFinished();
+  void pathLoaded(const QString& host, const QString& path);
+
+ private:
+  QString prefix_;
 };
+}  // namespace rqt_multiplot
 
 #endif

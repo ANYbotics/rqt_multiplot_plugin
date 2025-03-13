@@ -26,30 +26,26 @@
 #include <rqt_multiplot/MessageSubscriber.h>
 
 namespace rqt_multiplot {
-  class MessageSubscriberRegistry :
-    public MessageBroker {
+class MessageSubscriberRegistry : public MessageBroker {
   Q_OBJECT
-  public:
-    MessageSubscriberRegistry(QObject* parent = 0, const ros::NodeHandle&
-      nodeHandle = ros::NodeHandle("~"));
-    virtual ~MessageSubscriberRegistry();
-    
-    const ros::NodeHandle& getNodeHandle() const;
-    
-    bool subscribe(const QString& topic, QObject* receiver,
-      const char* method, const PropertyMap& properties = PropertyMap(),
-      Qt::ConnectionType type = Qt::AutoConnection);
-    bool unsubscribe(const QString& topic, QObject* receiver,
-      const char* method = 0);
-    
-  private:
-    ros::NodeHandle nodeHandle_;
-    
-    QMap<QString, MessageSubscriber*> subscribers_;
-    
-  private slots:
-    void subscriberAboutToBeDestroyed();
-  };
+ public:
+  explicit MessageSubscriberRegistry(QObject* parent = nullptr, const ros::NodeHandle& nodeHandle = ros::NodeHandle("~"));
+  ~MessageSubscriberRegistry() override;
+
+  const ros::NodeHandle& getNodeHandle() const;
+
+  bool subscribe(const QString& topic, QObject* receiver, const char* method, const PropertyMap& properties = PropertyMap(),
+                 Qt::ConnectionType type = Qt::AutoConnection) override;
+  bool unsubscribe(const QString& topic, QObject* receiver, const char* method = nullptr) override;
+
+ private:
+  ros::NodeHandle nodeHandle_;
+
+  QMap<QString, MessageSubscriber*> subscribers_;
+
+ private slots:
+  void subscriberAboutToBeDestroyed();
 };
+}  // namespace rqt_multiplot
 
 #endif

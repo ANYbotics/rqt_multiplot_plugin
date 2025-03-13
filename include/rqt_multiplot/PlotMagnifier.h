@@ -26,25 +26,24 @@
 class QwtPlotCanvas;
 
 namespace rqt_multiplot {
-  class PlotMagnifier :
-    public QwtPlotMagnifier {
+class PlotMagnifier : public QwtPlotMagnifier {
   Q_OBJECT
-  public:
-    PlotMagnifier(QwtPlotCanvas* canvas);
-    ~PlotMagnifier();
+ public:
+  explicit PlotMagnifier(QwtPlotCanvas* canvas);
+  ~PlotMagnifier() override;
 
-  protected:
-    void rescale(double xFactor, double yFactor);
+ protected:
+  void rescale(double xFactor, double yFactor);
 
-    void widgetMousePressEvent(QMouseEvent* event);
-    void widgetMouseMoveEvent(QMouseEvent* event);
-    void widgetMouseReleaseEvent(QMouseEvent* event);
+  void widgetMousePressEvent(QMouseEvent* event) override;
+  void widgetMouseMoveEvent(QMouseEvent* event) override;
+  void widgetMouseReleaseEvent(QMouseEvent* event) override;
 
-  private:
-    bool magnifying_;
+ private:
+  bool magnifying_;
 
-    QPoint position_;
-  };
+  QPoint position_;
 };
+}  // namespace rqt_multiplot
 
 #endif
